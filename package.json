@@ -1,0 +1,28 @@
+{
+  "name": "the-masha-game",
+  "version": "1.0.0",
+  "description": "Online multiplayer game of the masha game (little papers, associations)",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "test",
+    "build-css": "node-sass-chokidar src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
+    "css": "npm run watch-css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MasaDjordjevic/the-masha-game.git"
+  },
+  "author": "Marija Dordevic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MasaDjordjevic/the-masha-game/issues"
+  },
+  "homepage": "https://github.com/MasaDjordjevic/the-masha-game#readme",
+  "dependencies": {
+    "node-sass-chokidar": "^1.5.0"
+  }
+}

@@ -1,5 +1,5 @@
-@import url(lobby.css);
-@import url(game.css);
+@import "lobby.css";
+@import "game.css";
 /*
   elm-hot creates an additional div wrapper around the app to make HMR possible.
   This could break styling in development mode if you are using Elm UI.
@@ -8,23 +8,29 @@
     https://github.com/halfzebra/create-elm-app/issues/320
 */
 [data-elm-hot="true"] {
-  height: inherit; }
+  height: inherit;
+}
 
 body {
-  font-family: "Source Sans Pro", "Trebuchet MS", "Lucida Grande", "Bitstream Vera Sans", "Helvetica Neue", sans-serif;
+  font-family: "Source Sans Pro", "Trebuchet MS", "Lucida Grande",
+    "Bitstream Vera Sans", "Helvetica Neue", sans-serif;
   margin: 0;
   text-align: center;
-  color: #293c4b; }
+  color: #293c4b;
+}
 
 h1 {
-  font-size: 30px; }
+  font-size: 30px;
+}
 
 img {
   margin: 20px 0;
-  max-width: 200px; }
+  max-width: 200px;
+}
 
 input {
-  padding: 5px 10px; }
+  padding: 5px 10px;
+}
 
 button {
   border-radius: 5px;
@@ -37,19 +43,30 @@ button {
   display: inline-block;
   background-color: #2ecc71;
   box-shadow: 0px 5px 0px 0px #15b358;
-  border: none; }
-  button:active {
+  border: none;
+
+  &:active {
     transform: translate(0px, 5px);
     -webkit-transform: translate(0px, 5px);
-    box-shadow: 0px 1px 0px 0px; }
-  button.green {
+    box-shadow: 0px 1px 0px 0px;
+  }
+
+  &.green {
     background-color: #2ecc71;
-    box-shadow: 0px 5px 0px 0px #15b358; }
-  button:hover {
-    background-color: #48e68b; }
-  button.destructive {
-    background-color: salmon; }
-  button.descrete {
+    box-shadow: 0px 5px 0px 0px #15b358;
+  }
+
+  &:hover {
+    background-color: #48e68b;
+  }
+
+  &.destructive {
+    background-color: salmon;
+  }
+
+  &.descrete {
     box-shadow: none;
     font-size: 15px;
-    padding: 5px 10px; }
+    padding: 5px 10px;
+  }
+}

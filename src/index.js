@@ -23,11 +23,20 @@ const GAMES_PATH = "games";
 
 const users = {
   register: (userName) => database.ref(USERS_PATH).push({ name: userName }),
+
   ref: database.ref(USERS_PATH),
 };
 
 const games = {
   open: (game) => database.ref(GAMES_PATH).push(game),
+  requestToJoinGame: (gameId, user) =>
+    database
+      .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests`)
+      .push(user),
+  update: (game) => database.ref(`${GAMES_PATH}/${game.id}`).set(game),
+
+  deleteWord: (gameId, wordId) =>
+    database.ref(`${GAMES_PATH}/${gameId}/state/words/next/${wordId}`).remove(),
   ref: database.ref(GAMES_PATH),
 };
 
@@ -38,9 +47,9 @@ const app = Elm.Main.init({
 app.ports.registerLocalUser.subscribe((userName) => {
   console.log("registering user ", userName);
 
-  const handleResponse = (res) =>
+  const handleResponse = (res, key) =>
     app.ports.localUserRegistered.send({
-      id: res.key,
+      id: key,
       name: userName,
     });
 
@@ -53,12 +62,12 @@ app.ports.registerLocalUser.subscribe((userName) => {
       if (res.val()) {
         const key = Object.keys(res.val())[0];
         if (res.val()[key].name === userName) {
-          handleResponse(res);
+          handleResponse(res, key);
           console.log("user found", userName);
         }
       } else {
         users.register(userName).then((res) => {
-          handleResponse(res);
+          handleResponse(res, res.key);
           console.log("user registered ", userName);
         });
       }
@@ -66,16 +75,41 @@ app.ports.registerLocalUser.subscribe((userName) => {
 });
 
 games.ref
-  .orderByChild("status")
-  .equalTo("open")
+  // .orderByChild("status")
+  // .equalTo("open")
   .on("child_added", (data) => {
     const game = { ...data.val(), id: data.key };
+    console.log("new game", game);
+
     app.ports.openGameAdded.send(game);
   });
 
 app.ports.addGame.subscribe((game) => {
   console.log("adding game: ", game);
   games.open(game);
+});
+
+// app.ports.requestToJoinGame.subscribe((props) => {
+//   const { gameId, user } = props;
+//   console.log("props:", props);
+//   console.log("adding ", user.name, " to ", gameId);
+//   return games.requestToJoinGame(gameId, user);
+// });
+
+games.ref.on("child_changed", (data) => {
+  const game = { ...data.val(), id: data.key };
+  console.log("new game", game);
+  app.ports.gameChanged.send(game);
+});
+
+app.ports.changeGame.subscribe((game) => {
+  console.log("updating game to", game);
+  games.update(game);
+});
+
+app.ports.deleteWord.subscribe(({ gameId, wordId }) => {
+  console.log("deleting word: ", gameId, wordId);
+  games.deleteWord(gameId, wordId);
 });
 
 // If you want your app to work offline and load faster, you can change

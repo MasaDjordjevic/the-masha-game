@@ -1,0 +1,6 @@
+.lobby {
+  display: flex; }
+  .lobby .open-game {
+    width: 200px;
+    display: flex;
+    justify-content: space-between; }

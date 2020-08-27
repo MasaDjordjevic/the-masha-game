@@ -7,8 +7,13 @@ import Json.Encode
 import List
 import Maybe
 import State exposing (..)
+import Time
 import User exposing (..)
 import View exposing (view)
+
+
+defaultTimer =
+    5
 
 
 
@@ -27,6 +32,15 @@ port openGameAdded : (Json.Decode.Value -> msg) -> Sub msg
 port addGame : Json.Encode.Value -> Cmd msg
 
 
+port gameChanged : (Json.Decode.Value -> msg) -> Sub msg
+
+
+port changeGame : Json.Encode.Value -> Cmd msg
+
+
+port deleteWord : Game.DeleteWord -> Cmd msg
+
+
 
 ---- MODEL ----
 
@@ -36,6 +50,10 @@ init =
     ( { localUser = Maybe.Nothing
       , nameInput = ""
       , openGames = []
+      , game = Maybe.Nothing
+      , wordInput = ""
+      , isOwner = False -- TODO: this should not be separate from the game or should be Maybe
+      , turnTimer = 10
       }
     , Cmd.none
     )
@@ -49,10 +67,17 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         LocalUserRegistered user ->
-            ( { model | localUser = Just user }, Cmd.none )
+            let
+                gameThatBelongsToUser =
+                    model.openGames |> List.filter (\game -> game.creator == user.name) |> List.head
+            in
+            ( { model | localUser = Just user, game = gameThatBelongsToUser }, Cmd.none )
 
         UpdateNameInput input ->
             ( { model | nameInput = input }, Cmd.none )
+
+        UpdateWordInput input ->
+            ( { model | wordInput = input }, Cmd.none )
 
         RegisterLocalUser ->
             ( model, registerLocalUser model.nameInput )
@@ -60,7 +85,23 @@ update msg model =
         OpenGameAdded value ->
             case Json.Decode.decodeValue gameDecoder value of
                 Ok game ->
-                    ( { model | openGames = List.append model.openGames [ game ] }, Cmd.none )
+                    let
+                        gameBelongsToUser =
+                            case model.localUser of
+                                Just usr ->
+                                    game.creator == usr.name
+
+                                Nothing ->
+                                    False
+
+                        newGame =
+                            if gameBelongsToUser then
+                                Just game
+
+                            else
+                                Nothing
+                    in
+                    ( { model | openGames = List.append model.openGames [ game ], game = newGame, isOwner = True }, Cmd.none )
 
                 Err err ->
                     let
@@ -72,14 +113,240 @@ update msg model =
         AddGame ->
             case model.localUser of
                 Just user ->
-                    ( model
-                    , user.name
-                        |> Game.createGameModel
+                    let
+                        newGame =
+                            Game.createGameModel user
+                    in
+                    ( { model | game = Just newGame }
+                      -- TODO: try removing this because it'll be update on openGameAdded
+                    , newGame
                         |> Game.gameEncoder
                         |> addGame
                     )
 
                 Nothing ->
+                    ( model, Cmd.none )
+
+        JoinGame game ->
+            case model.localUser of
+                Just user ->
+                    ( { model | game = Just game }
+                    , addRequest user game
+                        |> Game.gameEncoder
+                        |> changeGame
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        GameChanged value ->
+            case Json.Decode.decodeValue gameDecoder value of
+                Ok game ->
+                    case model.game of
+                        Just ownGame ->
+                            let
+                                newTimer =
+                                    case game.turnTimer of
+                                        Ticking ->
+                                            model.turnTimer
+
+                                        Game.NotTicking timerValue ->
+                                            timerValue
+                            in
+                            if ownGame.id == game.id then
+                                ( { model | game = Just game, turnTimer = newTimer }, Cmd.none )
+
+                            else
+                                ( model, Cmd.none )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                Err err ->
+                    let
+                        _ =
+                            Debug.log "GameChanged Error: " err
+                    in
+                    ( model, Cmd.none )
+
+        AcceptUser user ->
+            case model.game of
+                Just game ->
+                    if model.isOwner then
+                        ( model
+                        , addUser user game
+                            |> Game.gameEncoder
+                            |> changeGame
+                        )
+
+                    else
+                        ( model, Cmd.none )
+
+                Maybe.Nothing ->
+                    ( model, Cmd.none )
+
+        StartGame ->
+            case model.game of
+                Just game ->
+                    if model.isOwner then
+                        let
+                            newGame =
+                                { game | status = Game.Running }
+                        in
+                        ( model
+                        , newGame
+                            |> Game.gameEncoder
+                            |> changeGame
+                        )
+
+                    else
+                        ( model, Cmd.none )
+
+                Maybe.Nothing ->
+                    ( model, Cmd.none )
+
+        AddWord ->
+            case ( model.localUser, model.game ) of
+                ( Just localUser, Just game ) ->
+                    let
+                        newWord =
+                            Game.wordWithKey (Word model.wordInput localUser.name "")
+
+                        newNextWords =
+                            newWord :: Debug.log "old next" game.state.words.next
+
+                        oldWords =
+                            game.state.words
+
+                        oldState =
+                            Debug.log "old state" game.state
+
+                        newState =
+                            { oldState | words = { oldWords | next = Debug.log "next next" newNextWords } }
+
+                        newGame =
+                            { game | state = newState }
+                    in
+                    ( { model | wordInput = "" }
+                    , newGame
+                        |> Game.gameEncoder
+                        |> changeGame
+                    )
+
+                ( _, _ ) ->
+                    ( model, Cmd.none )
+
+        NextRound ->
+            case model.game of
+                Just game ->
+                    if model.isOwner then
+                        let
+                            newRound =
+                                game.round + 1
+
+                            gameWithNewRound =
+                                { game | round = newRound }
+
+                            newGame =
+                                if newRound == 1 then
+                                    createTeams gameWithNewRound
+
+                                else
+                                    gameWithNewRound
+                        in
+                        ( model
+                        , newGame
+                            |> Game.gameEncoder
+                            |> changeGame
+                        )
+
+                    else
+                        ( model, Cmd.none )
+
+                Maybe.Nothing ->
+                    ( model, Cmd.none )
+
+        State.DeleteWord id ->
+            case model.game of
+                Just game ->
+                    ( model, deleteWord (Game.DeleteWord game.id id) )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        QuitGame ->
+            case model.game of
+                -- TODO: remove the player from the list of players or set to offline
+                Just _ ->
+                    ( { model | game = Maybe.Nothing }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        TimerTick _ ->
+            case model.game of
+                Just game ->
+                    let
+                        newTimerValue =
+                            model.turnTimer - 1
+
+                        cmd =
+                            if newTimerValue < 0 && model.isOwner then
+                                let
+                                    newTeams =
+                                        advanceCurrentTeam game.state.teams
+
+                                    oldState =
+                                        game.state
+
+                                    newState =
+                                        { oldState | teams = newTeams }
+
+                                    newGame =
+                                        { game | state = newState, turnTimer = Game.NotTicking defaultTimer }
+                                in
+                                newGame
+                                    |> Game.gameEncoder
+                                    |> changeGame
+
+                            else
+                                Cmd.none
+                    in
+                    ( { model | turnTimer = newTimerValue }, cmd )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        SwitchTimer ->
+            case ( model.game, model.localUser ) of
+                ( Just game, Just localUser ) ->
+                    let
+                        canSwitchTimer =
+                            Game.canSwitchTimer game localUser
+
+                        newGame =
+                            let
+                                newTurnTimer =
+                                    case game.turnTimer of
+                                        Game.NotTicking _ ->
+                                            Game.Ticking
+
+                                        Game.Ticking ->
+                                            Game.NotTicking model.turnTimer
+                            in
+                            { game | turnTimer = newTurnTimer }
+                    in
+                    if canSwitchTimer then
+                        ( { model | game = Just newGame }
+                        , newGame
+                            |> Game.gameEncoder
+                            |> changeGame
+                        )
+
+                    else
+                        ( model, Cmd.none )
+
+                ( _, _ ) ->
                     ( model, Cmd.none )
 
 
@@ -89,9 +356,25 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
+    let
+        timerSub =
+            case model.game of
+                Just game ->
+                    case game.turnTimer of
+                        Game.Ticking ->
+                            Time.every 1000 TimerTick
+
+                        Game.NotTicking _ ->
+                            Sub.none
+
+                Nothing ->
+                    Sub.none
+    in
     Sub.batch
         [ localUserRegistered LocalUserRegistered
         , openGameAdded OpenGameAdded
+        , gameChanged GameChanged
+        , timerSub
         ]
 
 

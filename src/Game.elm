@@ -1,23 +1,174 @@
 module Game exposing (..)
 
-import Dict
-import Json.Decode exposing (Decoder, field)
+import Dict exposing (Dict)
+import Json.Decode exposing (Decoder, field, int, list, map2, map3, string)
 import Json.Encode
-import Player
+import List
+import Player exposing (Player)
+import Random
+import Random.List exposing (shuffle)
+import User exposing (User)
+
+
+decodeList : Decoder (List a) -> Decoder (List a)
+decodeList listDecoder =
+    Json.Decode.oneOf [ listDecoder, Json.Decode.succeed [] ]
 
 
 type alias Game =
     { id : String
     , creator : String
     , status : GameStatus
-    , players : List Player.Player
+    , participants : Participants
+    , state : GameState
+    , round : Int
+    , turnTimer : TurnTimer
     }
+
+
+type TurnTimer
+    = Ticking
+    | NotTicking Int
+
+
+type alias Participants =
+    { players : List User
+    , joinRequests : List User
+    }
+
+
+type alias Team =
+    { players : List User
+    , score : Int
+    }
+
+
+type alias GameState =
+    { words : Words
+    , teams : Teams
+    }
+
+
+emptyParticipants =
+    Participants [] []
 
 
 type GameStatus
     = Open
     | Running
     | Finished
+
+
+type alias Word =
+    { word : String
+    , player : String
+    , id : String
+    }
+
+
+type alias Words =
+    { guessed : List Word
+    , next : List Word
+    }
+
+
+wordDecoder : Decoder Word
+wordDecoder =
+    map3 Word
+        (field "word" string)
+        (field "player" string)
+        (field "id" string)
+
+
+wordEncoder : Word -> Json.Encode.Value
+wordEncoder word =
+    Json.Encode.object
+        [ ( "word", Json.Encode.string word.word )
+        , ( "player", Json.Encode.string word.player )
+        , ( "id", Json.Encode.string word.id )
+        ]
+
+
+wordsDecoder : Decoder Words
+wordsDecoder =
+    let
+        dictToValueList =
+            Json.Decode.dict wordDecoder
+                |> Json.Decode.map
+                    (Dict.toList >> List.map Tuple.second)
+    in
+    map2 Words
+        (Json.Decode.oneOf [ field "guessed" dictToValueList, Json.Decode.succeed [] ])
+        (Json.Decode.oneOf [ field "next" dictToValueList, Json.Decode.succeed [] ])
+
+
+groupByPlayer : Word -> Dict String (List Word) -> Dict String (List Word)
+groupByPlayer word wordsDict =
+    Dict.update
+        word.player
+        (Maybe.map ((::) word) >> Maybe.withDefault [ word ] >> Just)
+        wordsDict
+
+
+wordsByPlayer : List Word -> Dict String (List Word)
+wordsByPlayer =
+    List.foldr groupByPlayer Dict.empty
+
+
+wordToKey : Word -> String
+wordToKey { word, player } =
+    word ++ "-" ++ player
+
+
+wordWithKey : Word -> Word
+wordWithKey word =
+    { word | id = wordToKey word }
+
+
+wordsListEncoder : List Word -> Json.Encode.Value
+wordsListEncoder list =
+    list
+        |> List.map wordWithKey
+        |> List.map (\word -> ( word.id, wordEncoder word ))
+        |> Json.Encode.object
+
+
+wordsEncoder : Words -> Json.Encode.Value
+wordsEncoder words =
+    Json.Encode.object
+        [ ( "guessed", wordsListEncoder words.guessed )
+        , ( "next", wordsListEncoder words.next )
+        ]
+
+
+emptyTeams =
+    Teams Maybe.Nothing []
+
+
+teamToString : List User -> String
+teamToString team =
+    team
+        |> List.map .name
+        |> String.join "-"
+
+
+gameStateDecoder : Decoder GameState
+gameStateDecoder =
+    map2 GameState
+        (Json.Decode.oneOf [ field "words" wordsDecoder, Json.Decode.succeed (Words [] []) ])
+        (Json.Decode.oneOf [ field "teams" teamsDecoder, Json.Decode.succeed emptyTeams ])
+
+
+gameStateEncoder : GameState -> Json.Encode.Value
+gameStateEncoder gameState =
+    Json.Encode.object
+        [ ( "words", wordsEncoder gameState.words )
+        , ( "teams", teamsEncoder gameState.teams )
+        ]
+
+
+emptyGameState =
+    GameState (Words [] []) emptyTeams
 
 
 toString : GameStatus -> String
@@ -33,20 +184,37 @@ toString status =
             "finished"
 
 
-createGameModel : String -> Game
-createGameModel userName =
-    Game "" userName Open []
+type alias DeleteWord =
+    { gameId : String
+    , wordId : String
+    }
+
+
+createGameModel : User -> Game
+createGameModel user =
+    let
+        userAsPlayer =
+            Participants [ user ] []
+    in
+    Game "" user.name Open userAsPlayer emptyGameState 1 (NotTicking 5)
 
 
 gameDecoder : Decoder Game
 gameDecoder =
-    Json.Decode.map4 Game
+    Json.Decode.map7 Game
         (field "id" Json.Decode.string)
         (field "creator" Json.Decode.string)
         (field "status" gameStatusDecoder)
-        (Json.Decode.oneOf
-            [ field "players" playersDecoder, Json.Decode.succeed [] ]
-        )
+        (Json.Decode.oneOf [ field "participants" participantsDecoder, Json.Decode.succeed emptyParticipants ])
+        -- (field "state" gameStateDecoder)
+        (Json.Decode.oneOf [ field "state" gameStateDecoder, Json.Decode.succeed emptyGameState ])
+        (field "round" int)
+        (field "turnTimer" turnTimerDecoder)
+
+
+turnTimerDecoder : Decoder TurnTimer
+turnTimerDecoder =
+    Json.Decode.oneOf [ Json.Decode.bool |> Json.Decode.map (\_ -> Ticking), Json.Decode.int |> Json.Decode.map NotTicking ]
 
 
 maybePlayersToPlayers : Maybe (List Player.Player) -> List Player.Player
@@ -59,9 +227,9 @@ maybePlayersToPlayers players =
             []
 
 
-playersDecoder : Decoder (List Player.Player)
+playersDecoder : Decoder (List User)
 playersDecoder =
-    Json.Decode.list Player.playerDecoder
+    decodeList (Json.Decode.list User.decodeUser)
 
 
 gameStatusDecoder : Decoder GameStatus
@@ -86,13 +254,26 @@ gameStatusStringDecoder stringStatus =
             Json.Decode.fail "game status unknown"
 
 
+turnTimerEncoder : TurnTimer -> Json.Encode.Value
+turnTimerEncoder turnTimer =
+    case turnTimer of
+        Ticking ->
+            Json.Encode.bool True
+
+        NotTicking timerValue ->
+            Json.Encode.int timerValue
+
+
 gameEncoder : Game -> Json.Encode.Value
 gameEncoder game =
     Json.Encode.object
         [ ( "id", Json.Encode.string game.id )
         , ( "creator", Json.Encode.string game.creator )
         , ( "status", gameStatusEncoder game.status )
-        , ( "players", Json.Encode.list Player.playerEncoder game.players )
+        , ( "participants", participantsEncoder game.participants )
+        , ( "state", gameStateEncoder game.state )
+        , ( "round", Json.Encode.int game.round )
+        , ( "turnTimer", turnTimerEncoder game.turnTimer )
         ]
 
 
@@ -102,3 +283,186 @@ gameStatusEncoder status =
         |> toString
         |> String.toLower
         |> Json.Encode.string
+
+
+type alias Teams =
+    { current : Maybe Team
+    , next : List Team
+    }
+
+
+teamsDecoder : Decoder Teams
+teamsDecoder =
+    Json.Decode.map2 Teams
+        (Json.Decode.oneOf [ field "current" (Json.Decode.maybe teamDecoder), Json.Decode.succeed Maybe.Nothing ])
+        (decodeList (field "next" (Json.Decode.list teamDecoder)))
+
+
+teamsEncoder : Teams -> Json.Encode.Value
+teamsEncoder teams =
+    Json.Encode.object
+        [ ( "current"
+          , case teams.current of
+                Just curr ->
+                    teamEncoder curr
+
+                Nothing ->
+                    Json.Encode.null
+          )
+        , ( "next", Json.Encode.list teamEncoder teams.next )
+        ]
+
+
+teamDecoder : Decoder Team
+teamDecoder =
+    Json.Decode.map2 Team
+        (decodeList (field "players" (Json.Decode.list User.decodeUser)))
+        (field "score" Json.Decode.int)
+
+
+teamEncoder : Team -> Json.Encode.Value
+teamEncoder team =
+    Json.Encode.object
+        [ ( "players", Json.Encode.list User.userEncoder team.players )
+        , ( "score", Json.Encode.int team.score )
+        ]
+
+
+joinRequestsDecoder : Decoder (List User)
+joinRequestsDecoder =
+    Json.Decode.list User.decodeUser
+
+
+participantsDecoder : Decoder Participants
+participantsDecoder =
+    Json.Decode.map2 Participants
+        (Json.Decode.oneOf [ field "players" playersDecoder, Json.Decode.succeed [] ])
+        (Json.Decode.oneOf [ field "joinRequests" joinRequestsDecoder, Json.Decode.succeed [] ])
+
+
+participantsEncoder : Participants -> Json.Encode.Value
+participantsEncoder participants =
+    Json.Encode.object
+        [ ( "players", Json.Encode.list User.userEncoder participants.players )
+        , ( "joinRequests", Json.Encode.list User.userEncoder participants.joinRequests )
+        ]
+
+
+addRequest : User -> Game -> Game
+addRequest user oldGame =
+    let
+        newJoinRequests =
+            user :: oldGame.participants.joinRequests
+    in
+    { oldGame | participants = { players = oldGame.participants.players, joinRequests = newJoinRequests } }
+
+
+addUser : User -> Game -> Game
+addUser user oldGame =
+    let
+        newPlayers =
+            user :: oldGame.participants.players
+
+        newJoinRequests =
+            oldGame.participants.joinRequests
+                |> List.filter (\req -> req.id /= user.id)
+    in
+    { oldGame | participants = { players = newPlayers, joinRequests = newJoinRequests } }
+
+
+partitionBy2 : List a -> List (List a)
+partitionBy2 list =
+    case List.take 2 list of
+        [] ->
+            []
+
+        head ->
+            case List.drop 2 list of
+                [ _ ] ->
+                    [ List.take 3 list ]
+
+                _ ->
+                    head :: partitionBy2 (List.drop 2 list)
+
+
+createTeams : Game -> Game
+createTeams game =
+    let
+        ( shuffledPlayers, _ ) =
+            Random.step (shuffle game.participants.players) (Random.initialSeed 0)
+
+        groupsOfTwo =
+            partitionBy2 shuffledPlayers
+
+        teams =
+            List.map (\group -> Team group 0) groupsOfTwo
+
+        oldGameState =
+            game.state
+
+        _ =
+            Debug.log "teams" teams
+    in
+    { game | state = { oldGameState | teams = Teams Maybe.Nothing teams } }
+
+
+shiftTeamPlayers : Team -> Team
+shiftTeamPlayers team =
+    let
+        newPlayers =
+            case team.players of
+                first :: rest ->
+                    rest ++ [ first ]
+
+                a ->
+                    a
+    in
+    { team | players = newPlayers }
+
+
+advanceCurrentTeam : Teams -> Teams
+advanceCurrentTeam teams =
+    let
+        shiftedCurrentTeam =
+            case teams.current of
+                Just currentTeam ->
+                    Just (shiftTeamPlayers currentTeam)
+
+                Nothing ->
+                    Maybe.Nothing
+
+        nextTeam =
+            List.head teams.next
+
+        restTeams =
+            List.drop 1 teams.next
+
+        newNextTeams =
+            case shiftedCurrentTeam of
+                Just currTeam ->
+                    restTeams ++ [ currTeam ]
+
+                Nothing ->
+                    restTeams
+    in
+    Teams nextTeam newNextTeams
+
+
+canSwitchTimer : Game -> User.User -> Bool
+canSwitchTimer game user =
+    let
+        teamOnTurn =
+            game.state.teams.current
+
+        isLocalPlayersTurn =
+            case teamOnTurn of
+                Just currentTeam ->
+                    List.member user currentTeam.players
+
+                Nothing ->
+                    False
+
+        isOwner =
+            game.creator == user.name
+    in
+    isOwner || isLocalPlayersTurn
