@@ -64,3 +64,9 @@
       width: 20px; }
   .current-game .highlight {
     color: salmon; }
+  .current-game .guessing-container {
+    display: flex;
+    flex-direction: column; }
+  .current-game .timer {
+    display: flex;
+    align-items: center; }

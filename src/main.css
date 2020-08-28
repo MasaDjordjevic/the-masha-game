@@ -48,7 +48,8 @@ button {
   button:hover {
     background-color: #48e68b; }
   button.destructive {
-    background-color: salmon; }
+    background-color: salmon;
+    box-shadow: none; }
   button.descrete {
     box-shadow: none;
     font-size: 15px;

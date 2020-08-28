@@ -70,13 +70,14 @@ openGamesView model =
             text ""
 
 
-requestView : List User -> Bool -> Html Msg
+requestView : Dict String User -> Bool -> Html Msg
 requestView users isOwner =
     let
         reqs =
             users
+                |> Dict.toList
                 |> List.map
-                    (\user ->
+                    (\( _, user ) ->
                         div []
                             [ span [] [ text user.name ]
                             , if isOwner then
@@ -204,6 +205,9 @@ getRoundText round =
         3 ->
             "Round 3: one word"
 
+        4 ->
+            "The game has ended 🎉"
+
         _ ->
             "The game hasn't started yet. When all players are ready creator can start the game."
 
@@ -253,6 +257,16 @@ getTimerString game =
             "Start"
 
 
+lastGuessedWord : Game -> String
+lastGuessedWord game =
+    case List.head game.state.words.guessed of
+        Just word ->
+            word.word
+
+        Nothing ->
+            ""
+
+
 runningGameView : Model -> Bool -> Html Msg
 runningGameView model isOwner =
     case ( model.game, model.localUser ) of
@@ -263,7 +277,7 @@ runningGameView model isOwner =
             in
             div []
                 [ div [ class "current-game" ]
-                    [ button [ onClick QuitGame ] [ text "Quit game and go to lobby" ]
+                    [ button [ onClick QuitGame, class "destructive" ] [ text "Quit game and go to lobby" ]
                     , h2 [] [ text "Selected game" ]
                     , div [ class "details", class "section" ]
                         [ h3 [ class "status" ] [ span [] [ text "status" ], text (Game.toString game.status) ]
@@ -273,13 +287,31 @@ runningGameView model isOwner =
                     , h2 [] [ text (getRoundText game.round) ]
                     , roundView model
                     , scoreboardView model
-                    , h3 [] [ text ("Timer: " ++ String.fromInt model.turnTimer) ]
-                    , if canSwitchTimer then
-                        button [ onClick SwitchTimer ] [ text (getTimerString game) ]
+                    , div [ class "timer", class "section" ]
+                        [ h3 [] [ text ("Timer: " ++ String.fromInt model.turnTimer) ]
+                        , if canSwitchTimer then
+                            button [ onClick SwitchTimer ] [ text (getTimerString game) ]
+
+                          else
+                            text ""
+                        ]
+                    , if Game.isExplaining game localUser then
+                        case game.state.words.current of
+                            Just word ->
+                                div [ class "guessing-container", class "section" ]
+                                    [ h3 [] [ text word.word ]
+                                    , button [ onClick WordGuessed ] [ text "Guessed ✓" ]
+                                    ]
+
+                            Nothing ->
+                                div [ class "section" ]
+                                    [ span [] [ text "It's your turn!!! Start the timer when you are ready" ]
+                                    , span [] [ text ("Last guessed word: " ++ lastGuessedWord game) ]
+                                    ]
 
                       else
-                        text ""
-                    , if isOwner then
+                        span [] [ text "It's not your turn to explain. Once it is the words will show up here." ]
+                    , if isOwner && (game.round < 1 || Game.isRoundEnd game) then
                         button [ onClick NextRound ] [ text "Next round" ]
 
                       else

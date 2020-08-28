@@ -34,3 +34,4 @@ type Msg
     | QuitGame
     | TimerTick Time.Posix
     | SwitchTimer
+    | WordGuessed

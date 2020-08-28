@@ -87,4 +87,14 @@
   .highlight {
     color: salmon;
   }
+
+  .guessing-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .timer {
+    display: flex;
+    align-items: center;
+  }
 }

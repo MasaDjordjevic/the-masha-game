@@ -33,7 +33,7 @@ type TurnTimer
 
 type alias Participants =
     { players : List User
-    , joinRequests : List User
+    , joinRequests : Dict String User
     }
 
 
@@ -50,7 +50,7 @@ type alias GameState =
 
 
 emptyParticipants =
-    Participants [] []
+    Participants [] Dict.empty
 
 
 type GameStatus
@@ -68,6 +68,7 @@ type alias Word =
 
 type alias Words =
     { guessed : List Word
+    , current : Maybe Word
     , next : List Word
     }
 
@@ -97,8 +98,9 @@ wordsDecoder =
                 |> Json.Decode.map
                     (Dict.toList >> List.map Tuple.second)
     in
-    map2 Words
+    map3 Words
         (Json.Decode.oneOf [ field "guessed" dictToValueList, Json.Decode.succeed [] ])
+        (Json.Decode.oneOf [ field "current" (Json.Decode.maybe wordDecoder), Json.Decode.succeed Maybe.Nothing ])
         (Json.Decode.oneOf [ field "next" dictToValueList, Json.Decode.succeed [] ])
 
 
@@ -137,6 +139,14 @@ wordsEncoder : Words -> Json.Encode.Value
 wordsEncoder words =
     Json.Encode.object
         [ ( "guessed", wordsListEncoder words.guessed )
+        , ( "current"
+          , case words.current of
+                Just word ->
+                    wordEncoder word
+
+                Nothing ->
+                    Json.Encode.null
+          )
         , ( "next", wordsListEncoder words.next )
         ]
 
@@ -155,7 +165,7 @@ teamToString team =
 gameStateDecoder : Decoder GameState
 gameStateDecoder =
     map2 GameState
-        (Json.Decode.oneOf [ field "words" wordsDecoder, Json.Decode.succeed (Words [] []) ])
+        (Json.Decode.oneOf [ field "words" wordsDecoder, Json.Decode.succeed (Words [] Maybe.Nothing []) ])
         (Json.Decode.oneOf [ field "teams" teamsDecoder, Json.Decode.succeed emptyTeams ])
 
 
@@ -168,7 +178,7 @@ gameStateEncoder gameState =
 
 
 emptyGameState =
-    GameState (Words [] []) emptyTeams
+    GameState (Words [] Maybe.Nothing []) emptyTeams
 
 
 toString : GameStatus -> String
@@ -194,9 +204,9 @@ createGameModel : User -> Game
 createGameModel user =
     let
         userAsPlayer =
-            Participants [ user ] []
+            Participants [ user ] Dict.empty
     in
-    Game "" user.name Open userAsPlayer emptyGameState 1 (NotTicking 5)
+    Game "" user.name Open userAsPlayer emptyGameState -1 (NotTicking 5)
 
 
 gameDecoder : Decoder Game
@@ -328,23 +338,23 @@ teamEncoder team =
         ]
 
 
-joinRequestsDecoder : Decoder (List User)
+joinRequestsDecoder : Decoder (Dict String User)
 joinRequestsDecoder =
-    Json.Decode.list User.decodeUser
+    Json.Decode.dict User.decodeUser
 
 
 participantsDecoder : Decoder Participants
 participantsDecoder =
     Json.Decode.map2 Participants
         (Json.Decode.oneOf [ field "players" playersDecoder, Json.Decode.succeed [] ])
-        (Json.Decode.oneOf [ field "joinRequests" joinRequestsDecoder, Json.Decode.succeed [] ])
+        (Json.Decode.oneOf [ field "joinRequests" joinRequestsDecoder, Json.Decode.succeed Dict.empty ])
 
 
 participantsEncoder : Participants -> Json.Encode.Value
 participantsEncoder participants =
     Json.Encode.object
         [ ( "players", Json.Encode.list User.userEncoder participants.players )
-        , ( "joinRequests", Json.Encode.list User.userEncoder participants.joinRequests )
+        , ( "joinRequests", Json.Encode.dict identity User.userEncoder participants.joinRequests )
         ]
 
 
@@ -352,7 +362,8 @@ addRequest : User -> Game -> Game
 addRequest user oldGame =
     let
         newJoinRequests =
-            user :: oldGame.participants.joinRequests
+            oldGame.participants.joinRequests
+                |> Dict.insert user.id user
     in
     { oldGame | participants = { players = oldGame.participants.players, joinRequests = newJoinRequests } }
 
@@ -365,7 +376,7 @@ addUser user oldGame =
 
         newJoinRequests =
             oldGame.participants.joinRequests
-                |> List.filter (\req -> req.id /= user.id)
+                |> Dict.remove user.id
     in
     { oldGame | participants = { players = newPlayers, joinRequests = newJoinRequests } }
 
@@ -397,13 +408,19 @@ createTeams game =
         teams =
             List.map (\group -> Team group 0) groupsOfTwo
 
+        currentTeam =
+            List.head teams
+
+        nextTeams =
+            List.drop 1 teams
+
         oldGameState =
             game.state
 
         _ =
             Debug.log "teams" teams
     in
-    { game | state = { oldGameState | teams = Teams Maybe.Nothing teams } }
+    { game | state = { oldGameState | teams = Teams currentTeam nextTeams } }
 
 
 shiftTeamPlayers : Team -> Team
@@ -418,6 +435,62 @@ shiftTeamPlayers team =
                     a
     in
     { team | players = newPlayers }
+
+
+failCurrentWord : Words -> Words
+failCurrentWord words =
+    let
+        newNextWords =
+            case words.current of
+                Just currentWord ->
+                    currentWord :: words.next
+
+                Maybe.Nothing ->
+                    words.next
+
+        ( shuffledNextWords, _ ) =
+            Random.step (shuffle newNextWords) (Random.initialSeed 0)
+    in
+    Words words.guessed Maybe.Nothing shuffledNextWords
+
+
+succeedCurrentWord : Words -> Words
+succeedCurrentWord words =
+    let
+        guessedWords =
+            case words.current of
+                Just currentWord ->
+                    currentWord :: words.guessed
+
+                Nothing ->
+                    words.guessed
+
+        newCurrentWord =
+            List.head words.next
+
+        ( shuffledNextWords, _ ) =
+            Random.step (shuffle (List.drop 1 words.next)) (Random.initialSeed 0)
+    in
+    Words guessedWords newCurrentWord shuffledNextWords
+
+
+restartWords : Words -> Words
+restartWords words =
+    let
+        ( shuffledGuessedWords, _ ) =
+            Random.step (shuffle words.guessed) (Random.initialSeed 0)
+    in
+    Words [] Maybe.Nothing shuffledGuessedWords
+
+
+isRoundEnd : Game -> Bool
+isRoundEnd game =
+    case game.state.words.current of
+        Just _ ->
+            Basics.True
+
+        Nothing ->
+            List.isEmpty game.state.words.next
 
 
 advanceCurrentTeam : Teams -> Teams
@@ -466,3 +539,36 @@ canSwitchTimer game user =
             game.creator == user.name
     in
     isOwner || isLocalPlayersTurn
+
+
+isExplaining : Game -> User.User -> Basics.Bool
+isExplaining game user =
+    let
+        teamOnTurn =
+            game.state.teams.current
+    in
+    case teamOnTurn of
+        Just currentTeam ->
+            case List.head currentTeam.players of
+                Just explainingUser ->
+                    explainingUser.id == user.id
+
+                Nothing ->
+                    False
+
+        Nothing ->
+            False
+
+
+increaseCurrentTeamsScore : Teams -> Teams
+increaseCurrentTeamsScore teams =
+    let
+        newCurrentTeam =
+            case teams.current of
+                Just oldCurrTeam ->
+                    Just { oldCurrTeam | score = oldCurrTeam.score + 1 }
+
+                Nothing ->
+                    Maybe.Nothing
+    in
+    { teams | current = newCurrentTeam }

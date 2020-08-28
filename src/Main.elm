@@ -241,11 +241,24 @@ update msg model =
                 Just game ->
                     if model.isOwner then
                         let
+                            newWords =
+                                if game.round > 1 then
+                                    restartWords game.state.words
+
+                                else
+                                    game.state.words
+
+                            oldState =
+                                game.state
+
+                            newState =
+                                { oldState | words = newWords }
+
                             newRound =
                                 game.round + 1
 
                             gameWithNewRound =
-                                { game | round = newRound }
+                                { game | round = newRound, state = newState }
 
                             newGame =
                                 if newRound == 1 then
@@ -296,11 +309,14 @@ update msg model =
                                     newTeams =
                                         advanceCurrentTeam game.state.teams
 
+                                    newWords =
+                                        failCurrentWord game.state.words
+
                                     oldState =
                                         game.state
 
                                     newState =
-                                        { oldState | teams = newTeams }
+                                        { oldState | teams = newTeams, words = newWords }
 
                                     newGame =
                                         { game | state = newState, turnTimer = Game.NotTicking defaultTimer }
@@ -324,20 +340,40 @@ update msg model =
                         canSwitchTimer =
                             Game.canSwitchTimer game localUser
 
-                        newGame =
-                            let
-                                newTurnTimer =
-                                    case game.turnTimer of
-                                        Game.NotTicking _ ->
-                                            Game.Ticking
+                        isTheBeginningOfExplaining =
+                            case game.turnTimer of
+                                Game.NotTicking timerValue ->
+                                    timerValue == defaultTimer
 
-                                        Game.Ticking ->
-                                            Game.NotTicking model.turnTimer
-                            in
-                            { game | turnTimer = newTurnTimer }
+                                Game.Ticking ->
+                                    False
+
+                        newWords =
+                            if isTheBeginningOfExplaining then
+                                succeedCurrentWord game.state.words
+
+                            else
+                                game.state.words
+
+                        oldState =
+                            game.state
+
+                        newState =
+                            { oldState | words = newWords }
+
+                        newTurnTimer =
+                            case game.turnTimer of
+                                Game.NotTicking _ ->
+                                    Game.Ticking
+
+                                Game.Ticking ->
+                                    Game.NotTicking model.turnTimer
+
+                        newGame =
+                            { game | turnTimer = newTurnTimer, state = newState }
                     in
                     if canSwitchTimer then
-                        ( { model | game = Just newGame }
+                        ( model
                         , newGame
                             |> Game.gameEncoder
                             |> changeGame
@@ -347,6 +383,49 @@ update msg model =
                         ( model, Cmd.none )
 
                 ( _, _ ) ->
+                    ( model, Cmd.none )
+
+        WordGuessed ->
+            case model.game of
+                Just game ->
+                    let
+                        newWords =
+                            succeedCurrentWord game.state.words
+
+                        isRoundEnd =
+                            List.isEmpty newWords.next
+
+                        newGameTimer =
+                            case game.turnTimer of
+                                Ticking ->
+                                    if isRoundEnd then
+                                        Game.NotTicking model.turnTimer
+
+                                    else
+                                        game.turnTimer
+
+                                Game.NotTicking _ ->
+                                    game.turnTimer
+
+                        oldState =
+                            game.state
+
+                        newTeams =
+                            increaseCurrentTeamsScore game.state.teams
+
+                        newState =
+                            { oldState | words = newWords, teams = newTeams }
+
+                        newGame =
+                            { game | state = newState, turnTimer = newGameTimer }
+                    in
+                    ( model
+                    , newGame
+                        |> Game.gameEncoder
+                        |> changeGame
+                    )
+
+                Nothing ->
                     ( model, Cmd.none )
 
 
