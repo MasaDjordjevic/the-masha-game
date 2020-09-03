@@ -1,6 +1,6 @@
 module State exposing (..)
 
-import Game exposing (Game)
+import Game.Game exposing (Game)
 import Json.Decode
 import Time
 import User exposing (User)

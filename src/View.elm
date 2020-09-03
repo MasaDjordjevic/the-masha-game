@@ -1,11 +1,14 @@
 module View exposing (openGameView, view)
 
 import Dict exposing (Dict)
-import Game exposing (Game, Word, Words)
+import Game.Game exposing (Game)
+import Game.Gameplay
+import Game.Status
+import Game.Teams
+import Game.Words
 import Html exposing (Html, button, div, h1, h2, h3, input, label, p, span, table, td, text, th, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
-import Player
 import State exposing (..)
 import User exposing (User)
 
@@ -120,7 +123,7 @@ currentOpenGameView game isOwner =
         [ h2 [] [ text "Selected game" ]
         , button [ onClick QuitGame ] [ text "Back to lobby" ]
         , div [ class "details", class "section" ]
-            [ h3 [ class "status" ] [ span [] [ text "status" ], text (Game.toString game.status) ]
+            [ h3 [ class "status" ] [ span [] [ text "status" ], text (Game.Status.toString game.status) ]
             , h3 [ class "creator" ] [ span [] [ text "creator" ], text game.creator ]
             , playersView game.participants.players
             , requestView game.participants.joinRequests isOwner
@@ -133,11 +136,11 @@ currentOpenGameView game isOwner =
         ]
 
 
-wordsStatisticsView : Game.Words -> Html Msg
+wordsStatisticsView : Game.Words.Words -> Html Msg
 wordsStatisticsView words =
     let
         wordsByPlayer =
-            Game.wordsByPlayer words.next
+            Game.Words.wordsByPlayer words.next
 
         wordCountByPlayer =
             Dict.map (\_ wordsList -> List.length wordsList) wordsByPlayer
@@ -160,14 +163,14 @@ wordsStatisticsView words =
         ]
 
 
-localPlayersWords : Words -> Maybe User -> Html Msg
+localPlayersWords : Game.Words.Words -> Maybe User -> Html Msg
 localPlayersWords words localUser =
     let
         localWords =
             case localUser of
                 Just user ->
                     words.next
-                        |> Game.wordsByPlayer
+                        |> Game.Words.wordsByPlayer
                         |> Dict.get user.name
 
                 Nothing ->
@@ -252,10 +255,10 @@ roundView model =
 getTimerString : Game -> String
 getTimerString game =
     case game.turnTimer of
-        Game.Ticking ->
+        Game.Game.Ticking ->
             "Pause"
 
-        Game.NotTicking _ ->
+        Game.Game.NotTicking _ ->
             "Start"
 
 
@@ -275,14 +278,14 @@ runningGameView model isOwner =
         ( Just game, Just localUser ) ->
             let
                 canSwitchTimer =
-                    Game.canSwitchTimer game localUser
+                    Game.Gameplay.canSwitchTimer game localUser
             in
             div []
                 [ div [ class "current-game" ]
                     [ button [ onClick QuitGame, class "destructive" ] [ text "Quit game and go to lobby" ]
                     , h2 [] [ text "Selected game" ]
                     , div [ class "details", class "section" ]
-                        [ h3 [ class "status" ] [ span [] [ text "status" ], text (Game.toString game.status) ]
+                        [ h3 [ class "status" ] [ span [] [ text "status" ], text (Game.Status.toString game.status) ]
                         , h3 [ class "creator" ] [ span [] [ text "creator" ], text game.creator ]
                         , playersView game.participants.players
                         ]
@@ -297,7 +300,7 @@ runningGameView model isOwner =
                           else
                             text ""
                         ]
-                    , if Game.isExplaining game localUser then
+                    , if Game.Gameplay.isExplaining game localUser then
                         case game.state.words.current of
                             Just word ->
                                 div [ class "guessing-container", class "section" ]
@@ -315,7 +318,7 @@ runningGameView model isOwner =
                             [ span [] [ text "It's not your turn to explain. Once it is the words will show up here." ]
                             , span [] [ text ("Last guessed word: " ++ lastGuessedWord game) ]
                             ]
-                    , if isOwner && (game.round < 1 || Game.isRoundEnd game) then
+                    , if isOwner && (game.round < 1 || Game.Gameplay.isRoundEnd game) then
                         button [ onClick NextRound ] [ text "Next round" ]
 
                       else
@@ -327,7 +330,7 @@ runningGameView model isOwner =
             text ""
 
 
-scoreboardTeamView : Bool -> Game.Team -> Html Msg
+scoreboardTeamView : Bool -> Game.Teams.Team -> Html Msg
 scoreboardTeamView highlight { players, score } =
     let
         playersString =
@@ -386,10 +389,10 @@ lobbyView model =
                                 isOwner =
                                     user.name == game.creator
                             in
-                            if game.status == Game.Open then
+                            if game.status == Game.Status.Open then
                                 Just (currentOpenGameView game isOwner)
 
-                            else if game.status == Game.Running then
+                            else if game.status == Game.Status.Running then
                                 Just (runningGameView model isOwner)
 
                             else
