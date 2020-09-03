@@ -70,3 +70,6 @@
   .current-game .timer {
     display: flex;
     align-items: center; }
+  .current-game .column {
+    display: flex;
+    flex-direction: column; }

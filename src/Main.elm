@@ -103,11 +103,7 @@ update msg model =
                     in
                     ( { model | openGames = List.append model.openGames [ game ], game = newGame, isOwner = True }, Cmd.none )
 
-                Err err ->
-                    let
-                        _ =
-                            Debug.log "OpenGameAdded Error: " err
-                    in
+                Err _ ->
                     ( model, Cmd.none )
 
         AddGame ->
@@ -162,11 +158,7 @@ update msg model =
                         Nothing ->
                             ( model, Cmd.none )
 
-                Err err ->
-                    let
-                        _ =
-                            Debug.log "GameChanged Error: " err
-                    in
+                Err _ ->
                     ( model, Cmd.none )
 
         AcceptUser user ->
@@ -213,16 +205,16 @@ update msg model =
                             Game.wordWithKey (Word model.wordInput localUser.name "")
 
                         newNextWords =
-                            newWord :: Debug.log "old next" game.state.words.next
+                            newWord :: game.state.words.next
 
                         oldWords =
                             game.state.words
 
                         oldState =
-                            Debug.log "old state" game.state
+                            game.state
 
                         newState =
-                            { oldState | words = { oldWords | next = Debug.log "next next" newNextWords } }
+                            { oldState | words = { oldWords | next = newNextWords } }
 
                         newGame =
                             { game | state = newState }

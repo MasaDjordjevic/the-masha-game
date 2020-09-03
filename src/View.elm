@@ -306,11 +306,13 @@ runningGameView model isOwner =
                             Nothing ->
                                 div [ class "section" ]
                                     [ span [] [ text "It's your turn!!! Start the timer when you are ready" ]
-                                    , span [] [ text ("Last guessed word: " ++ lastGuessedWord game) ]
                                     ]
 
                       else
-                        span [] [ text "It's not your turn to explain. Once it is the words will show up here." ]
+                        div [ class "column" ]
+                            [ span [] [ text "It's not your turn to explain. Once it is the words will show up here." ]
+                            , span [] [ text ("Last guessed word: " ++ lastGuessedWord game) ]
+                            ]
                     , if isOwner && (game.round < 1 || Game.isRoundEnd game) then
                         button [ onClick NextRound ] [ text "Next round" ]
 
@@ -410,8 +412,10 @@ lobbyView model =
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [ text "The Masha Game" ]
-        , localUserView model
+        [ div [ class "header" ]
+            [ h1 [] [ text "The Masha Game" ]
+            , localUserView model
+            ]
         , lobbyView model
         , if model.game == Maybe.Nothing && model.localUser /= Maybe.Nothing then
             button [ onClick AddGame ] [ text "Add Game" ]

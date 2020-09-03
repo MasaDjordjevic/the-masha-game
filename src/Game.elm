@@ -416,9 +416,6 @@ createTeams game =
 
         oldGameState =
             game.state
-
-        _ =
-            Debug.log "teams" teams
     in
     { game | state = { oldGameState | teams = Teams currentTeam nextTeams } }
 
