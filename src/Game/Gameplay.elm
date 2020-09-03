@@ -8,7 +8,7 @@ isRoundEnd : Game -> Bool
 isRoundEnd game =
     case game.state.words.current of
         Just _ ->
-            Basics.True
+            Basics.False
 
         Nothing ->
             List.isEmpty game.state.words.next

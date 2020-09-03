@@ -229,38 +229,42 @@ update msg model =
                 Just game ->
                     if model.isOwner then
                         let
-                            newWords =
-                                if game.round > 1 then
-                                    Game.Words.restartWords game.state.words
-
-                                else
-                                    game.state.words
-
-                            oldState =
-                                game.state
-
-                            newState =
-                                { oldState | words = newWords }
-
                             newRound =
                                 game.round + 1
 
-                            gameWithNewRound =
-                                { game | round = newRound, state = newState }
-
                             newGame =
-                                if newRound == 1 then
-                                    let
-                                        newTeams =
-                                            Game.Teams.createTeams gameWithNewRound.participants.players
-                                    in
-                                    { gameWithNewRound | state = { newState | teams = newTeams } }
+                                case newRound of
+                                    0 ->
+                                        let
+                                            newTeams =
+                                                Game.Teams.createTeams game.participants.players
 
-                                else
-                                    gameWithNewRound
+                                            oldState =
+                                                game.state
+                                        in
+                                        { game | state = { oldState | teams = newTeams } }
+
+                                    1 ->
+                                        game
+
+                                    _ ->
+                                        let
+                                            newWords =
+                                                Game.Words.restartWords game.state.words
+
+                                            oldState =
+                                                game.state
+
+                                            newState =
+                                                { oldState | words = newWords }
+                                        in
+                                        { game | state = newState }
+
+                            gameWithNewRound =
+                                { newGame | round = newRound }
                         in
                         ( model
-                        , newGame
+                        , gameWithNewRound
                             |> Game.Game.gameEncoder
                             |> changeGame
                         )

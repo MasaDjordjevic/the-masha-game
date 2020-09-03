@@ -1,10 +1,9 @@
 module Game.Participants exposing (..)
 
 import Dict exposing (Dict)
-import Json.Decode exposing (Decoder, field, int, list, map2, map3, string)
+import Json.Decode exposing (Decoder, field, map2)
 import Json.Encode
 import Player exposing (Player)
-import Random.List exposing (shuffle)
 import User exposing (User)
 
 
@@ -20,11 +19,12 @@ type alias Participants =
     }
 
 
+emptyParticipants : Participants
 emptyParticipants =
     Participants Dict.empty Dict.empty
 
 
-maybePlayersToPlayers : Maybe (List Player.Player) -> List Player.Player
+maybePlayersToPlayers : Maybe (List Player) -> List Player
 maybePlayersToPlayers players =
     case players of
         Just list ->

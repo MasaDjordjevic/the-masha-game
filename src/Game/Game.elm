@@ -47,6 +47,7 @@ gameStateEncoder gameState =
         ]
 
 
+emptyGameState : GameState
 emptyGameState =
     GameState (Words [] Maybe.Nothing []) emptyTeams
 

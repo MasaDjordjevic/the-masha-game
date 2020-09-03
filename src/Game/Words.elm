@@ -65,6 +65,14 @@ wordsDecoder =
         (Json.Decode.oneOf [ field "next" dictToValueList, Json.Decode.succeed [] ])
 
 
+groupByPlayer : Word -> Dict String (List Word) -> Dict String (List Word)
+groupByPlayer word wordsDict =
+    Dict.update
+        word.player
+        (Maybe.map ((::) word) >> Maybe.withDefault [ word ] >> Just)
+        wordsDict
+
+
 wordsByPlayer : List Word -> Dict String (List Word)
 wordsByPlayer =
     List.foldr groupByPlayer Dict.empty
@@ -148,11 +156,3 @@ succeedCurrentWord words =
             Random.step (shuffle (List.drop 1 words.next)) (Random.initialSeed 0)
     in
     Words guessedWords newCurrentWord shuffledNextWords
-
-
-groupByPlayer : Word -> Dict String (List Word) -> Dict String (List Word)
-groupByPlayer word wordsDict =
-    Dict.update
-        word.player
-        (Maybe.map ((::) word) >> Maybe.withDefault [ word ] >> Just)
-        wordsDict
