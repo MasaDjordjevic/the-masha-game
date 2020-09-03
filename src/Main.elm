@@ -32,10 +32,19 @@ port openGameAdded : (Json.Decode.Value -> msg) -> Sub msg
 port addGame : Json.Encode.Value -> Cmd msg
 
 
+port requestToJoinGame : GameRequest -> Cmd msg
+
+
+port acceptRequest : GameRequest -> Cmd msg
+
+
 port gameChanged : (Json.Decode.Value -> msg) -> Sub msg
 
 
 port changeGame : Json.Encode.Value -> Cmd msg
+
+
+port addWord : Game.AddWord -> Cmd msg
 
 
 port deleteWord : Game.DeleteWord -> Cmd msg
@@ -127,9 +136,8 @@ update msg model =
             case model.localUser of
                 Just user ->
                     ( { model | game = Just game }
-                    , addRequest user game
-                        |> Game.gameEncoder
-                        |> changeGame
+                    , GameRequest game.id user
+                        |> requestToJoinGame
                     )
 
                 Nothing ->
@@ -166,9 +174,8 @@ update msg model =
                 Just game ->
                     if model.isOwner then
                         ( model
-                        , addUser user game
-                            |> Game.gameEncoder
-                            |> changeGame
+                        , GameRequest game.id user
+                            |> acceptRequest
                         )
 
                     else
@@ -197,32 +204,16 @@ update msg model =
                 Maybe.Nothing ->
                     ( model, Cmd.none )
 
-        AddWord ->
+        State.AddWord ->
             case ( model.localUser, model.game ) of
                 ( Just localUser, Just game ) ->
                     let
                         newWord =
                             Game.wordWithKey (Word model.wordInput localUser.name "")
-
-                        newNextWords =
-                            newWord :: game.state.words.next
-
-                        oldWords =
-                            game.state.words
-
-                        oldState =
-                            game.state
-
-                        newState =
-                            { oldState | words = { oldWords | next = newNextWords } }
-
-                        newGame =
-                            { game | state = newState }
                     in
                     ( { model | wordInput = "" }
-                    , newGame
-                        |> Game.gameEncoder
-                        |> changeGame
+                    , Game.AddWord game.id newWord
+                        |> addWord
                     )
 
                 ( _, _ ) ->

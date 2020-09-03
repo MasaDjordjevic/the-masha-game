@@ -15,6 +15,12 @@ decodeList listDecoder =
     Json.Decode.oneOf [ listDecoder, Json.Decode.succeed [] ]
 
 
+type alias GameRequest =
+    { gameId : String
+    , user : User
+    }
+
+
 type alias Game =
     { id : String
     , creator : String
@@ -32,7 +38,7 @@ type TurnTimer
 
 
 type alias Participants =
-    { players : List User
+    { players : Dict String User
     , joinRequests : Dict String User
     }
 
@@ -50,7 +56,7 @@ type alias GameState =
 
 
 emptyParticipants =
-    Participants [] Dict.empty
+    Participants Dict.empty Dict.empty
 
 
 type GameStatus
@@ -194,6 +200,12 @@ toString status =
             "finished"
 
 
+type alias AddWord =
+    { gameId : String
+    , word : Word
+    }
+
+
 type alias DeleteWord =
     { gameId : String
     , wordId : String
@@ -203,8 +215,11 @@ type alias DeleteWord =
 createGameModel : User -> Game
 createGameModel user =
     let
+        players =
+            Dict.fromList [ ( user.id, user ) ]
+
         userAsPlayer =
-            Participants [ user ] Dict.empty
+            Participants players Dict.empty
     in
     Game "" user.name Open userAsPlayer emptyGameState -1 (NotTicking 5)
 
@@ -237,9 +252,9 @@ maybePlayersToPlayers players =
             []
 
 
-playersDecoder : Decoder (List User)
+playersDecoder : Decoder (Dict String User)
 playersDecoder =
-    decodeList (Json.Decode.list User.decodeUser)
+    Json.Decode.dict User.decodeUser
 
 
 gameStatusDecoder : Decoder GameStatus
@@ -346,14 +361,14 @@ joinRequestsDecoder =
 participantsDecoder : Decoder Participants
 participantsDecoder =
     Json.Decode.map2 Participants
-        (Json.Decode.oneOf [ field "players" playersDecoder, Json.Decode.succeed [] ])
+        (Json.Decode.oneOf [ field "players" playersDecoder, Json.Decode.succeed Dict.empty ])
         (Json.Decode.oneOf [ field "joinRequests" joinRequestsDecoder, Json.Decode.succeed Dict.empty ])
 
 
 participantsEncoder : Participants -> Json.Encode.Value
 participantsEncoder participants =
     Json.Encode.object
-        [ ( "players", Json.Encode.list User.userEncoder participants.players )
+        [ ( "players", Json.Encode.dict identity User.userEncoder participants.players )
         , ( "joinRequests", Json.Encode.dict identity User.userEncoder participants.joinRequests )
         ]
 
@@ -366,19 +381,6 @@ addRequest user oldGame =
                 |> Dict.insert user.id user
     in
     { oldGame | participants = { players = oldGame.participants.players, joinRequests = newJoinRequests } }
-
-
-addUser : User -> Game -> Game
-addUser user oldGame =
-    let
-        newPlayers =
-            user :: oldGame.participants.players
-
-        newJoinRequests =
-            oldGame.participants.joinRequests
-                |> Dict.remove user.id
-    in
-    { oldGame | participants = { players = newPlayers, joinRequests = newJoinRequests } }
 
 
 partitionBy2 : List a -> List (List a)
@@ -399,8 +401,13 @@ partitionBy2 list =
 createTeams : Game -> Game
 createTeams game =
     let
+        playersList =
+            game.participants.players
+                |> Dict.toList
+                |> List.map Tuple.second
+
         ( shuffledPlayers, _ ) =
-            Random.step (shuffle game.participants.players) (Random.initialSeed 0)
+            Random.step (shuffle playersList) (Random.initialSeed 0)
 
         groupsOfTwo =
             partitionBy2 shuffledPlayers

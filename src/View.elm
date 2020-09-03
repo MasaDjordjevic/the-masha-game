@@ -32,6 +32,7 @@ openGameView game =
     let
         noPlayers =
             game.participants.players
+                |> Dict.toList
                 |> List.length
                 |> String.fromInt
     in
@@ -95,13 +96,14 @@ requestView users isOwner =
         ]
 
 
-playersView : List User -> Html Msg
+playersView : Dict String User -> Html Msg
 playersView users =
     let
         players =
             users
+                |> Dict.toList
                 |> List.map
-                    (\user ->
+                    (\( _, user ) ->
                         span [ class "player-name" ] [ text user.name ]
                     )
                 |> div []

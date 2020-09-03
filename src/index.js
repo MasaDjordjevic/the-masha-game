@@ -27,16 +27,29 @@ const users = {
   ref: database.ref(USERS_PATH),
 };
 
+const words = {
+  addWord: (gameId, word) =>
+    database
+      .ref(`${GAMES_PATH}/${gameId}/state/words/next/${word.id}`)
+      .set(word),
+  deleteWord: (gameId, wordId) =>
+    database.ref(`${GAMES_PATH}/${gameId}/state/words/next/${wordId}`).remove(),
+};
+
 const games = {
   open: (game) => database.ref(GAMES_PATH).push(game),
   requestToJoinGame: (gameId, user) =>
     database
-      .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests`)
-      .push(user),
-  update: (game) => database.ref(`${GAMES_PATH}/${game.id}`).set(game),
+      .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests/${user.id}`)
+      .set(user),
+  acceptRequest: (gameId, user) => {
+    database
+      .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests/${user.id}`)
+      .remove();
 
-  deleteWord: (gameId, wordId) =>
-    database.ref(`${GAMES_PATH}/${gameId}/state/words/next/${wordId}`).remove(),
+    database.ref(`${GAMES_PATH}/${gameId}/participants/players`).push(user);
+  },
+  update: (game) => database.ref(`${GAMES_PATH}/${game.id}`).set(game),
   ref: database.ref(GAMES_PATH),
 };
 
@@ -89,12 +102,15 @@ app.ports.addGame.subscribe((game) => {
   games.open(game);
 });
 
-// app.ports.requestToJoinGame.subscribe((props) => {
-//   const { gameId, user } = props;
-//   console.log("props:", props);
-//   console.log("adding ", user.name, " to ", gameId);
-//   return games.requestToJoinGame(gameId, user);
-// });
+app.ports.requestToJoinGame.subscribe(({ gameId, user }) => {
+  console.log("request ", user.name, " to ", gameId);
+  return games.requestToJoinGame(gameId, user);
+});
+
+app.ports.acceptRequest.subscribe(({ gameId, user }) => {
+  console.log("accepting ", user.name);
+  return games.acceptRequest(gameId, user);
+});
 
 games.ref.on("child_changed", (data) => {
   const game = { ...data.val(), id: data.key };
@@ -107,9 +123,13 @@ app.ports.changeGame.subscribe((game) => {
   games.update(game);
 });
 
+app.ports.addWord.subscribe(({ gameId, word }) => {
+  words.addWord(gameId, word);
+});
+
 app.ports.deleteWord.subscribe(({ gameId, wordId }) => {
   console.log("deleting word: ", gameId, wordId);
-  games.deleteWord(gameId, wordId);
+  words.deleteWord(gameId, wordId);
 });
 
 // If you want your app to work offline and load faster, you can change
