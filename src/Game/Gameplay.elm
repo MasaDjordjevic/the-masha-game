@@ -29,11 +29,8 @@ canSwitchTimer game user =
 
                 Nothing ->
                     False
-
-        isOwner =
-            game.creator == user.name
     in
-    isOwner || isLocalPlayersTurn
+    isLocalPlayersTurn
 
 
 isExplaining : Game -> User.User -> Basics.Bool

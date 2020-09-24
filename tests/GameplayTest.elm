@@ -71,35 +71,7 @@ isRoundEndSuit =
 canSwitchTimerSuit : Test
 canSwitchTimerSuit =
     describe "canSwitchTimer"
-        [ test "canSwitchTimer owner" <|
-            \_ ->
-                let
-                    testState =
-                        GameState (Words [] Maybe.Nothing []) emptyTeams
-
-                    testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
-
-                    testUser =
-                        User "" "ownerName"
-                in
-                canSwitchTimer testGame testUser
-                    |> Expect.equal True
-        , test "canSwitchTimer not owner" <|
-            \_ ->
-                let
-                    testState =
-                        GameState (Words [] Maybe.Nothing []) emptyTeams
-
-                    testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
-
-                    testUser =
-                        User "" "playerName"
-                in
-                canSwitchTimer testGame testUser
-                    |> Expect.equal False
-        , test "canSwitchTimer onTurn" <|
+        [ test "canSwitchTimer onTurn" <|
             \_ ->
                 let
                     testTeams =
