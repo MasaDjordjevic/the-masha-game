@@ -10,5 +10,4 @@
 
 # Code style
 
-    * NextRound case is too big and should be extracted
     * Add tests for Encoding/Decoding (especially for missing/empty states)

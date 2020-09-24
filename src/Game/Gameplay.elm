@@ -58,6 +58,9 @@ nextRound game =
         newRound =
             game.round + 1
 
+        oldState =
+            game.state
+
         newState =
             case newRound of
                 0 ->
@@ -67,9 +70,6 @@ nextRound game =
                     let
                         newTeams =
                             Game.Teams.createTeams game.participants.players
-
-                        oldState =
-                            game.state
                     in
                     { oldState | teams = newTeams }
 
@@ -77,9 +77,6 @@ nextRound game =
                     let
                         newWords =
                             Game.Words.restartWords game.state.words
-
-                        oldState =
-                            game.state
                     in
                     { oldState | words = newWords }
 
