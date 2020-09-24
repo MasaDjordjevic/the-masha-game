@@ -283,10 +283,17 @@ update msg model =
                     let
                         canSwitchTimer =
                             Game.Gameplay.canSwitchTimer game localUser
+
+                        newGame =
+                            if canSwitchTimer then
+                                Game.Gameplay.switchTimer game model.turnTimer
+
+                            else
+                                game
                     in
                     if canSwitchTimer then
                         ( model
-                        , Game.Gameplay.switchTimer game model.turnTimer
+                        , newGame
                             |> Game.Game.gameEncoder
                             |> changeGame
                         )

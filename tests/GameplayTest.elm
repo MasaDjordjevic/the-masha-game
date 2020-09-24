@@ -213,7 +213,7 @@ isExplainingSuit =
 nextRoundSuit : Test
 nextRoundSuit =
     describe "nextRound"
-        [ test "nextRound create teams before first round" <|
+        [ test "nextRound create teams before first round and after adding words" <|
             \_ ->
                 let
                     testPlayers =
@@ -223,7 +223,7 @@ nextRoundSuit =
                         GameState (Words [] Maybe.Nothing []) emptyTeams
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants testPlayers Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        Game "" "ownerName" Game.Status.Open (Participants testPlayers Dict.empty) testState 0 (Game.Game.NotTicking 5) 60
                 in
                 Expect.all
                     [ .current >> Expect.notEqual Maybe.Nothing
@@ -235,7 +235,7 @@ nextRoundSuit =
                         >> Expect.equal [ 2 ]
                     ]
                     (nextRound testGame).state.teams
-        , test "nextRound do nothing after adding words" <|
+        , test "nextRound do nothing at the beginning" <|
             \_ ->
                 let
                     wordsList =
@@ -248,10 +248,10 @@ nextRoundSuit =
                         GameState (Words [] Maybe.Nothing wordsList) testTeams
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 0 (Game.Game.NotTicking 5) 60
+                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
 
                     expectedGame =
-                        { testGame | round = 1 }
+                        { testGame | round = 0 }
                 in
                 nextRound testGame
                     |> Expect.equal expectedGame

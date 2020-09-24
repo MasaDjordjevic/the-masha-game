@@ -64,6 +64,9 @@ nextRound game =
         newState =
             case newRound of
                 0 ->
+                    game.state
+
+                1 ->
                     let
                         newTeams =
                             Game.Teams.createTeams game.participants.players
@@ -72,9 +75,6 @@ nextRound game =
                             game.state
                     in
                     { oldState | teams = newTeams }
-
-                1 ->
-                    game.state
 
                 _ ->
                     let

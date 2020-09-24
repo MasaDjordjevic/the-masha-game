@@ -67,7 +67,7 @@ createGameModel user =
         userAsPlayer =
             Participants players Dict.empty
     in
-    Game "" user.name Game.Status.Open userAsPlayer emptyGameState -1 (NotTicking 5) defaultTimer
+    Game "" user.name Game.Status.Open userAsPlayer emptyGameState -1 (Restarted defaultTimer) defaultTimer
 
 
 gameDecoder : Decoder Game
@@ -118,7 +118,7 @@ turnTimerEncoder turnTimer =
             Json.Encode.object [ ( "status", Json.Encode.string "ticking" ) ]
 
         NotTicking timerValue ->
-            Json.Encode.object [ ( "status", Json.Encode.string "ticking" ), ( "value", Json.Encode.int timerValue ) ]
+            Json.Encode.object [ ( "status", Json.Encode.string "paused" ), ( "value", Json.Encode.int timerValue ) ]
 
         Restarted timerValue ->
             Json.Encode.object [ ( "status", Json.Encode.string "restarted" ), ( "value", Json.Encode.int timerValue ) ]
