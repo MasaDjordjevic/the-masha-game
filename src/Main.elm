@@ -60,8 +60,8 @@ port deleteWord : Game.Words.DeleteWord -> Cmd msg
 ---- MODEL ----
 
 
-init : ( Model, Cmd Msg )
-init =
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     ( { localUser = Maybe.Nothing
       , nameInput = ""
       , openGames = []
@@ -69,6 +69,7 @@ init =
       , wordInput = ""
       , isOwner = False -- TODO: this should not be separate from the game or should be Maybe
       , turnTimer = 60
+      , environment = flags.environment
       }
     , Cmd.none
     )
@@ -358,11 +359,11 @@ subscriptions model =
 ---- PROGRAM ----
 
 
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element
         { view = view
-        , init = \_ -> init
+        , init = init
         , update = update
         , subscriptions = subscriptions
         }

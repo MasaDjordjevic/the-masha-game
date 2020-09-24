@@ -55,6 +55,7 @@ const games = {
 
 const app = Elm.Main.init({
   node: document.getElementById("root"),
+  flags: { environment: process.env.NODE_ENV },
 });
 
 app.ports.registerLocalUser.subscribe((userName) => {

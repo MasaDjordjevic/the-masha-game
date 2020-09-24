@@ -6,6 +6,11 @@ import Time
 import User exposing (User)
 
 
+type alias Flags =
+    { environment : String
+    }
+
+
 type alias Model =
     { localUser : Maybe User
     , nameInput : String
@@ -14,6 +19,7 @@ type alias Model =
     , game : Maybe Game
     , isOwner : Bool
     , turnTimer : Int
+    , environment : String
     }
 
 
