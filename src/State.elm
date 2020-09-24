@@ -35,3 +35,10 @@ type Msg
     | TimerTick Time.Posix
     | SwitchTimer
     | WordGuessed
+    | DebugRestart
+    | DebugLobby
+    | DebugStarted
+    | DebugRestartWords
+    | DebugSetPlayerOnTurn
+    | DebugSetPlayerOwner
+    | DebugGuessNextWords

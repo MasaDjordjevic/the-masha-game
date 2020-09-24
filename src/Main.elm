@@ -1,6 +1,7 @@
 port module Main exposing (..)
 
 import Browser
+import Debugger.Update
 import Game.Game exposing (..)
 import Game.Gameplay
 import Game.Participants
@@ -14,7 +15,7 @@ import Maybe
 import State exposing (..)
 import Time
 import User exposing (..)
-import View exposing (view)
+import Views.View exposing (view)
 
 
 defaultTimer =
@@ -319,6 +320,9 @@ update msg model =
 
                 Nothing ->
                     ( model, Cmd.none )
+
+        _ ->
+            Debugger.Update.update msg model
 
 
 

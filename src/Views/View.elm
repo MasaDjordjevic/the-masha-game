@@ -1,5 +1,6 @@
-module View exposing (openGameView, view)
+module Views.View exposing (openGameView, view)
 
+import Debugger.Debugger exposing (debugger)
 import Dict exposing (Dict)
 import Game.Game exposing (Game)
 import Game.Gameplay
@@ -420,14 +421,17 @@ lobbyView model =
 view : Model -> Html Msg
 view model =
     div []
-        [ div [ class "header" ]
-            [ h1 [] [ text "The Masha Game" ]
-            , localUserView model
-            ]
-        , lobbyView model
-        , if model.game == Maybe.Nothing && model.localUser /= Maybe.Nothing then
-            button [ onClick AddGame ] [ text "Add Game" ]
+        [ div []
+            [ div [ class "header" ]
+                [ h1 [] [ text "The Masha Game" ]
+                , localUserView model
+                ]
+            , lobbyView model
+            , if model.game == Maybe.Nothing && model.localUser /= Maybe.Nothing then
+                button [ onClick AddGame ] [ text "Add Game" ]
 
-          else
-            text ""
+              else
+                text ""
+            ]
+        , debugger model
         ]
