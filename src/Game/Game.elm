@@ -10,6 +10,10 @@ import Json.Encode
 import User exposing (User)
 
 
+defaultTimer =
+    60
+
+
 type alias Game =
     { id : String
     , creator : String
@@ -18,12 +22,14 @@ type alias Game =
     , state : GameState
     , round : Int
     , turnTimer : TurnTimer
+    , defaultTimer : Int
     }
 
 
 type TurnTimer
     = Ticking
     | NotTicking Int
+    | Restarted Int
 
 
 type alias GameState =
@@ -61,12 +67,12 @@ createGameModel user =
         userAsPlayer =
             Participants players Dict.empty
     in
-    Game "" user.name Game.Status.Open userAsPlayer emptyGameState -1 (NotTicking 5)
+    Game "" user.name Game.Status.Open userAsPlayer emptyGameState -1 (NotTicking 5) defaultTimer
 
 
 gameDecoder : Decoder Game
 gameDecoder =
-    Json.Decode.map7 Game
+    Json.Decode.map8 Game
         (field "id" Json.Decode.string)
         (field "creator" Json.Decode.string)
         (field "status" gameStatusDecoder)
@@ -75,21 +81,47 @@ gameDecoder =
         (Json.Decode.oneOf [ field "state" gameStateDecoder, Json.Decode.succeed emptyGameState ])
         (field "round" int)
         (field "turnTimer" turnTimerDecoder)
+        (field "defaultTimer" int)
 
 
 turnTimerDecoder : Decoder TurnTimer
 turnTimerDecoder =
-    Json.Decode.oneOf [ Json.Decode.bool |> Json.Decode.map (\_ -> Ticking), Json.Decode.int |> Json.Decode.map NotTicking ]
+    field "status" Json.Decode.string
+        |> Json.Decode.andThen turnTimerTypeDecoder
+
+
+turnTimerTypeDecoder : String -> Decoder TurnTimer
+turnTimerTypeDecoder timerType =
+    case timerType of
+        "ticking" ->
+            Json.Decode.succeed Ticking
+
+        "paused" ->
+            field "value" Json.Decode.int |> Json.Decode.map NotTicking
+
+        "restarted" ->
+            field "value" Json.Decode.int |> Json.Decode.map Restarted
+
+        _ ->
+            Json.Decode.succeed (NotTicking 0)
+
+
+
+-- Json.Decode.oneOf
+-- [ Json.Decode.bool |> Json.Decode.map (\_ -> Ticking), Json.Decode.int |> Json.Decode.map NotTicking ]
 
 
 turnTimerEncoder : TurnTimer -> Json.Encode.Value
 turnTimerEncoder turnTimer =
     case turnTimer of
         Ticking ->
-            Json.Encode.bool True
+            Json.Encode.object [ ( "status", Json.Encode.string "ticking" ) ]
 
         NotTicking timerValue ->
-            Json.Encode.int timerValue
+            Json.Encode.object [ ( "status", Json.Encode.string "ticking" ), ( "value", Json.Encode.int timerValue ) ]
+
+        Restarted timerValue ->
+            Json.Encode.object [ ( "status", Json.Encode.string "restarted" ), ( "value", Json.Encode.int timerValue ) ]
 
 
 gameEncoder : Game -> Json.Encode.Value
@@ -102,4 +134,5 @@ gameEncoder game =
         , ( "state", gameStateEncoder game.state )
         , ( "round", Json.Encode.int game.round )
         , ( "turnTimer", turnTimerEncoder game.turnTimer )
+        , ( "defaultTimer", Json.Encode.int game.defaultTimer )
         ]

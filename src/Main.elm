@@ -18,7 +18,7 @@ import View exposing (view)
 
 
 defaultTimer =
-    5
+    60
 
 
 
@@ -67,7 +67,7 @@ init =
       , game = Maybe.Nothing
       , wordInput = ""
       , isOwner = False -- TODO: this should not be separate from the game or should be Maybe
-      , turnTimer = 10
+      , turnTimer = 60
       }
     , Cmd.none
     )
@@ -161,6 +161,9 @@ update msg model =
 
                                         Game.Game.NotTicking timerValue ->
                                             timerValue
+
+                                        Game.Game.Restarted timerValue ->
+                                            timerValue
                             in
                             if ownGame.id == game.id then
                                 ( { model | game = Just game, turnTimer = newTimer }, Cmd.none )
@@ -175,38 +178,30 @@ update msg model =
                     ( model, Cmd.none )
 
         AcceptUser user ->
-            case model.game of
-                Just game ->
-                    if model.isOwner then
-                        ( model
-                        , Game.Participants.GameRequest game.id user
-                            |> acceptRequest
-                        )
+            case ( model.game, model.isOwner ) of
+                ( Just game, True ) ->
+                    ( model
+                    , Game.Participants.GameRequest game.id user
+                        |> acceptRequest
+                    )
 
-                    else
-                        ( model, Cmd.none )
-
-                Maybe.Nothing ->
+                ( _, _ ) ->
                     ( model, Cmd.none )
 
         StartGame ->
-            case model.game of
-                Just game ->
-                    if model.isOwner then
-                        let
-                            newGame =
-                                { game | status = Game.Status.Running }
-                        in
-                        ( model
-                        , newGame
-                            |> Game.Game.gameEncoder
-                            |> changeGame
-                        )
+            case ( model.game, model.isOwner ) of
+                ( Just game, True ) ->
+                    let
+                        newGame =
+                            { game | status = Game.Status.Running }
+                    in
+                    ( model
+                    , newGame
+                        |> Game.Game.gameEncoder
+                        |> changeGame
+                    )
 
-                    else
-                        ( model, Cmd.none )
-
-                Maybe.Nothing ->
+                ( _, _ ) ->
                     ( model, Cmd.none )
 
         State.AddWord ->
@@ -225,54 +220,19 @@ update msg model =
                     ( model, Cmd.none )
 
         NextRound ->
-            case model.game of
-                Just game ->
-                    if model.isOwner then
-                        let
-                            newRound =
-                                game.round + 1
+            case ( model.game, model.isOwner ) of
+                ( Just game, True ) ->
+                    let
+                        newGame =
+                            Game.Gameplay.nextRound game
+                    in
+                    ( model
+                    , newGame
+                        |> Game.Game.gameEncoder
+                        |> changeGame
+                    )
 
-                            newGame =
-                                case newRound of
-                                    0 ->
-                                        let
-                                            newTeams =
-                                                Game.Teams.createTeams game.participants.players
-
-                                            oldState =
-                                                game.state
-                                        in
-                                        { game | state = { oldState | teams = newTeams } }
-
-                                    1 ->
-                                        game
-
-                                    _ ->
-                                        let
-                                            newWords =
-                                                Game.Words.restartWords game.state.words
-
-                                            oldState =
-                                                game.state
-
-                                            newState =
-                                                { oldState | words = newWords }
-                                        in
-                                        { game | state = newState }
-
-                            gameWithNewRound =
-                                { newGame | round = newRound }
-                        in
-                        ( model
-                        , gameWithNewRound
-                            |> Game.Game.gameEncoder
-                            |> changeGame
-                        )
-
-                    else
-                        ( model, Cmd.none )
-
-                Maybe.Nothing ->
+                ( _, _ ) ->
                     ( model, Cmd.none )
 
         State.DeleteWord id ->
@@ -302,20 +262,8 @@ update msg model =
                         cmd =
                             if newTimerValue < 0 && model.isOwner then
                                 let
-                                    newTeams =
-                                        Game.Teams.advanceCurrentTeam game.state.teams
-
-                                    newWords =
-                                        Game.Words.failCurrentWord game.state.words
-
-                                    oldState =
-                                        game.state
-
-                                    newState =
-                                        { oldState | teams = newTeams, words = newWords }
-
                                     newGame =
-                                        { game | state = newState, turnTimer = Game.Game.NotTicking defaultTimer }
+                                        Game.Gameplay.endOfExplaining game
                                 in
                                 newGame
                                     |> Game.Game.gameEncoder
@@ -335,42 +283,10 @@ update msg model =
                     let
                         canSwitchTimer =
                             Game.Gameplay.canSwitchTimer game localUser
-
-                        isTheBeginningOfExplaining =
-                            case game.turnTimer of
-                                Game.Game.NotTicking timerValue ->
-                                    timerValue == defaultTimer
-
-                                Game.Game.Ticking ->
-                                    False
-
-                        newWords =
-                            if isTheBeginningOfExplaining then
-                                Game.Words.succeedCurrentWord game.state.words
-
-                            else
-                                game.state.words
-
-                        oldState =
-                            game.state
-
-                        newState =
-                            { oldState | words = newWords }
-
-                        newTurnTimer =
-                            case game.turnTimer of
-                                Game.Game.NotTicking _ ->
-                                    Game.Game.Ticking
-
-                                Game.Game.Ticking ->
-                                    Game.Game.NotTicking model.turnTimer
-
-                        newGame =
-                            { game | turnTimer = newTurnTimer, state = newState }
                     in
                     if canSwitchTimer then
                         ( model
-                        , newGame
+                        , Game.Gameplay.switchTimer game model.turnTimer
                             |> Game.Game.gameEncoder
                             |> changeGame
                         )
@@ -385,35 +301,8 @@ update msg model =
             case model.game of
                 Just game ->
                     let
-                        newWords =
-                            Game.Words.succeedCurrentWord game.state.words
-
-                        isRoundEnd =
-                            List.isEmpty newWords.next
-
-                        newGameTimer =
-                            case game.turnTimer of
-                                Ticking ->
-                                    if isRoundEnd then
-                                        Game.Game.NotTicking model.turnTimer
-
-                                    else
-                                        game.turnTimer
-
-                                Game.Game.NotTicking _ ->
-                                    game.turnTimer
-
-                        oldState =
-                            game.state
-
-                        newTeams =
-                            Game.Teams.increaseCurrentTeamsScore game.state.teams
-
-                        newState =
-                            { oldState | words = newWords, teams = newTeams }
-
                         newGame =
-                            { game | state = newState, turnTimer = newGameTimer }
+                            Game.Gameplay.guessWord model.turnTimer game
                     in
                     ( model
                     , newGame
@@ -439,7 +328,7 @@ subscriptions model =
                         Game.Game.Ticking ->
                             Time.every 1000 TimerTick
 
-                        Game.Game.NotTicking _ ->
+                        _ ->
                             Sub.none
 
                 Nothing ->

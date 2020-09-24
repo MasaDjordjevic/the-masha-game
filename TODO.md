@@ -6,6 +6,12 @@
 
 # Game play
 
+    * BUG: when you start a game a timer starts counting from 5
+    * BUG: teams are created before adding words
+
+    * Remove timer control from game owner
+    * Pusing timer doesn't work
+
     * Display when round ends (only game creator sees the next round button)
 
 # Code style

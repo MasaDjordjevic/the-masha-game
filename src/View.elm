@@ -259,6 +259,9 @@ getTimerString game =
             "Pause"
 
         Game.Game.NotTicking _ ->
+            "Continue"
+
+        Game.Game.Restarted _ ->
             "Start"
 
 
