@@ -1,0 +1,10 @@
+.name-input-container {
+  margin: 70px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center; }
+  .name-input-container input {
+    margin-bottom: 16px;
+    text-align: center;
+    font-size: 22px;
+    font-family: Bebas Neue; }

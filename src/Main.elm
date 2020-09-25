@@ -70,6 +70,7 @@ init flags =
       , isOwner = False -- TODO: this should not be separate from the game or should be Maybe
       , turnTimer = 60
       , environment = flags.environment
+      , playMode = Maybe.Nothing
       }
     , Cmd.none
     )
@@ -82,6 +83,9 @@ init flags =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        SetPlayMode mode ->
+            ( { model | playMode = Just mode }, Cmd.none )
+
         LocalUserRegistered user ->
             let
                 gameThatBelongsToUser =

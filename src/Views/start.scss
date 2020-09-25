@@ -1,0 +1,93 @@
+.container {
+  padding: 52px 25px;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.confetti {
+  font-size: 28px;
+}
+
+.mirrored {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+.pre-title {
+  font-size: 18px;
+  margin: 0 4px;
+}
+
+.title-large {
+  font-family: "Bangers", cursive;
+  font-size: 48px;
+  margin: 8px 0 40px 0;
+}
+
+.create-btn {
+  width: 327px;
+  height: 170px;
+
+  background: #a2f294;
+  color: black;
+  font-size: 32px;
+  font-family: Bebas Neue;
+  text-transform: uppercase;
+  border-radius: 12px;
+
+  --line-color: #a2f294;
+  background: linear-gradient(135deg, var(--line-color) 25%, transparent 25%) -150px
+      0,
+    linear-gradient(225deg, var(--line-color) 25%, transparent 25%) -150px 0,
+    linear-gradient(315deg, var(--line-color) 25%, transparent 25%),
+    linear-gradient(45deg, var(--line-color) 25%, transparent 25%);
+  background-size: 20px 30px;
+  background-color: var(--action-primary);
+
+  &:hover {
+    background: none;
+    --hover-line-color: #ffbdf4;
+    background: linear-gradient(
+          135deg,
+          var(--hover-line-color) 25%,
+          transparent 25%
+        ) -150px 0,
+      linear-gradient(225deg, var(--hover-line-color) 25%, transparent 25%) -150px
+        0,
+      linear-gradient(315deg, var(--hover-line-color) 25%, transparent 25%),
+      linear-gradient(45deg, var(--hover-line-color) 25%, transparent 25%);
+    background-color: #ffd0f8;
+    cursor: pointer;
+  }
+}
+
+.or {
+  font-size: 40px;
+  line-height: 40px;
+
+  letter-spacing: 0.1px;
+  margin: 8px 0;
+
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.join {
+  width: 327px;
+  height: 219px;
+  background: var(--background-overlay);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+
+  padding: 16px 0;
+  h2 {
+    margin: 0;
+  }
+  input {
+    min-width: 230px;
+  }
+}

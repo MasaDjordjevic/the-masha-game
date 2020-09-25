@@ -1,0 +1,17 @@
+.page-container {
+  padding: 52px 25px;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  font-family: "Bangers", cursive;
+  font-size: 32px;
+  margin: 8px 12px 40px 12px;
+}
+
+.confetti-large {
+  font-size: 32px;
+}

@@ -1,5 +1,8 @@
 @import url(lobby.css);
 @import url(game.css);
+@import url(./Views/start.css);
+@import url(./Views/page-layout.css);
+@import url(./Views/name-input.css);
 /*
   elm-hot creates an additional div wrapper around the app to make HMR possible.
   This could break styling in development mode if you are using Elm UI.
@@ -10,11 +13,18 @@
 [data-elm-hot="true"] {
   height: inherit; }
 
+:root {
+  --background-color: #161449;
+  --background-overlay: rgba(255, 255, 255, 0.25);
+  --action-primary: #aaf99d;
+  --action-secondary: #ffd0f8; }
+
 body {
-  font-family: "Source Sans Pro", "Trebuchet MS", "Lucida Grande", "Bitstream Vera Sans", "Helvetica Neue", sans-serif;
+  font-family: "Bebas Neue", "Source Sans Pro", "Trebuchet MS", "Lucida Grande", "Bitstream Vera Sans", "Helvetica Neue", sans-serif;
   margin: 0;
   text-align: center;
-  color: #293c4b; }
+  color: white;
+  box-sizing: border-box; }
 
 h1 {
   font-size: 30px; }
@@ -24,33 +34,23 @@ img {
   max-width: 200px; }
 
 input {
-  padding: 5px 10px; }
+  height: 50px;
+  background: white;
+  border-radius: 4px;
+  border: none;
+  min-width: 230px; }
 
 button {
-  border-radius: 5px;
-  padding: 10px 20px;
+  padding: 10px 50px;
   font-size: 20px;
   text-decoration: none;
-  margin: 20px;
-  color: #fff;
-  position: relative;
-  display: inline-block;
-  background-color: #2ecc71;
-  box-shadow: 0px 5px 0px 0px #15b358;
-  border: none; }
-  button:active {
-    transform: translate(0px, 5px);
-    -webkit-transform: translate(0px, 5px);
-    box-shadow: 0px 1px 0px 0px; }
-  button.green {
-    background-color: #2ecc71;
-    box-shadow: 0px 5px 0px 0px #15b358; }
+  background-color: var(--action-primary);
+  border: none;
+  border-radius: 30px;
+  color: black;
+  font-size: 22px;
+  font-family: Bebas Neue; }
+  button:focus {
+    outline: none; }
   button:hover {
-    background-color: #48e68b; }
-  button.destructive {
-    background-color: salmon;
-    box-shadow: none; }
-  button.descrete {
-    box-shadow: none;
-    font-size: 15px;
-    padding: 5px 10px; }
+    background-color: var(--action-secondary); }

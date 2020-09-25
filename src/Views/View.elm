@@ -12,6 +12,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import State exposing (..)
 import User exposing (User)
+import Views.NameInput exposing (nameInputView)
+import Views.Start exposing (startView)
 
 
 localUserView : Model -> Html Msg
@@ -418,20 +420,47 @@ lobbyView model =
             text ""
 
 
+header : Html Msg
+header =
+    div []
+        [ span [ class "confetti-large", class "mirrored" ] [ text "🎉" ]
+        , span [ class "title" ] [ text "THE MASHA GAME" ]
+        , span [ class "confetti-large" ] [ text "🎉" ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
-    div []
-        [ div []
-            [ div [ class "header" ]
-                [ h1 [] [ text "The Masha Game" ]
-                , localUserView model
-                ]
-            , lobbyView model
-            , if model.game == Maybe.Nothing && model.localUser /= Maybe.Nothing then
-                button [ onClick AddGame ] [ text "Add Game" ]
+    let
+        currView =
+            case model.game of
+                Just game ->
+                    text "you have the game"
 
-              else
-                text ""
-            ]
+                Nothing ->
+                    case model.playMode of
+                        Just _ ->
+                            div [ class "page-container" ]
+                                [ header
+                                , nameInputView model
+                                ]
+
+                        Nothing ->
+                            startView model
+    in
+    div []
+        [ currView
+
+        -- [ div []
+        --     [ div [ class "header" ]
+        --         [ h1 [] [ text "The Masha Game" ]
+        --         , localUserView model
+        --         ]
+        --     , lobbyView model
+        --     , if model.game == Maybe.Nothing && model.localUser /= Maybe.Nothing then
+        --         button [ onClick AddGame ] [ text "Add Game" ]
+        --       else
+        --         text ""
+        --     ]
         , debugger model
         ]

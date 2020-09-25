@@ -11,6 +11,16 @@ type alias Flags =
     }
 
 
+type PlayMode
+    = CreatingGame
+    | JoiningGame
+
+
+type ViewState
+    = Initial
+    | NameInput
+
+
 type alias Model =
     { localUser : Maybe User
     , nameInput : String
@@ -20,11 +30,13 @@ type alias Model =
     , isOwner : Bool
     , turnTimer : Int
     , environment : String
+    , playMode : Maybe PlayMode
     }
 
 
 type Msg
     = LocalUserRegistered User
+    | SetPlayMode PlayMode
     | UpdateNameInput String
     | RegisterLocalUser
     | OpenGameAdded Json.Decode.Value
