@@ -10,6 +10,8 @@
 
     * Figure out what's wrong with space-between class
 
+    * Rename canSwitchTimer to isLocalPlayersTurn
+
     * Display when round ends (only game creator sees the next round button)
 
 # Code style

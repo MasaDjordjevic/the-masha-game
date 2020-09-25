@@ -16,13 +16,18 @@ isRoundEnd game =
             List.isEmpty game.state.words.next
 
 
+isLocalPlayersTurn : Game -> User.User -> Bool
+isLocalPlayersTurn game user =
+    canSwitchTimer game user
+
+
 canSwitchTimer : Game -> User.User -> Bool
 canSwitchTimer game user =
     let
         teamOnTurn =
             game.state.teams.current
 
-        isLocalPlayersTurn =
+        isLocPlayersTurn =
             case teamOnTurn of
                 Just currentTeam ->
                     List.member user currentTeam.players
@@ -30,7 +35,7 @@ canSwitchTimer game user =
                 Nothing ->
                     False
     in
-    isLocalPlayersTurn
+    isLocPlayersTurn
 
 
 isExplaining : Game -> User.User -> Basics.Bool

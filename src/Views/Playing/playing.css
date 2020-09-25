@@ -1,0 +1,55 @@
+.info-container h3 {
+  margin: 0; }
+
+.info-container h1 {
+  margin: 0; }
+
+.section {
+  margin-bottom: 40px; }
+  .section:last-child {
+    margin: 0; }
+
+.turn-stats {
+  display: flex;
+  justify-content: space-between;
+  min-width: 200px; }
+
+.team-on-turn {
+  margin-top: 4px;
+  padding: 14px 24px;
+  min-width: 200px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  color: black;
+  font-size: 24px; }
+
+.explaining-player {
+  display: flex;
+  flex-direction: column; }
+
+.score-container {
+  display: flex;
+  flex-direction: column; }
+  .score-container span:first-child {
+    font-size: 12px; }
+  .score-container span:nth-child(2) {
+    font-size: 32px; }
+
+.guessing-players {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; }
+
+.playing-now-background {
+  background-color: var(--background-overlay);
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  padding: 24px 0; }
+
+.playing-now {
+  max-width: 300px; }

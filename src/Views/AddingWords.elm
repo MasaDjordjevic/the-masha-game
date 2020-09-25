@@ -118,6 +118,7 @@ addingWordsView model =
                 , div []
                     [ wordsInputView game user model.wordInput
                     , wordsStatisticsView game.state.words game.participants.players
+                    , button [ onClick NextRound ] [ text "Let's play" ]
                     ]
                 ]
 

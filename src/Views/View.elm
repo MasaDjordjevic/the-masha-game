@@ -15,6 +15,7 @@ import User exposing (User)
 import Views.AddingWords exposing (addingWordsView)
 import Views.Lobby exposing (lobbyView)
 import Views.NameInput exposing (nameInputView)
+import Views.Playing.Playing exposing (playingView)
 import Views.Start exposing (startView)
 
 
@@ -420,7 +421,7 @@ scoreboardView model =
 
 header : Html Msg
 header =
-    div []
+    div [ class "header" ]
         [ span [ class "confetti-large", class "mirrored" ] [ text "🎉" ]
         , span [ class "title" ] [ text "THE MASHA GAME" ]
         , span [ class "confetti-large" ] [ text "🎉" ]
@@ -448,6 +449,9 @@ view model =
                                         , case game.round of
                                             0 ->
                                                 addingWordsView model
+
+                                            1 ->
+                                                playingView model
 
                                             _ ->
                                                 text "running game"
