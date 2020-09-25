@@ -49,7 +49,7 @@ openGameView game =
         , td []
             [ text noPlayers
             ]
-        , td [] [ button [ onClick (JoinGame game) ] [ text "Join" ] ]
+        , td [] [ button [ onClick JoinGame ] [ text "Join" ] ]
         ]
 
 
@@ -433,20 +433,29 @@ view : Model -> Html Msg
 view model =
     let
         currView =
-            case model.game of
-                Just game ->
-                    text "you have the game"
-
-                Nothing ->
-                    case model.playMode of
-                        Just _ ->
-                            div [ class "page-container" ]
-                                [ header
-                                , nameInputView model
-                                ]
+            case model.playMode of
+                Just PlayingGame ->
+                    case model.game of
+                        Just game ->
+                            text "you have the game"
 
                         Nothing ->
-                            startView model
+                            text "you are in weird state"
+
+                Just CreatingGame ->
+                    div [ class "page-container" ]
+                        [ header
+                        , nameInputView model AddGame
+                        ]
+
+                Just JoiningGame ->
+                    div [ class "page-container" ]
+                        [ header
+                        , nameInputView model JoinGame
+                        ]
+
+                Nothing ->
+                    startView model
     in
     div []
         [ currView

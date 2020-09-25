@@ -71,6 +71,7 @@ init flags =
       , turnTimer = 60
       , environment = flags.environment
       , playMode = Maybe.Nothing
+      , pinInput = ""
       }
     , Cmd.none
     )
@@ -87,17 +88,21 @@ update msg model =
             ( { model | playMode = Just mode }, Cmd.none )
 
         LocalUserRegistered user ->
-            let
-                gameThatBelongsToUser =
-                    model.openGames |> List.filter (\game -> game.creator == user.name) |> List.head
-            in
-            ( { model | localUser = Just user, game = gameThatBelongsToUser }, Cmd.none )
+            ( { model | localUser = Just user }, Cmd.none )
 
+        -- let
+        --     gameThatBelongsToUser =
+        --         model.openGames |> List.filter (\game -> game.creator == user.name) |> List.head
+        -- in
+        -- ( { model | localUser = Just user, game = gameThatBelongsToUser }, Cmd.none )
         UpdateNameInput input ->
             ( { model | nameInput = input }, Cmd.none )
 
         UpdateWordInput input ->
             ( { model | wordInput = input }, Cmd.none )
+
+        UpdatePinInput input ->
+            ( { model | pinInput = input }, Cmd.none )
 
         RegisterLocalUser ->
             ( model, registerLocalUser model.nameInput )
@@ -127,27 +132,39 @@ update msg model =
                     ( model, Cmd.none )
 
         AddGame ->
-            case model.localUser of
-                Just user ->
-                    let
-                        newGame =
-                            Game.Game.createGameModel user
-                    in
-                    ( { model | game = Just newGame }
-                      -- TODO: try removing this because it'll be update on openGameAdded
-                    , newGame
-                        |> Game.Game.gameEncoder
-                        |> addGame
-                    )
+            let
+                tempUser =
+                    User "" model.nameInput
+
+                newGame =
+                    Game.Game.createGameModel tempUser
+            in
+            ( model
+              --  { model | game = Just newGame }
+              -- TODO: try removing this because it'll be update on openGameAdded
+            , newGame
+                |> Game.Game.gameEncoder
+                |> addGame
+            )
+
+        EnterGame ->
+            let
+                findGame =
+                    model.openGames |> List.filter (\g -> g.creator == model.pinInput) |> List.head
+            in
+            case findGame of
+                Just game ->
+                    ( { model | playMode = Just State.JoiningGame, game = Just game }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
 
-        JoinGame game ->
-            case model.localUser of
-                Just user ->
-                    ( { model | game = Just game }
-                    , Game.Participants.GameRequest game.id user
+        JoinGame ->
+            case model.game of
+                Just game ->
+                    -- TODO: don't send request if already a player
+                    ( { model | playMode = Just State.PlayingGame }
+                    , Game.Participants.GameRequest game.id (User "" model.nameInput)
                         |> requestToJoinGame
                     )
 

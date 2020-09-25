@@ -14,6 +14,7 @@ type alias Flags =
 type PlayMode
     = CreatingGame
     | JoiningGame
+    | PlayingGame
 
 
 type ViewState
@@ -25,6 +26,7 @@ type alias Model =
     { localUser : Maybe User
     , nameInput : String
     , wordInput : String
+    , pinInput : String
     , openGames : List Game
     , game : Maybe Game
     , isOwner : Bool
@@ -41,11 +43,13 @@ type Msg
     | RegisterLocalUser
     | OpenGameAdded Json.Decode.Value
     | AddGame
-    | JoinGame Game
+    | JoinGame
+    | EnterGame
     | GameChanged Json.Decode.Value
     | AcceptUser User
     | StartGame
     | UpdateWordInput String
+    | UpdatePinInput String
     | AddWord
     | NextRound
     | DeleteWord String

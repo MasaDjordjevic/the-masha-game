@@ -6,10 +6,10 @@ import Html.Events exposing (onClick, onInput)
 import State exposing (Model, Msg(..))
 
 
-nameInputView : Model -> Html Msg
-nameInputView model =
+nameInputView : Model -> Msg -> Html Msg
+nameInputView model onClickMsg =
     div [ class "name-input-container" ]
         [ h1 [] [ text "ADD A NICKNAME" ]
         , input [ value model.nameInput, onInput UpdateNameInput ] []
-        , button [ onClick AddGame ] [ text "Enter" ]
+        , button [ onClick onClickMsg ] [ text "Enter" ]
         ]

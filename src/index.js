@@ -58,16 +58,10 @@ const app = Elm.Main.init({
   flags: { environment: process.env.NODE_ENV },
 });
 
-app.ports.registerLocalUser.subscribe((userName) => {
+const registerLocalUser = (userName) => {
   console.log("registering user ", userName);
 
-  const handleResponse = (res, key) =>
-    app.ports.localUserRegistered.send({
-      id: key,
-      name: userName,
-    });
-
-  users.ref
+  return users.ref
     .orderByChild("name")
     .equalTo(userName)
     .once("value")
@@ -76,17 +70,23 @@ app.ports.registerLocalUser.subscribe((userName) => {
       if (res.val()) {
         const key = Object.keys(res.val())[0];
         if (res.val()[key].name === userName) {
-          handleResponse(res, key);
           console.log("user found", userName);
+          return {
+            id: key,
+            name: userName,
+          };
         }
       } else {
         users.register(userName).then((res) => {
-          handleResponse(res, res.key);
           console.log("user registered ", userName);
+          return {
+            id: key,
+            name: userName,
+          };
         });
       }
     });
-});
+};
 
 games.ref
   // .orderByChild("status")
@@ -99,13 +99,32 @@ games.ref
   });
 
 app.ports.addGame.subscribe((game) => {
-  console.log("adding game: ", game);
-  games.open(game);
+  const userName = game.creator;
+  console.log("adding user: ", userName);
+  const localUser = registerLocalUser(userName);
+  localUser.then((user) => {
+    console.log("user", user);
+    app.ports.localUserRegistered.send(user);
+    console.log("adding game: ", game);
+    const newGame = {
+      ...game,
+      participants: { ...game.participants, players: { [user.id]: user } },
+    };
+    console.log("but changed to:", newGame);
+    games.open(newGame);
+  });
 });
 
 app.ports.requestToJoinGame.subscribe(({ gameId, user }) => {
-  console.log("request ", user.name, " to ", gameId);
-  return games.requestToJoinGame(gameId, user);
+  const userName = user.name;
+  console.log("adding user: ", userName);
+  const localUser = registerLocalUser(userName);
+  localUser.then((user) => {
+    app.ports.localUserRegistered.send(user);
+
+    console.log("request ", user.name, " to ", gameId);
+    return games.requestToJoinGame(gameId, user);
+  });
 });
 
 app.ports.acceptRequest.subscribe(({ gameId, user }) => {
