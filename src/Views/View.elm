@@ -12,6 +12,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import State exposing (..)
 import User exposing (User)
+import Views.AddingWords exposing (addingWordsView)
+import Views.Lobby exposing (lobbyView)
 import Views.NameInput exposing (nameInputView)
 import Views.Start exposing (startView)
 
@@ -383,41 +385,37 @@ scoreboardView model =
             text ""
 
 
-lobbyView : Model -> Html Msg
-lobbyView model =
-    case model.localUser of
-        Just user ->
-            let
-                currentGame =
-                    case model.game of
-                        Just game ->
-                            let
-                                isOwner =
-                                    user.name == game.creator
-                            in
-                            if game.status == Game.Status.Open then
-                                Just (currentOpenGameView game isOwner)
 
-                            else if game.status == Game.Status.Running then
-                                Just (runningGameView model isOwner)
-
-                            else
-                                Just (text "weird game state")
-
-                        Nothing ->
-                            Maybe.Nothing
-            in
-            div []
-                [ case currentGame of
-                    Just currGame ->
-                        currGame
-
-                    Maybe.Nothing ->
-                        openGamesView model
-                ]
-
-        Nothing ->
-            text ""
+-- lobbyView : Model -> Html Msg
+-- lobbyView model =
+--     case model.localUser of
+--         Just user ->
+--             let
+--                 currentGame =
+--                     case model.game of
+--                         Just game ->
+--                             let
+--                                 isOwner =
+--                                     user.name == game.creator
+--                             in
+--                             if game.status == Game.Status.Open then
+--                                 Just (currentOpenGameView game isOwner)
+--                             else if game.status == Game.Status.Running then
+--                                 Just (runningGameView model isOwner)
+--                             else
+--                                 Just (text "weird game state")
+--                         Nothing ->
+--                             Maybe.Nothing
+--             in
+--             div []
+--                 [ case currentGame of
+--                     Just currGame ->
+--                         currGame
+--                     Maybe.Nothing ->
+--                         openGamesView model
+--                 ]
+--         Nothing ->
+--             text ""
 
 
 header : Html Msg
@@ -437,7 +435,29 @@ view model =
                 Just PlayingGame ->
                     case model.game of
                         Just game ->
-                            text "you have the game"
+                            case game.status of
+                                Game.Status.Open ->
+                                    div [ class "page-container" ]
+                                        [ header
+                                        , lobbyView model
+                                        ]
+
+                                Game.Status.Running ->
+                                    div [ class "page-container" ]
+                                        [ header
+                                        , case game.round of
+                                            0 ->
+                                                addingWordsView model
+
+                                            _ ->
+                                                text "running game"
+                                        ]
+
+                                Game.Status.Finished ->
+                                    div [ class "page-container" ]
+                                        [ header
+                                        , text "finished game"
+                                        ]
 
                         Nothing ->
                             text "you are in weird state"

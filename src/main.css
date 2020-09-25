@@ -3,6 +3,7 @@
 @import url(./Views/start.css);
 @import url(./Views/page-layout.css);
 @import url(./Views/name-input.css);
+@import url(./Views/adding-words.css);
 /*
   elm-hot creates an additional div wrapper around the app to make HMR possible.
   This could break styling in development mode if you are using Elm UI.
@@ -38,7 +39,11 @@ input {
   background: white;
   border-radius: 4px;
   border: none;
-  min-width: 230px; }
+  min-width: 230px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 22px;
+  font-family: Bebas Neue; }
 
 button {
   padding: 10px 50px;
@@ -54,3 +59,8 @@ button {
     outline: none; }
   button:hover {
     background-color: var(--action-secondary); }
+  button.disabled {
+    background-color: var(--background-overlay); }
+
+h3 {
+  color: rgba(255, 255, 255, 0.5); }
