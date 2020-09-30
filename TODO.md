@@ -6,7 +6,11 @@
 
 # Game play
 
+    * Guessed (all) words are sorted by key bc of firebase. Words are not random and last guessed word is not the first one in the list.
+
     * Adding words: show all the players with 0 words
+
+    * Create end of the round screen
 
     * Figure out what's wrong with space-between class
 

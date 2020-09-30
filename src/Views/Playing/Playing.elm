@@ -6,56 +6,10 @@ import Html exposing (Html, div, h1, h3, span, text)
 import Html.Attributes exposing (class)
 import State exposing (Model, Msg)
 import User exposing (User)
+import Views.Playing.CurrentWord exposing (currentWordView)
+import Views.Playing.Info exposing (infoView)
 import Views.Playing.Round exposing (roundView)
-
-
-wordsLeft : Game -> Html Msg
-wordsLeft game =
-    let
-        wordsLeftCount =
-            case game.state.words.current of
-                Just _ ->
-                    1 + List.length game.state.words.next
-
-                Nothing ->
-                    List.length game.state.words.next
-    in
-    div [ class "info-container" ]
-        [ h3 []
-            [ text "Words left "
-            ]
-        , h1 [] [ text (String.fromInt wordsLeftCount) ]
-        ]
-
-
-timeLeft : Model -> Html Msg
-timeLeft model =
-    div [ class "info-container" ]
-        [ h3 []
-            [ text "Time left "
-            ]
-        , h1 [] [ text (String.fromInt model.turnTimer) ]
-        ]
-
-
-previousWord : Game -> User -> Html Msg
-previousWord game localUser =
-    let
-        prevWord =
-            List.head game.state.words.guessed
-
-        isOnTurn =
-            isLocalPlayersTurn game localUser
-    in
-    case ( prevWord, isOnTurn ) of
-        ( Just word, True ) ->
-            div [ class "info-container" ]
-                [ h3 [] [ text "Previous word " ]
-                , h1 [] [ text word.word ]
-                ]
-
-        ( _, _ ) ->
-            text ""
+import Views.Playing.Teams exposing (teamsView)
 
 
 playingNow : Game -> Html Msg
@@ -114,17 +68,16 @@ playingView : Model -> Html Msg
 playingView model =
     case ( model.game, model.localUser ) of
         ( Just game, Just localUser ) ->
-            div [ class "playing-now-background " ]
-                [ div [ class "playing-now" ]
-                    [ roundView game.round
-                    , div
-                        [ class "turn-stats", class "section" ]
-                        [ wordsLeft game
-                        , previousWord game localUser
-                        , timeLeft model
+            div [ class "playing-container" ]
+                [ div [ class "playing-now-background " ]
+                    [ div [ class "playing-now" ]
+                        [ roundView game.round
+                        , currentWordView game localUser
+                        , infoView game localUser model.turnTimer
+                        , playingNow game
                         ]
-                    , playingNow game
                     ]
+                , teamsView game
                 ]
 
         ( _, _ ) ->

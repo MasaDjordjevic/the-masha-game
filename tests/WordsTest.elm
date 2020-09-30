@@ -67,10 +67,7 @@ suite =
                         )
         , test "succeedCurrentWord" <|
             \_ ->
-                succeedCurrentWord (Words [ Word "b" "player2" "" ] (Just (Word "a" "player1" "")) [ Word "c" "player1" "" ])
-                    |> sortWords
+                succeedCurrentWord (Words [ Word "b" "player2" "", Word "c" "player2" "" ] (Just (Word "d" "player1" "")) [ Word "a" "player1" "" ])
                     |> Expect.equal
-                        (Words [ Word "a" "player1" "", Word "b" "player2" "" ] (Just (Word "c" "player1" "")) []
-                            |> sortWords
-                        )
+                        (Words [ Word "d" "player1" "", Word "b" "player2" "", Word "c" "player2" "" ] (Just (Word "a" "player1" "")) [])
         ]

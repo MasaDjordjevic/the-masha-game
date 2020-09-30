@@ -165,3 +165,12 @@ createTeams players =
             List.drop 1 teams
     in
     Teams currentTeam nextTeams
+
+
+getScoreboard : Teams -> List Team
+getScoreboard teams =
+    Maybe.map List.singleton teams.current
+        |> Maybe.withDefault []
+        |> List.append teams.next
+        |> List.sortBy .score
+        |> List.reverse

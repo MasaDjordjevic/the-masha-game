@@ -2,7 +2,7 @@ module TeamsTest exposing (..)
 
 import Dict
 import Expect
-import Game.Teams exposing (Team, Teams, advanceCurrentTeam, createTeams, increaseCurrentTeamsScore, shiftTeamPlayers, teamToString)
+import Game.Teams exposing (Team, Teams, advanceCurrentTeam, createTeams, getScoreboard, increaseCurrentTeamsScore, shiftTeamPlayers, teamToString)
 import Test exposing (..)
 import User exposing (User)
 
@@ -72,4 +72,12 @@ suit =
                         >> Expect.equal [ 2, 2, 3 ]
                     ]
                     teams
+        , test "getScoreboard" <|
+            \_ ->
+                let
+                    teams =
+                        Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 15)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10, Team [ User "3-1" "p31", User "3-2" "p32" ] 12 ]
+                in
+                getScoreboard teams
+                    |> Expect.equal [ Team [ User "1" "p1", User "2" "p2" ] 15, Team [ User "3-1" "p31", User "3-2" "p32" ] 12, Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
         ]

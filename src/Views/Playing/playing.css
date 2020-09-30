@@ -1,8 +1,17 @@
+@import url(./current-word.css);
 .info-container h3 {
   margin: 0; }
 
 .info-container h1 {
   margin: 0; }
+
+.info-container.small h3 {
+  margin: 0;
+  font-size: 16px; }
+
+.info-container.small h1 {
+  margin: 0;
+  font-size: 32px; }
 
 .section {
   margin-bottom: 40px; }
@@ -13,6 +22,10 @@
   display: flex;
   justify-content: space-between;
   min-width: 200px; }
+  .turn-stats.on-turn {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center; }
 
 .team-on-turn {
   margin-top: 4px;
@@ -53,3 +66,45 @@
 
 .playing-now {
   max-width: 300px; }
+
+.previous-word {
+  background-color: var(--action-highlight);
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: inline-block;
+  color: black; }
+  .previous-word > h1 {
+    font-size: 18px; }
+
+.timer-button {
+  font-size: 18px;
+  line-height: 40px;
+  padding: 2px 14px; }
+
+.timer-button-container {
+  min-width: 60px; }
+
+.playing-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; }
+
+.scoreboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--action-primary);
+  border-radius: 12px;
+  max-width: 200px;
+  color: black;
+  max-width: 300px;
+  min-width: 200px;
+  padding: 8px 12px; }
+
+.team-container {
+  display: flex;
+  padding: 14px 24px;
+  background: #ffffff;
+  border-radius: 8px; }
+  .team-container > span {
+    display: flex; }
