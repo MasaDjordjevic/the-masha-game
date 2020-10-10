@@ -3,7 +3,7 @@ module GameplayTest exposing (..)
 import Dict
 import Expect
 import Game.Game exposing (Game, GameState, TurnTimer(..), createGameModel, emptyGameState)
-import Game.Gameplay exposing (canSwitchTimer, endOfExplaining, guessWord, isExplaining, isRoundEnd, nextRound, switchTimer)
+import Game.Gameplay exposing (endOfExplaining, guessWord, isExplaining, isLocalPlayersTurn, isRoundEnd, nextRound, switchTimer)
 import Game.Participants exposing (Participants)
 import Game.Status
 import Game.Teams exposing (Team, Teams, emptyTeams)
@@ -15,7 +15,7 @@ import User exposing (User)
 
 suit : Test
 suit =
-    describe "Gameplay" [ isRoundEndSuit, canSwitchTimerSuit, isExplainingSuit, endOfExplainingSuit, switchTimerSuit, guessWordSuit ]
+    describe "Gameplay" [ isRoundEndSuit, isLocalPlayersTurnSuit, isExplainingSuit, endOfExplainingSuit, switchTimerSuit, guessWordSuit ]
 
 
 isRoundEndSuit : Test
@@ -68,10 +68,10 @@ isRoundEndSuit =
         ]
 
 
-canSwitchTimerSuit : Test
-canSwitchTimerSuit =
-    describe "canSwitchTimer"
-        [ test "canSwitchTimer onTurn" <|
+isLocalPlayersTurnSuit : Test
+isLocalPlayersTurnSuit =
+    describe "isLocalPlayersTurn"
+        [ test "isLocalPlayersTurn onTurn" <|
             \_ ->
                 let
                     testTeams =
@@ -86,9 +86,9 @@ canSwitchTimerSuit =
                     testUser =
                         User "1" "p1"
                 in
-                canSwitchTimer testGame testUser
+                isLocalPlayersTurn testGame testUser
                     |> Expect.equal True
-        , test "canSwitchTimer onTurn second" <|
+        , test "isLocalPlayersTurn onTurn second" <|
             \_ ->
                 let
                     testTeams =
@@ -103,9 +103,9 @@ canSwitchTimerSuit =
                     testUser =
                         User "2" "p2"
                 in
-                canSwitchTimer testGame testUser
+                isLocalPlayersTurn testGame testUser
                     |> Expect.equal True
-        , test "canSwitchTimer not onTurn" <|
+        , test "isLocalPlayersTurn not onTurn" <|
             \_ ->
                 let
                     testTeams =
@@ -120,7 +120,7 @@ canSwitchTimerSuit =
                     testUser =
                         User "2-1" "p21"
                 in
-                canSwitchTimer testGame testUser
+                isLocalPlayersTurn testGame testUser
                     |> Expect.equal False
         ]
 

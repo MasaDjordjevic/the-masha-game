@@ -1,7 +1,7 @@
 module Views.Playing.Info exposing (..)
 
 import Game.Game exposing (Game, TurnTimer)
-import Game.Gameplay exposing (canSwitchTimer, isLocalPlayersTurn)
+import Game.Gameplay exposing (isLocalPlayersTurn)
 import Html exposing (Html, button, div, h1, h3, span, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)

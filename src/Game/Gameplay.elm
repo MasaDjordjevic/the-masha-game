@@ -19,11 +19,6 @@ isRoundEnd game =
 
 isLocalPlayersTurn : Game -> User.User -> Bool
 isLocalPlayersTurn game user =
-    canSwitchTimer game user
-
-
-canSwitchTimer : Game -> User.User -> Bool
-canSwitchTimer game user =
     let
         teamOnTurn =
             game.state.teams.current

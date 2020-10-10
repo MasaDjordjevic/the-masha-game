@@ -312,7 +312,7 @@ update msg model =
                 ( Just game, Just localUser ) ->
                     let
                         canSwitchTimer =
-                            Game.Gameplay.canSwitchTimer game localUser
+                            Game.Gameplay.isLocalPlayersTurn game localUser
 
                         newGame =
                             if canSwitchTimer then

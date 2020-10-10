@@ -289,7 +289,7 @@ runningGameView model isOwner =
         ( Just game, Just localUser ) ->
             let
                 canSwitchTimer =
-                    Game.Gameplay.canSwitchTimer game localUser
+                    Game.Gameplay.isLocalPlayersTurn game localUser
             in
             div []
                 [ div [ class "current-game" ]

@@ -6,11 +6,7 @@
 
 # Game play
 
-    * Create end of the round screen
-
     * Figure out what's wrong with space-between class
-
-    * Rename canSwitchTimer to isLocalPlayersTurn
 
 # Code style
 
