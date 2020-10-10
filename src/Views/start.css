@@ -62,3 +62,7 @@
     margin: 0; }
   .join input {
     min-width: 230px; }
+
+.error {
+  color: salmon;
+  margin: 0; }

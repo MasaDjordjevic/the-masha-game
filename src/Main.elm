@@ -2,6 +2,7 @@ port module Main exposing (..)
 
 import Browser
 import Debugger.Update
+import Dict exposing (Dict)
 import Game.Game exposing (..)
 import Game.Gameplay
 import Game.Participants
@@ -72,6 +73,7 @@ init flags =
       , environment = flags.environment
       , playMode = Maybe.Nothing
       , pinInput = ""
+      , errors = []
       }
     , Cmd.none
     )
@@ -133,7 +135,7 @@ update msg model =
                             else
                                 model.playMode
                     in
-                    ( { model | openGames = List.append model.openGames [ game ], game = newGame, isOwner = True, playMode = playMode }, Cmd.none )
+                    ( { model | openGames = List.append model.openGames [ game ], game = newGame, isOwner = gameBelongsToUser, playMode = playMode }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -164,7 +166,7 @@ update msg model =
                     ( { model | playMode = Just State.JoiningGame, game = Just game }, Cmd.none )
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( { model | errors = [ "Game not found" ] }, Cmd.none )
 
         JoinGame ->
             case model.game of
@@ -238,13 +240,20 @@ update msg model =
             case ( model.localUser, model.game ) of
                 ( Just localUser, Just game ) ->
                     let
+                        isPlayer =
+                            Dict.member localUser.id game.participants.players
+
                         newWord =
                             Game.Words.wordWithKey 0 (Word model.wordInput localUser.name "")
                     in
-                    ( { model | wordInput = "" }
-                    , Game.Words.AddWord game.id newWord
-                        |> addWord
-                    )
+                    if isPlayer then
+                        ( { model | wordInput = "" }
+                        , Game.Words.AddWord game.id newWord
+                            |> addWord
+                        )
+
+                    else
+                        ( model, Cmd.none )
 
                 ( _, _ ) ->
                     ( model, Cmd.none )

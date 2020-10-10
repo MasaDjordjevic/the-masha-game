@@ -452,7 +452,7 @@ view model =
                                 Game.Status.Running ->
                                     div [ class "page-container" ]
                                         [ header
-                                        , if isRoundEnd then
+                                        , if isRoundEnd && game.round > 0 then
                                             endOfRoundView game model.isOwner
 
                                           else

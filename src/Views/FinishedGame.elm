@@ -5,6 +5,7 @@ import Game.Words exposing (Word)
 import Html exposing (Html, div, h2, h3, h4, span, text)
 import Html.Attributes exposing (class)
 import State exposing (Msg)
+import Views.Playing.Teams exposing (teamsView)
 
 
 wordView : Word -> Html Msg
@@ -23,6 +24,7 @@ finishedGameView game =
     div []
         [ h2 []
             [ text "The game is finished" ]
+        , teamsView game
         , div
             [ class "words-overview-wrapper " ]
             [ h3 [] [ text "Words overview" ]

@@ -6,6 +6,16 @@ import Html.Events exposing (onClick, onInput)
 import State exposing (Model, Msg(..), PlayMode(..))
 
 
+gameNotFoundView : Model -> Html Msg
+gameNotFoundView model =
+    case List.head model.errors of
+        Just error ->
+            h3 [ class "error" ] [ text error ]
+
+        Nothing ->
+            text ""
+
+
 startView : Model -> Html Msg
 startView model =
     div [ class "container" ]
@@ -24,6 +34,7 @@ startView model =
         , div [ class "join" ]
             [ h2 [] [ text "ENTER WITH GAME PIN" ]
             , input [ type_ "text", value model.pinInput, onInput UpdatePinInput ] []
+            , gameNotFoundView model
             , button [ onClick EnterGame ] [ text "Enter" ]
             ]
         ]

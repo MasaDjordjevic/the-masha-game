@@ -82,11 +82,20 @@ lobbyView model =
 
             else
                 "Waiting for game to start"
+
+        instructions =
+            case ( model.isOwner, model.localUser ) of
+                ( True, Just localUser ) ->
+                    h3 [] [ text ("Your nickname is the game code: " ++ localUser.name) ]
+
+                ( _, _ ) ->
+                    text ""
     in
     case model.game of
         Just game ->
             div [ class "lobby-container" ]
-                [ h1 []
+                [ instructions
+                , h1 []
                     [ text titleCopy ]
                 , div []
                     [ requestsView game.participants model.isOwner

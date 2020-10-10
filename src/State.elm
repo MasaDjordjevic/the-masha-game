@@ -33,6 +33,7 @@ type alias Model =
     , turnTimer : Int
     , environment : String
     , playMode : Maybe PlayMode
+    , errors : List String
     }
 
 
