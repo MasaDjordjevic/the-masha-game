@@ -37,14 +37,21 @@ wordCounterList users isOwner =
 wordsStatisticsView : Game.Words.Words -> Dict String User -> Html Msg
 wordsStatisticsView words players =
     let
-        wordsByPlayer =
-            Game.Words.wordsByPlayer words.next
-
         wordCountByPlayer =
-            Dict.map (\_ wordsList -> List.length wordsList) wordsByPlayer
+            Game.Words.wordsByPlayer words.next
+                |> Dict.map (\_ wordsList -> List.length wordsList)
+
+        allPlayers =
+            players
+                |> Dict.values
+                |> List.map (\player -> ( player.name, 0 ))
+                |> Dict.fromList
+
+        statsData =
+            Dict.union wordCountByPlayer allPlayers
 
         stats =
-            wordCountByPlayer
+            statsData
                 |> Dict.toList
                 |> List.map
                     (\( playerName, wordsCount ) ->

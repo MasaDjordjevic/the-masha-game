@@ -5,6 +5,7 @@
 @import "./Views/name-input.css";
 @import "./Views/adding-words.css";
 @import "./Views/Playing/playing.css";
+@import "./Views/finished-game.css";
 /*
   elm-hot creates an additional div wrapper around the app to make HMR possible.
   This could break styling in development mode if you are using Elm UI.
@@ -19,6 +20,7 @@
 :root {
   --background-color: #161449;
   --background-overlay: rgb(255 255 255 / 5%);
+  --background-secondary: #f9df9d;
   --text-overlay: rgba(255, 255, 255, 0.25);
   --action-primary: #aaf99d;
   --action-secondary: #ffd0f8;

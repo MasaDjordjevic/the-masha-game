@@ -1,6 +1,7 @@
 module Game.Gameplay exposing (..)
 
 import Game.Game exposing (Game, GameState, TurnTimer(..))
+import Game.Status
 import Game.Teams
 import Game.Words
 import User
@@ -75,8 +76,12 @@ nextRound game =
                     let
                         newTeams =
                             Game.Teams.createTeams game.participants.players
+
+                        -- shuffle words
+                        newWords =
+                            Game.Words.failCurrentWord game.state.words
                     in
-                    { oldState | teams = newTeams }
+                    { oldState | teams = newTeams, words = newWords }
 
                 _ ->
                     let
@@ -85,8 +90,15 @@ nextRound game =
                     in
                     { oldState | words = newWords }
 
+        newStatus =
+            if newRound == 4 then
+                Game.Status.Finished
+
+            else
+                game.status
+
         newGame =
-            { game | state = newState }
+            { game | state = newState, status = newStatus }
     in
     { newGame | round = newRound }
 

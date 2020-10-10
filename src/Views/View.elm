@@ -13,6 +13,8 @@ import Html.Events exposing (onClick, onInput)
 import State exposing (..)
 import User exposing (User)
 import Views.AddingWords exposing (addingWordsView)
+import Views.EndOfRound exposing (endOfRoundView)
+import Views.FinishedGame exposing (finishedGameView)
 import Views.Lobby exposing (lobbyView)
 import Views.NameInput exposing (nameInputView)
 import Views.Playing.Playing exposing (playingView)
@@ -436,6 +438,10 @@ view model =
                 Just PlayingGame ->
                     case model.game of
                         Just game ->
+                            let
+                                isRoundEnd =
+                                    Game.Gameplay.isRoundEnd game
+                            in
                             case game.status of
                                 Game.Status.Open ->
                                     div [ class "page-container" ]
@@ -446,21 +452,22 @@ view model =
                                 Game.Status.Running ->
                                     div [ class "page-container" ]
                                         [ header
-                                        , case game.round of
-                                            0 ->
-                                                addingWordsView model
+                                        , if isRoundEnd then
+                                            endOfRoundView game model.isOwner
 
-                                            1 ->
-                                                playingView model
+                                          else
+                                            case game.round of
+                                                0 ->
+                                                    addingWordsView model
 
-                                            _ ->
-                                                text "running game"
+                                                _ ->
+                                                    playingView model
                                         ]
 
                                 Game.Status.Finished ->
                                     div [ class "page-container" ]
                                         [ header
-                                        , text "finished game"
+                                        , finishedGameView game
                                         ]
 
                         Nothing ->

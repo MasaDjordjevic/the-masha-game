@@ -77,8 +77,9 @@ const registerLocalUser = (userName) => {
           };
         }
       } else {
-        users.register(userName).then((res) => {
+        return users.register(userName).then((res) => {
           console.log("user registered ", userName);
+          const key = res.key;
           return {
             id: key,
             name: userName,

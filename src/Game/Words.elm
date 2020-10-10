@@ -78,20 +78,27 @@ wordsByPlayer =
     List.foldr groupByPlayer Dict.empty
 
 
-wordToKey : Word -> String
-wordToKey { word, player } =
-    word ++ "-" ++ player
+wordToKey : Word -> Int -> String
+wordToKey { word, player } index =
+    let
+        formattedIndex =
+            ("000"
+                ++ String.fromInt index
+            )
+                |> String.right 3
+    in
+    formattedIndex ++ "-" ++ word ++ "-" ++ player
 
 
-wordWithKey : Word -> Word
-wordWithKey word =
-    { word | id = wordToKey word }
+wordWithKey : Int -> Word -> Word
+wordWithKey index word =
+    { word | id = wordToKey word index }
 
 
 wordsListEncoder : List Word -> Json.Encode.Value
 wordsListEncoder list =
     list
-        |> List.map wordWithKey
+        |> List.indexedMap wordWithKey
         |> List.map (\word -> ( word.id, wordEncoder word ))
         |> Json.Encode.object
 

@@ -125,8 +125,15 @@ update msg model =
 
                             else
                                 Nothing
+
+                        playMode =
+                            if gameBelongsToUser then
+                                Just State.PlayingGame
+
+                            else
+                                model.playMode
                     in
-                    ( { model | openGames = List.append model.openGames [ game ], game = newGame, isOwner = True }, Cmd.none )
+                    ( { model | openGames = List.append model.openGames [ game ], game = newGame, isOwner = True, playMode = playMode }, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -216,7 +223,7 @@ update msg model =
                 ( Just game, True ) ->
                     let
                         newGame =
-                            { game | status = Game.Status.Running }
+                            { game | status = Game.Status.Running, round = 0 }
                     in
                     ( model
                     , newGame
@@ -232,7 +239,7 @@ update msg model =
                 ( Just localUser, Just game ) ->
                     let
                         newWord =
-                            Game.Words.wordWithKey (Word model.wordInput localUser.name "")
+                            Game.Words.wordWithKey 0 (Word model.wordInput localUser.name "")
                     in
                     ( { model | wordInput = "" }
                     , Game.Words.AddWord game.id newWord
