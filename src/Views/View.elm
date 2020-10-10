@@ -44,51 +44,51 @@ view model =
                             in
                             case game.status of
                                 Game.Status.Open ->
-                                    div [ class "page-container" ]
-                                        [ header
-                                        , lobbyView model
-                                        ]
+                                    lobbyView model
 
                                 Game.Status.Running ->
-                                    div [ class "page-container" ]
-                                        [ header
-                                        , if isRoundEnd && game.round > 0 then
-                                            endOfRoundView game model.isOwner
+                                    if isRoundEnd && game.round > 0 then
+                                        endOfRoundView game model.isOwner
 
-                                          else
-                                            case game.round of
-                                                0 ->
-                                                    addingWordsView model
+                                    else
+                                        case game.round of
+                                            0 ->
+                                                addingWordsView model
 
-                                                _ ->
-                                                    playingView model
-                                        ]
+                                            _ ->
+                                                playingView model
 
                                 Game.Status.Finished ->
-                                    div [ class "page-container" ]
-                                        [ header
-                                        , finishedGameView game
-                                        ]
+                                    finishedGameView game
 
                         Nothing ->
                             text "you are in weird state"
 
                 Just CreatingGame ->
-                    div [ class "page-container" ]
-                        [ header
-                        , nameInputView model AddGame
-                        ]
+                    nameInputView model AddGame
 
                 Just JoiningGame ->
-                    div [ class "page-container" ]
-                        [ header
-                        , nameInputView model JoinGame
-                        ]
+                    nameInputView model JoinGame
 
                 Nothing ->
                     startView model
+
+        showHeader =
+            case model.playMode of
+                Just _ ->
+                    Basics.True
+
+                Nothing ->
+                    Basics.False
     in
     div []
-        [ currView
+        [ div [ class "page-container" ]
+            [ if showHeader then
+                header
+
+              else
+                text ""
+            , currView
+            ]
         , debugger model
         ]
