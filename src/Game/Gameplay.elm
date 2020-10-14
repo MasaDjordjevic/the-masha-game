@@ -120,13 +120,13 @@ startExplaining : GameState -> TurnTimer -> GameState
 startExplaining state turnTimer =
     let
         newWords =
-            case turnTimer of
-                Restarted _ ->
+            case state.words.current of
+                Just _ ->
+                    state.words
+
+                Maybe.Nothing ->
                     -- succeedCurrentWord in this case will take a word from next to current
                     Game.Words.succeedCurrentWord state.words
-
-                _ ->
-                    state.words
     in
     { state | words = newWords }
 

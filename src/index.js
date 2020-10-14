@@ -47,7 +47,9 @@ const games = {
       .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests/${user.id}`)
       .remove();
 
-    database.ref(`${GAMES_PATH}/${gameId}/participants/players`).push(user);
+    database
+      .ref(`${GAMES_PATH}/${gameId}/participants/players/${user.id}`)
+      .set(user);
   },
   update: (game) => database.ref(`${GAMES_PATH}/${game.id}`).set(game),
   ref: database.ref(GAMES_PATH),

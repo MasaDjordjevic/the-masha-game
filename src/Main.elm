@@ -98,13 +98,13 @@ update msg model =
         -- in
         -- ( { model | localUser = Just user, game = gameThatBelongsToUser }, Cmd.none )
         UpdateNameInput input ->
-            ( { model | nameInput = input }, Cmd.none )
+            ( { model | nameInput = String.toUpper input }, Cmd.none )
 
         UpdateWordInput input ->
-            ( { model | wordInput = input }, Cmd.none )
+            ( { model | wordInput = String.toUpper input }, Cmd.none )
 
         UpdatePinInput input ->
-            ( { model | pinInput = input }, Cmd.none )
+            ( { model | pinInput = String.toUpper input }, Cmd.none )
 
         RegisterLocalUser ->
             ( model, registerLocalUser model.nameInput )
@@ -141,20 +141,22 @@ update msg model =
                     ( model, Cmd.none )
 
         AddGame ->
-            let
-                tempUser =
-                    User "" model.nameInput
+            if String.isEmpty model.nameInput then
+                ( model, Cmd.none )
 
-                newGame =
-                    Game.Game.createGameModel tempUser
-            in
-            ( model
-              --  { model | game = Just newGame }
-              -- TODO: try removing this because it'll be update on openGameAdded
-            , newGame
-                |> Game.Game.gameEncoder
-                |> addGame
-            )
+            else
+                let
+                    tempUser =
+                        User "" model.nameInput
+
+                    newGame =
+                        Game.Game.createGameModel tempUser
+                in
+                ( model
+                , newGame
+                    |> Game.Game.gameEncoder
+                    |> addGame
+                )
 
         EnterGame ->
             let
@@ -237,11 +239,11 @@ update msg model =
                     ( model, Cmd.none )
 
         State.AddWord ->
-            case ( model.localUser, model.game ) of
-                ( Just localUser, Just game ) ->
+            case ( model.localUser, model.game, String.isEmpty model.wordInput ) of
+                ( Just localUser, Just game, False ) ->
                     let
                         isPlayer =
-                            Dict.member localUser.id game.participants.players
+                            Debug.log "isMember" (Dict.member localUser.id game.participants.players)
 
                         newWord =
                             Game.Words.wordWithKey 0 (Word model.wordInput localUser.name "")
@@ -255,7 +257,7 @@ update msg model =
                     else
                         ( model, Cmd.none )
 
-                ( _, _ ) ->
+                ( _, _, _ ) ->
                     ( model, Cmd.none )
 
         NextRound ->
