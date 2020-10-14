@@ -10,14 +10,14 @@ endOfRoundView : Game -> Bool -> Html Msg
 endOfRoundView game isOwner =
     let
         buttonText =
-            if game.round == 3 then
+            if game.state.round == 3 then
                 "Finish game"
 
             else
                 "Next round"
     in
     div []
-        [ h2 [] [ text ("end of round " ++ String.fromInt game.round) ]
+        [ h2 [] [ text ("end of round " ++ String.fromInt game.state.round) ]
         , if isOwner then
             button [ onClick NextRound ] [ text "Next round" ]
 

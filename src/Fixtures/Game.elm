@@ -12,17 +12,17 @@ import User exposing (User)
 
 emptyGame : Game -> Game
 emptyGame game =
-    { game | participants = Participants Dict.empty Dict.empty, state = defaultTestState, round = -1, turnTimer = Game.Game.Restarted 60, defaultTimer = 60 }
+    { game | participants = Participants Dict.empty Dict.empty, state = defaultTestState, defaultTimer = 60 }
 
 
 lobbyGame : Game -> Game
 lobbyGame game =
-    { game | status = Game.Status.Open, participants = Participants testPlayers4 testJoinRequests, state = defaultTestState, round = -1, turnTimer = Game.Game.Restarted 60, defaultTimer = 60 }
+    { game | status = Game.Status.Open, participants = Participants testPlayers4 testJoinRequests, state = defaultTestState, defaultTimer = 60 }
 
 
 newlyStartedGame : Game -> Game
 newlyStartedGame game =
-    { game | status = Game.Status.Running, participants = Participants testPlayers6 Dict.empty, state = defaultTestState, round = 0, turnTimer = Game.Game.Restarted 60, defaultTimer = 60 }
+    { game | status = Game.Status.Running, participants = Participants testPlayers6 Dict.empty, state = defaultTestState, defaultTimer = 60 }
 
 
 restartWords : Game -> Game

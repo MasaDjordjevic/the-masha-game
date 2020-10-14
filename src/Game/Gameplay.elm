@@ -7,14 +7,26 @@ import Game.Words
 import User
 
 
-isRoundEnd : Game -> Bool
-isRoundEnd game =
-    case game.state.words.current of
+isRoundEnd : GameState -> Bool
+isRoundEnd gameState =
+    case gameState.words.current of
         Just _ ->
             Basics.False
 
         Nothing ->
-            List.isEmpty game.state.words.next
+            List.isEmpty gameState.words.next
+
+
+startGame : Game -> Game
+startGame game =
+    let
+        oldState =
+            game.state
+
+        newState =
+            { oldState | round = 0 }
+    in
+    { game | status = Game.Status.Running, state = newState }
 
 
 isLocalPlayersTurn : Game -> User.User -> Bool
@@ -57,7 +69,7 @@ nextRound : Game -> Game
 nextRound game =
     let
         newRound =
-            game.round + 1
+            game.state.round + 1
 
         oldState =
             game.state
@@ -91,11 +103,8 @@ nextRound game =
 
             else
                 game.status
-
-        newGame =
-            { game | state = newState, status = newStatus }
     in
-    { newGame | round = newRound }
+    { game | state = { newState | round = newRound }, status = newStatus }
 
 
 endOfExplaining : Game -> Game
@@ -111,13 +120,13 @@ endOfExplaining game =
             game.state
 
         newState =
-            { oldState | teams = newTeams, words = newWords }
+            { oldState | teams = newTeams, words = newWords, turnTimer = Game.Game.Restarted game.defaultTimer }
     in
-    { game | state = newState, turnTimer = Game.Game.Restarted game.defaultTimer }
+    { game | state = newState }
 
 
-startExplaining : GameState -> TurnTimer -> GameState
-startExplaining state turnTimer =
+startExplaining : GameState -> Int -> GameState
+startExplaining state localTimerValue =
     let
         newWords =
             case state.words.current of
@@ -127,18 +136,9 @@ startExplaining state turnTimer =
                 Maybe.Nothing ->
                     -- succeedCurrentWord in this case will take a word from next to current
                     Game.Words.succeedCurrentWord state.words
-    in
-    { state | words = newWords }
-
-
-switchTimer : Game -> Int -> Game
-switchTimer game localTimerValue =
-    let
-        newState =
-            startExplaining game.state game.turnTimer
 
         newTurnTimer =
-            case game.turnTimer of
+            case state.turnTimer of
                 Game.Game.NotTicking _ ->
                     Game.Game.Ticking
 
@@ -148,38 +148,41 @@ switchTimer game localTimerValue =
                 Game.Game.Restarted _ ->
                     Game.Game.Ticking
     in
-    { game | turnTimer = newTurnTimer, state = newState }
+    { state | words = newWords, turnTimer = newTurnTimer }
 
 
-pauseTimerIfAllWordsGuessed : Game -> Int -> TurnTimer
-pauseTimerIfAllWordsGuessed game localTimerValue =
-    case ( game.turnTimer, isRoundEnd game ) of
+switchTimer : Game -> Int -> Game
+switchTimer game localTimerValue =
+    let
+        newState =
+            startExplaining game.state localTimerValue
+    in
+    { game | state = newState }
+
+
+pauseTimerIfAllWordsGuessed : GameState -> Int -> TurnTimer
+pauseTimerIfAllWordsGuessed gameState localTimerValue =
+    case ( gameState.turnTimer, isRoundEnd gameState ) of
         ( Ticking, True ) ->
             Game.Game.NotTicking localTimerValue
 
         ( _, _ ) ->
-            game.turnTimer
+            gameState.turnTimer
 
 
-guessWord : Int -> Game -> Game
-guessWord localTimerValue game =
+guessWord : Int -> GameState -> GameState
+guessWord localTimerValue gameState =
     let
         newWords =
-            Game.Words.succeedCurrentWord game.state.words
+            Game.Words.succeedCurrentWord gameState.words
 
         newTeams =
-            Game.Teams.increaseCurrentTeamsScore game.state.teams
-
-        oldState =
-            game.state
+            Game.Teams.increaseCurrentTeamsScore gameState.teams
 
         newState =
-            { oldState | words = newWords, teams = newTeams }
-
-        gameWithNewState =
-            { game | state = newState }
+            { gameState | words = newWords, teams = newTeams }
 
         newGameTimer =
-            pauseTimerIfAllWordsGuessed gameWithNewState localTimerValue
+            pauseTimerIfAllWordsGuessed newState localTimerValue
     in
-    { gameWithNewState | turnTimer = newGameTimer }
+    { newState | turnTimer = newGameTimer }

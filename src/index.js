@@ -38,6 +38,12 @@ const words = {
 
 const games = {
   open: (game) => database.ref(GAMES_PATH).push(game),
+  get: (gameId) =>
+    database
+      .ref(GAMES_PATH)
+      .orderByChild("gameId")
+      .equalTo(gameId)
+      .once("value"),
   requestToJoinGame: (gameId, user) =>
     database
       .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests/${user.id}`)
@@ -91,30 +97,42 @@ const registerLocalUser = (userName) => {
     });
 };
 
-games.ref
-  // .orderByChild("status")
-  // .equalTo("open")
-  .on("child_added", (data) => {
-    const game = { ...data.val(), id: data.key };
-    console.log("new game", game);
-
-    app.ports.openGameAdded.send(game);
-  });
-
 app.ports.addGame.subscribe((game) => {
   const userName = game.creator;
   console.log("adding user: ", userName);
   const localUser = registerLocalUser(userName);
+  const gamesWithSameCreator = games.ref
+    .orderByChild("creator")
+    .equalTo(userName)
+    .once("value")
+    .then((res) => {
+      try {
+        return Object.keys(res.val()).length;
+      } catch {
+        return 0;
+      }
+    });
+
   localUser.then((user) => {
     console.log("user", user);
     app.ports.localUserRegistered.send(user);
     console.log("adding game: ", game);
-    const newGame = {
-      ...game,
-      participants: { ...game.participants, players: { [user.id]: user } },
-    };
-    console.log("but changed to:", newGame);
-    games.open(newGame);
+    gamesWithSameCreator.then((numGamesWithSameCreator) => {
+      const gameIdSuffix = numGamesWithSameCreator
+        ? +numGamesWithSameCreator
+        : "";
+      const newGame = {
+        ...game,
+        gameId: game.creator + gameIdSuffix,
+        participants: { ...game.participants, players: { [user.id]: user } },
+      };
+      console.log("but changed to:", newGame);
+      games.open(newGame).then((game) => {
+        const pushedGame = { ...newGame, id: game.key };
+        console.log(pushedGame);
+        app.ports.openGameAdded.send(pushedGame);
+      });
+    });
   });
 });
 
@@ -127,6 +145,21 @@ app.ports.requestToJoinGame.subscribe(({ gameId, user }) => {
 
     console.log("request ", user.name, " to ", gameId);
     return games.requestToJoinGame(gameId, user);
+  });
+});
+
+app.ports.findGame.subscribe(({ gameId }) => {
+  return games.get(gameId).then((res) => {
+    try {
+      const newGame = {
+        ...Object.values(res.val())[0],
+        id: Object.keys(res.val())[0],
+      };
+      console.log("found game", newGame);
+      app.ports.openGameAdded.send(newGame);
+    } catch {
+      app.ports.gameNotFound.send(null);
+    }
   });
 });
 

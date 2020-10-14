@@ -27,7 +27,6 @@ type alias Model =
     , nameInput : String
     , wordInput : String
     , pinInput : String
-    , openGames : List Game
     , game : Maybe Game
     , isOwner : Bool
     , turnTimer : Int
@@ -43,6 +42,7 @@ type Msg
     | UpdateNameInput String
     | RegisterLocalUser
     | OpenGameAdded Json.Decode.Value
+    | GameNotFound
     | AddGame
     | JoinGame
     | EnterGame

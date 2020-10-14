@@ -36,6 +36,9 @@ port localUserRegistered : (User -> msg) -> Sub msg
 port openGameAdded : (Json.Decode.Value -> msg) -> Sub msg
 
 
+port gameNotFound : (() -> msg) -> Sub msg
+
+
 port addGame : Json.Encode.Value -> Cmd msg
 
 
@@ -49,6 +52,9 @@ port gameChanged : (Json.Decode.Value -> msg) -> Sub msg
 
 
 port changeGame : Json.Encode.Value -> Cmd msg
+
+
+port findGame : Game.Game.FindGame -> Cmd msg
 
 
 port addWord : Game.Words.AddWord -> Cmd msg
@@ -65,7 +71,6 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { localUser = Maybe.Nothing
       , nameInput = ""
-      , openGames = []
       , game = Maybe.Nothing
       , wordInput = ""
       , isOwner = False -- TODO: this should not be separate from the game or should be Maybe
@@ -92,11 +97,6 @@ update msg model =
         LocalUserRegistered user ->
             ( { model | localUser = Just user }, Cmd.none )
 
-        -- let
-        --     gameThatBelongsToUser =
-        --         model.openGames |> List.filter (\game -> game.creator == user.name) |> List.head
-        -- in
-        -- ( { model | localUser = Just user, game = gameThatBelongsToUser }, Cmd.none )
         UpdateNameInput input ->
             ( { model | nameInput = String.toUpper input }, Cmd.none )
 
@@ -108,37 +108,6 @@ update msg model =
 
         RegisterLocalUser ->
             ( model, registerLocalUser model.nameInput )
-
-        OpenGameAdded value ->
-            case Json.Decode.decodeValue gameDecoder value of
-                Ok game ->
-                    let
-                        gameBelongsToUser =
-                            case model.localUser of
-                                Just usr ->
-                                    game.creator == usr.name
-
-                                Nothing ->
-                                    False
-
-                        newGame =
-                            if gameBelongsToUser then
-                                Just game
-
-                            else
-                                Nothing
-
-                        playMode =
-                            if gameBelongsToUser then
-                                Just State.PlayingGame
-
-                            else
-                                model.playMode
-                    in
-                    ( { model | openGames = List.append model.openGames [ game ], game = newGame, isOwner = gameBelongsToUser, playMode = playMode }, Cmd.none )
-
-                Err _ ->
-                    ( model, Cmd.none )
 
         AddGame ->
             if String.isEmpty model.nameInput then
@@ -158,26 +127,52 @@ update msg model =
                     |> addGame
                 )
 
-        EnterGame ->
-            let
-                findGame =
-                    model.openGames |> List.filter (\g -> g.creator == model.pinInput) |> List.head
-            in
-            case findGame of
-                Just game ->
-                    ( { model | playMode = Just State.JoiningGame, game = Just game }, Cmd.none )
+        OpenGameAdded value ->
+            case Json.Decode.decodeValue gameDecoder value of
+                Ok game ->
+                    let
+                        gameBelongsToUser =
+                            case model.localUser of
+                                Just usr ->
+                                    game.creator == usr.name
 
-                Nothing ->
-                    ( { model | errors = [ "Game not found" ] }, Cmd.none )
+                                Nothing ->
+                                    False
+
+                        playMode =
+                            if gameBelongsToUser then
+                                Just State.PlayingGame
+
+                            else
+                                Just State.JoiningGame
+                    in
+                    ( { model | game = Just game, isOwner = gameBelongsToUser, playMode = playMode }, Cmd.none )
+
+                Err err ->
+                    ( model, Cmd.none )
+
+        EnterGame ->
+            ( model, findGame (FindGame model.pinInput) )
 
         JoinGame ->
             case model.game of
                 Just game ->
-                    -- TODO: don't send request if already a player
-                    ( { model | playMode = Just State.PlayingGame }
-                    , Game.Participants.GameRequest game.id (User "" model.nameInput)
-                        |> requestToJoinGame
-                    )
+                    let
+                        isPlayer =
+                            game.participants.players
+                                |> Dict.toList
+                                |> List.map Tuple.second
+                                |> List.map .name
+                                |> List.member model.nameInput
+                    in
+                    if isPlayer then
+                        ( { model | playMode = Just State.PlayingGame }, Cmd.none )
+
+                    else
+                        ( { model | playMode = Just State.PlayingGame }
+                        , Game.Participants.GameRequest game.id (User "" model.nameInput)
+                            |> requestToJoinGame
+                        )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -189,7 +184,7 @@ update msg model =
                         Just ownGame ->
                             let
                                 newTimer =
-                                    case game.turnTimer of
+                                    case game.state.turnTimer of
                                         Ticking ->
                                             model.turnTimer
 
@@ -227,7 +222,7 @@ update msg model =
                 ( Just game, True ) ->
                     let
                         newGame =
-                            { game | status = Game.Status.Running, round = 0 }
+                            Game.Gameplay.startGame game
                     in
                     ( model
                     , newGame
@@ -243,7 +238,7 @@ update msg model =
                 ( Just localUser, Just game, False ) ->
                     let
                         isPlayer =
-                            Debug.log "isMember" (Dict.member localUser.id game.participants.players)
+                            Dict.member localUser.id game.participants.players
 
                         newWord =
                             Game.Words.wordWithKey 0 (Word model.wordInput localUser.name "")
@@ -349,8 +344,11 @@ update msg model =
             case model.game of
                 Just game ->
                     let
+                        newGameState =
+                            Game.Gameplay.guessWord model.turnTimer game.state
+
                         newGame =
-                            Game.Gameplay.guessWord model.turnTimer game
+                            { game | state = newGameState }
                     in
                     ( model
                     , newGame
@@ -360,6 +358,9 @@ update msg model =
 
                 Nothing ->
                     ( model, Cmd.none )
+
+        GameNotFound ->
+            ( { model | errors = [ "Game not found" ] }, Cmd.none )
 
         _ ->
             Debugger.Update.update msg model
@@ -375,7 +376,7 @@ subscriptions model =
         timerSub =
             case model.game of
                 Just game ->
-                    case game.turnTimer of
+                    case game.state.turnTimer of
                         Game.Game.Ticking ->
                             Time.every 1000 TimerTick
 
@@ -388,6 +389,7 @@ subscriptions model =
     Sub.batch
         [ localUserRegistered LocalUserRegistered
         , openGameAdded OpenGameAdded
+        , gameNotFound (always GameNotFound)
         , gameChanged GameChanged
         , timerSub
         ]

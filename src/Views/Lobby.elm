@@ -84,9 +84,9 @@ lobbyView model =
                 "Waiting for game to start"
 
         instructions =
-            case ( model.isOwner, model.localUser ) of
-                ( True, Just localUser ) ->
-                    h3 [] [ text ("Your nickname is the game code: " ++ localUser.name) ]
+            case ( model.isOwner, model.game ) of
+                ( True, Just game ) ->
+                    h3 [] [ text ("Game code: " ++ game.gameId) ]
 
                 ( _, _ ) ->
                     text ""

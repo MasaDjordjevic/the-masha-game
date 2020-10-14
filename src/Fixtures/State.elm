@@ -7,7 +7,7 @@ import Game.Words exposing (Word, Words)
 
 emptyTestState : Game.Game.GameState
 emptyTestState =
-    GameState (Words [] Maybe.Nothing []) defaultTestTeams
+    GameState (Words [] Maybe.Nothing []) defaultTestTeams -1 (Game.Game.Restarted 60)
 
 
 wordsList : List Word
@@ -31,4 +31,4 @@ words =
 
 defaultTestState : Game.Game.GameState
 defaultTestState =
-    GameState words defaultTestTeams
+    GameState words defaultTestTeams 1 (Game.Game.Restarted 60)

@@ -71,7 +71,7 @@ playingView model =
             div [ class "playing-container" ]
                 [ div [ class "playing-now-background " ]
                     [ div [ class "playing-now" ]
-                        [ roundView game.round
+                        [ roundView game.state.round
                         , currentWordView game localUser
                         , infoView game localUser model.turnTimer
                         , playingNow game

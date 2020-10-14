@@ -5,7 +5,7 @@ import Game.Participants exposing (Participants, emptyParticipants, participants
 import Game.Status exposing (GameStatus, gameStatusDecoder, gameStatusEncoder)
 import Game.Teams exposing (Teams, emptyTeams, teamsDecoder, teamsEncoder)
 import Game.Words exposing (Words, wordsDecoder, wordsEncoder)
-import Json.Decode exposing (Decoder, field, int, map2, string)
+import Json.Decode exposing (Decoder, field, int, map2, map3, string)
 import Json.Encode
 import User exposing (User)
 
@@ -14,14 +14,18 @@ defaultTimer =
     60
 
 
+type alias FindGame =
+    { gameId : String
+    }
+
+
 type alias Game =
     { id : String
+    , gameId : String
     , creator : String
     , status : GameStatus
     , participants : Participants
     , state : GameState
-    , round : Int
-    , turnTimer : TurnTimer
     , defaultTimer : Int
     }
 
@@ -35,14 +39,18 @@ type TurnTimer
 type alias GameState =
     { words : Words
     , teams : Teams
+    , round : Int
+    , turnTimer : TurnTimer
     }
 
 
 gameStateDecoder : Decoder GameState
 gameStateDecoder =
-    map2 GameState
+    Json.Decode.map4 GameState
         (Json.Decode.oneOf [ field "words" wordsDecoder, Json.Decode.succeed (Words [] Maybe.Nothing []) ])
         (Json.Decode.oneOf [ field "teams" teamsDecoder, Json.Decode.succeed emptyTeams ])
+        (field "round" int)
+        (field "turnTimer" turnTimerDecoder)
 
 
 gameStateEncoder : GameState -> Json.Encode.Value
@@ -50,12 +58,14 @@ gameStateEncoder gameState =
     Json.Encode.object
         [ ( "words", wordsEncoder gameState.words )
         , ( "teams", teamsEncoder gameState.teams )
+        , ( "round", Json.Encode.int gameState.round )
+        , ( "turnTimer", turnTimerEncoder gameState.turnTimer )
         ]
 
 
 emptyGameState : GameState
 emptyGameState =
-    GameState (Words [] Maybe.Nothing []) emptyTeams
+    GameState (Words [] Maybe.Nothing []) emptyTeams -1 (Restarted defaultTimer)
 
 
 createGameModel : User -> Game
@@ -67,20 +77,18 @@ createGameModel user =
         userAsPlayer =
             Participants players Dict.empty
     in
-    Game "" user.name Game.Status.Open userAsPlayer emptyGameState -1 (Restarted defaultTimer) defaultTimer
+    Game "" "" user.name Game.Status.Open userAsPlayer emptyGameState defaultTimer
 
 
 gameDecoder : Decoder Game
 gameDecoder =
-    Json.Decode.map8 Game
+    Json.Decode.map7 Game
         (field "id" Json.Decode.string)
+        (field "gameId" Json.Decode.string)
         (field "creator" Json.Decode.string)
         (field "status" gameStatusDecoder)
         (Json.Decode.oneOf [ field "participants" participantsDecoder, Json.Decode.succeed emptyParticipants ])
-        -- (field "state" gameStateDecoder)
         (Json.Decode.oneOf [ field "state" gameStateDecoder, Json.Decode.succeed emptyGameState ])
-        (field "round" int)
-        (field "turnTimer" turnTimerDecoder)
         (field "defaultTimer" int)
 
 
@@ -128,11 +136,10 @@ gameEncoder : Game -> Json.Encode.Value
 gameEncoder game =
     Json.Encode.object
         [ ( "id", Json.Encode.string game.id )
+        , ( "gameId", Json.Encode.string game.gameId )
         , ( "creator", Json.Encode.string game.creator )
         , ( "status", gameStatusEncoder game.status )
         , ( "participants", participantsEncoder game.participants )
         , ( "state", gameStateEncoder game.state )
-        , ( "round", Json.Encode.int game.round )
-        , ( "turnTimer", turnTimerEncoder game.turnTimer )
         , ( "defaultTimer", Json.Encode.int game.defaultTimer )
         ]

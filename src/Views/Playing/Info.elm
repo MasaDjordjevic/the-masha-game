@@ -79,7 +79,7 @@ timerButton : Game -> Bool -> Html Msg
 timerButton game isExplaining =
     let
         timerString =
-            getTimerString game.turnTimer
+            getTimerString game.state.turnTimer
 
         shouldShowButton =
             (String.isEmpty >> not) timerString
@@ -104,7 +104,7 @@ infoView game localUser localTimer =
             Game.Gameplay.isExplaining game localUser
 
         canSwitchTimer =
-            case game.turnTimer of
+            case game.state.turnTimer of
                 Game.Game.Restarted _ ->
                     Basics.False
 

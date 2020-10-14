@@ -40,18 +40,18 @@ view model =
                         Just game ->
                             let
                                 isRoundEnd =
-                                    Game.Gameplay.isRoundEnd game
+                                    Game.Gameplay.isRoundEnd game.state
                             in
                             case game.status of
                                 Game.Status.Open ->
                                     lobbyView model
 
                                 Game.Status.Running ->
-                                    if isRoundEnd && game.round > 0 then
+                                    if isRoundEnd && game.state.round > 0 then
                                         endOfRoundView game model.isOwner
 
                                     else
-                                        case game.round of
+                                        case game.state.round of
                                             0 ->
                                                 addingWordsView model
 
