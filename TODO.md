@@ -6,10 +6,7 @@
 
 # Game play
 
-    * Tell the user that their username is the code for the game
-
-    * Leave game logic
-    * Stop listening to openGame added and find game when the code is entered
+    * Run game by first player, not the owner. It'll remove dependency on owner!!!
 
 # Code style
 

@@ -19,7 +19,8 @@ playingNow game =
             game.state.teams.current
 
         score =
-            Maybe.map (\team -> team.score) teamOnTurn
+            teamOnTurn
+                |> Maybe.map .score
                 |> Maybe.withDefault 0
 
         explainingPlayer =
@@ -49,17 +50,17 @@ playingNow game =
                 |> div [ class "guessing-players" ]
     in
     div [ class "info-container", class "section" ]
-        [ h3 [] [ text "Playing now" ]
-        , div [ class "team-on-turn" ]
+        [ div [ class "team-on-turn" ]
             [ div [ class "explaining-player" ]
                 [ span [] [ text explainingPlayer ]
                 , span [] [ text "☝️" ]
                 ]
             , div [ class "score-container" ]
-                [ span [] [ text "score" ]
-                , span [] [ text (String.fromInt score) ]
+                [ span [] [ text (String.fromInt score) ]
+                , span [] [ text "POINTS" ]
                 ]
             , guessingPlayers
+            , span [ class "star-eyed-emoji" ] [ text "\u{1F929}" ]
             ]
         ]
 
@@ -69,13 +70,11 @@ playingView model =
     case ( model.game, model.localUser ) of
         ( Just game, Just localUser ) ->
             div [ class "playing-container" ]
-                [ div [ class "playing-now-background " ]
-                    [ div [ class "playing-now" ]
-                        [ roundView game.state.round
-                        , currentWordView game localUser
-                        , infoView game localUser model.turnTimer
-                        , playingNow game
-                        ]
+                [ div [ class "playing-now" ]
+                    [ roundView game.state.round
+                    , currentWordView game localUser
+                    , infoView game localUser model.turnTimer
+                    , playingNow game
                     ]
                 , teamsView game
                 ]

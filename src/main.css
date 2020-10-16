@@ -6,6 +6,7 @@
 @import url(./Views/adding-words.css);
 @import url(./Views/Playing/playing.css);
 @import url(./Views/finished-game.css);
+@import url(./Views/Playing/end-of-round.css);
 /*
   elm-hot creates an additional div wrapper around the app to make HMR possible.
   This could break styling in development mode if you are using Elm UI.
@@ -21,6 +22,7 @@
   --background-overlay: rgb(255 255 255 / 5%);
   --background-secondary: #f9df9d;
   --text-overlay: rgba(255, 255, 255, 0.25);
+  --text-secondary: rgba(0, 0, 0, 0.5);
   --action-primary: #aaf99d;
   --action-secondary: #ffd0f8;
   --action-highlight: #9df3f9; }
@@ -59,7 +61,8 @@ button {
   border-radius: 30px;
   color: black;
   font-size: 22px;
-  font-family: Bebas Neue; }
+  font-family: Bebas Neue;
+  cursor: pointer; }
   button:focus {
     outline: none; }
   button:hover {

@@ -22,8 +22,10 @@ start =
 currentWord : Word -> Html Msg
 currentWord word =
     div [ class "section" ]
-        [ div [ class "current-word-container", class "has-word" ]
-            [ h1 [ class "current-word", onClick WordGuessed ] [ text word.word ]
+        [ div [ class "current-word-border" ]
+            [ div [ class "current-word-container", class "has-word" ]
+                [ h1 [ class "current-word", onClick WordGuessed ] [ text word.word ]
+                ]
             ]
         , button [ class "next-word", onClick WordGuessed ] [ text "Done! Next word" ]
         ]

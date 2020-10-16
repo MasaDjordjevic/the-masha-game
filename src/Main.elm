@@ -2,6 +2,7 @@ port module Main exposing (..)
 
 import Browser
 import Debugger.Update
+import Delay
 import Dict exposing (Dict)
 import Game.Game exposing (..)
 import Game.Gameplay
@@ -13,6 +14,7 @@ import Json.Decode
 import Json.Encode
 import List
 import Maybe
+import Platform exposing (Task)
 import State exposing (..)
 import Time
 import User exposing (..)
@@ -79,6 +81,7 @@ init flags =
       , playMode = Maybe.Nothing
       , pinInput = ""
       , errors = []
+      , isRoundEnd = False
       }
     , Cmd.none
     )
@@ -164,9 +167,20 @@ update msg model =
                                 |> List.map Tuple.second
                                 |> List.map .name
                                 |> List.member model.nameInput
+
+                        _ =
+                            Debug.log "isPlayer" isPlayer
+
+                        gameBelongsToUser =
+                            case model.localUser of
+                                Just usr ->
+                                    game.creator == model.nameInput
+
+                                Nothing ->
+                                    False
                     in
                     if isPlayer then
-                        ( { model | playMode = Just State.PlayingGame }, Cmd.none )
+                        ( { model | playMode = Just State.PlayingGame, isOwner = gameBelongsToUser }, registerLocalUser model.nameInput )
 
                     else
                         ( { model | playMode = Just State.PlayingGame }
@@ -193,9 +207,18 @@ update msg model =
 
                                         Game.Game.Restarted timerValue ->
                                             timerValue
+
+                                isRoundEnd =
+                                    Game.Gameplay.isRoundEnd game.state && game.state.round > 0
                             in
                             if ownGame.id == game.id then
-                                ( { model | game = Just game, turnTimer = newTimer }, Cmd.none )
+                                ( { model | game = Just game, turnTimer = newTimer, isRoundEnd = isRoundEnd }
+                                , if isRoundEnd then
+                                    Delay.after 5000 Delay.Millisecond NextRound
+
+                                  else
+                                    Cmd.none
+                                )
 
                             else
                                 ( model, Cmd.none )
@@ -262,7 +285,7 @@ update msg model =
                         newGame =
                             Game.Gameplay.nextRound game
                     in
-                    ( model
+                    ( { model | isRoundEnd = False }
                     , newGame
                         |> Game.Game.gameEncoder
                         |> changeGame

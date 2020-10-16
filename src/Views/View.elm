@@ -38,17 +38,13 @@ view model =
                 Just PlayingGame ->
                     case model.game of
                         Just game ->
-                            let
-                                isRoundEnd =
-                                    Game.Gameplay.isRoundEnd game.state
-                            in
                             case game.status of
                                 Game.Status.Open ->
                                     lobbyView model
 
                                 Game.Status.Running ->
-                                    if isRoundEnd && game.state.round > 0 then
-                                        endOfRoundView game model.isOwner
+                                    if model.isRoundEnd then
+                                        endOfRoundView game
 
                                     else
                                         case game.state.round of

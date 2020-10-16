@@ -9,28 +9,36 @@ import State exposing (Msg)
 
 teamView : Int -> Team -> Html Msg
 teamView indexNumber team =
+    let
+        teamNumber =
+            if indexNumber == 0 then
+                "🎉"
+
+            else
+                "# " ++ String.fromInt (indexNumber + 1)
+    in
     div [ class "team-container" ]
-        [ h4 [] [ text ("Team " ++ String.fromInt indexNumber) ]
-        , teamPlayers team
-        , h4 [] [ text ("Score " ++ String.fromInt team.score) ]
+        [ h4 [] [ text teamNumber ]
+        , span [] [ teamPlayers team ]
+        , h4 [ class "team-score" ] [ text (String.fromInt team.score) ]
         ]
 
 
 teamPlayers : Team -> Html Msg
 teamPlayers team =
     team.players
-        |> List.map
-            (\user ->
-                h2 [] [ text user.name ]
-            )
-        |> span []
+        |> List.map .name
+        |> String.join " & "
+        |> text
 
 
 teamsView : Game -> Html Msg
 teamsView game =
-    div [ class "scoreboard-container" ]
-        [ h3 [] [ text "the teams" ]
-        , getScoreboard game.state.teams
-            |> List.indexedMap teamView
-            |> div []
+    div [ class "scoreboard-background" ]
+        [ div [ class "scoreboard-container" ]
+            [ h3 [] [ text "Leader board" ]
+            , getScoreboard game.state.teams
+                |> List.indexedMap teamView
+                |> div [ class "scoreboard-teams-container" ]
+            ]
         ]

@@ -1,26 +1,17 @@
 module Views.EndOfRound exposing (..)
 
 import Game.Game exposing (Game)
-import Html exposing (Html, button, div, h2, text)
+import Html exposing (Html, button, div, h2, h3, text)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import State exposing (Model, Msg(..))
+import Views.Playing.Round exposing (getRoundText)
 
 
-endOfRoundView : Game -> Bool -> Html Msg
-endOfRoundView game isOwner =
-    let
-        buttonText =
-            if game.state.round == 3 then
-                "Finish game"
-
-            else
-                "Next round"
-    in
-    div []
-        [ h2 [] [ text ("end of round " ++ String.fromInt game.state.round) ]
-        , if isOwner then
-            button [ onClick NextRound ] [ text "Next round" ]
-
-          else
-            text ""
+endOfRoundView : Game -> Html Msg
+endOfRoundView game =
+    div [ class "end-of-round-container", class "section" ]
+        [ h3 [ class "show-first" ] [ text "Hope you remember the words..." ]
+        , h3 [ class "show-second" ] [ text "...Because now it’s time for..." ]
+        , h3 [ class "show-third" ] [ text (getRoundText (game.state.round + 1)) ]
         ]

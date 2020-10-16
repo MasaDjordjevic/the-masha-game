@@ -33,6 +33,7 @@ type alias Model =
     , environment : String
     , playMode : Maybe PlayMode
     , errors : List String
+    , isRoundEnd : Bool
     }
 
 
@@ -53,6 +54,7 @@ type Msg
     | UpdatePinInput String
     | AddWord
     | NextRound
+    | InitiateNextRound
     | DeleteWord String
     | QuitGame
     | TimerTick Time.Posix

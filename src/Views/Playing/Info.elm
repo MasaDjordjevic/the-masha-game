@@ -23,20 +23,20 @@ wordsLeft game isExplaining =
                     List.length game.state.words.next
     in
     div [ classList [ ( "info-container", True ), ( "small", isExplaining ) ] ]
-        [ h3 []
-            [ text "Words left "
+        [ h1 [] [ text (String.fromInt wordsLeftCount) ]
+        , span []
+            [ text "words left"
             ]
-        , h1 [] [ text (String.fromInt wordsLeftCount) ]
         ]
 
 
 timeLeft : Int -> Html Msg
 timeLeft localTimer =
     div [ class "info-container" ]
-        [ h3 []
-            [ text "Time left "
+        [ h1 [] [ text (String.fromInt localTimer) ]
+        , span []
+            [ text "seconds"
             ]
-        , h1 [] [ text (String.fromInt localTimer) ]
         ]
 
 
@@ -87,7 +87,10 @@ timerButton game isExplaining =
     if isExplaining then
         div [ class "timer-button-container" ]
             [ if shouldShowButton then
-                button [ class "timer-button", onClick SwitchTimer ] [ text timerString ]
+                button [ class "timer-button", onClick SwitchTimer ]
+                    [ span [ class "material-icons" ] [ text "access_time" ]
+                    , span [] [ text timerString ]
+                    ]
 
               else
                 text ""

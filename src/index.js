@@ -97,6 +97,12 @@ const registerLocalUser = (userName) => {
     });
 };
 
+app.ports.registerLocalUser.subscribe((userName) => {
+  registerLocalUser(userName).then((user) => {
+    app.ports.localUserRegistered.send(user);
+  });
+});
+
 app.ports.addGame.subscribe((game) => {
   const userName = game.creator;
   console.log("adding user: ", userName);
