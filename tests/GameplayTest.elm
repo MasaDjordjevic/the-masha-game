@@ -25,45 +25,33 @@ isRoundEndSuit =
             \_ ->
                 let
                     testState =
-                        GameState (Words [] Maybe.Nothing []) emptyTeams
-
-                    testGame =
-                        Game "" "playerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        GameState (Words [] Maybe.Nothing []) emptyTeams 1 (Game.Game.NotTicking 5)
                 in
-                isRoundEnd testGame
+                isRoundEnd testState
                     |> Expect.equal True
         , test "isRoundEnd next not empty" <|
             \_ ->
                 let
                     testState =
-                        GameState (Words [] Maybe.Nothing [ Word "" "word" "p1" ]) emptyTeams
-
-                    testGame =
-                        Game "" "playerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        GameState (Words [] Maybe.Nothing [ Word "" "word" "p1" ]) emptyTeams 1 (Game.Game.NotTicking 5)
                 in
-                isRoundEnd testGame
+                isRoundEnd testState
                     |> Expect.equal False
         , test "isRoundEnd current not empty" <|
             \_ ->
                 let
                     testState =
-                        GameState (Words [] (Just (Word "" "word" "p1")) []) emptyTeams
-
-                    testGame =
-                        Game "" "playerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        GameState (Words [] (Just (Word "" "word" "p1")) []) emptyTeams 1 (Game.Game.NotTicking 5)
                 in
-                isRoundEnd testGame
+                isRoundEnd testState
                     |> Expect.equal False
         , test "isRoundEnd yes" <|
             \_ ->
                 let
                     testState =
-                        GameState (Words [ Word "" "word" "p1" ] Maybe.Nothing []) emptyTeams
-
-                    testGame =
-                        Game "" "playerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        GameState (Words [ Word "" "word" "p1" ] Maybe.Nothing []) emptyTeams -1 (Game.Game.NotTicking 5)
                 in
-                isRoundEnd testGame
+                isRoundEnd testState
                     |> Expect.equal True
         ]
 
@@ -78,10 +66,10 @@ isLocalPlayersTurnSuit =
                         Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 0)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
 
                     testState =
-                        GameState (Words [] Maybe.Nothing []) testTeams
+                        GameState (Words [] Maybe.Nothing []) testTeams -1 (Game.Game.NotTicking 5)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
 
                     testUser =
                         User "1" "p1"
@@ -95,10 +83,10 @@ isLocalPlayersTurnSuit =
                         Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 0)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
 
                     testState =
-                        GameState (Words [] Maybe.Nothing []) testTeams
+                        GameState (Words [] Maybe.Nothing []) testTeams -1 (Game.Game.NotTicking 5)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
 
                     testUser =
                         User "2" "p2"
@@ -112,10 +100,10 @@ isLocalPlayersTurnSuit =
                         Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 0)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
 
                     testState =
-                        GameState (Words [] Maybe.Nothing []) testTeams
+                        GameState (Words [] Maybe.Nothing []) testTeams -1 (Game.Game.NotTicking 5)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
 
                     testUser =
                         User "2-1" "p21"
@@ -135,10 +123,10 @@ isExplainingSuit =
                         Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 0)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
 
                     testState =
-                        GameState (Words [] Maybe.Nothing []) testTeams
+                        GameState (Words [] Maybe.Nothing []) testTeams -1 (Game.Game.NotTicking 5)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
 
                     testUser =
                         User "1" "p1"
@@ -152,10 +140,10 @@ isExplainingSuit =
                         Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 0)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
 
                     testState =
-                        GameState (Words [] Maybe.Nothing []) testTeams
+                        GameState (Words [] Maybe.Nothing []) testTeams -1 (Game.Game.NotTicking 5)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
 
                     testUser =
                         User "2" "p2"
@@ -169,10 +157,10 @@ isExplainingSuit =
                         Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 0)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
 
                     testState =
-                        GameState (Words [] Maybe.Nothing []) testTeams
+                        GameState (Words [] Maybe.Nothing []) testTeams -1 (Game.Game.NotTicking 5)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
 
                     testUser =
                         User "2-1" "p21"
@@ -192,10 +180,10 @@ nextRoundSuit =
                         Dict.fromList [ ( "1", User "1" "p1" ), ( "2", User "2" "p2" ), ( "2-1", User "2-1" "p21" ), ( "2-2", User "2-2" "p22" ) ]
 
                     testState =
-                        GameState (Words [] Maybe.Nothing []) emptyTeams
+                        GameState (Words [] Maybe.Nothing []) emptyTeams 0 (Game.Game.NotTicking 5)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants testPlayers Dict.empty) testState 0 (Game.Game.NotTicking 5) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants testPlayers Dict.empty) testState 60
                 in
                 Expect.all
                     [ .current >> Expect.notEqual Maybe.Nothing
@@ -217,13 +205,16 @@ nextRoundSuit =
                         Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 0)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
 
                     testState =
-                        GameState (Words [] Maybe.Nothing wordsList) testTeams
+                        GameState (Words [] Maybe.Nothing wordsList) testTeams -1 (Game.Game.NotTicking 5)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState -1 (Game.Game.NotTicking 5) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
+
+                    expectedState =
+                        { testState | round = 0 }
 
                     expectedGame =
-                        { testGame | round = 0 }
+                        { testGame | state = expectedState }
                 in
                 nextRound testGame
                     |> Expect.equal expectedGame
@@ -237,10 +228,10 @@ nextRoundSuit =
                         Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 0)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
 
                     testState =
-                        GameState (Words wordsList Maybe.Nothing []) testTeams
+                        GameState (Words wordsList Maybe.Nothing []) testTeams 1 (Game.Game.NotTicking 60)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 1 (Game.Game.NotTicking 60) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
                 in
                 Expect.all
                     [ .teams
@@ -274,10 +265,10 @@ endOfExplainingSuit =
                         Teams (Just (Team [ User "2-1" "p21", User "2-2" "p22" ] 10)) [ Team [ User "2" "p2", User "1" "p1" ] 0 ]
 
                     testState =
-                        GameState (Words [] (Just (Word "d" "player2" "")) wordsList) testTeams
+                        GameState (Words [] (Just (Word "d" "player2" "")) wordsList) testTeams 1 (Game.Game.NotTicking 60)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 1 (Game.Game.NotTicking 60) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
 
                     wordsExpectation =
                         \words ->
@@ -293,7 +284,8 @@ endOfExplainingSuit =
                                 words
                 in
                 Expect.all
-                    [ .turnTimer
+                    [ .state
+                        >> .turnTimer
                         >> Expect.equal (Restarted 60)
                     , .state >> .words >> wordsExpectation
                     , .state
@@ -310,38 +302,50 @@ switchTimerSuit =
         [ test "should pause if it's ticking" <|
             \_ ->
                 let
+                    testState =
+                        { emptyGameState | turnTimer = Ticking }
+
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) Game.Game.emptyGameState 1 Game.Game.Ticking 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
                 in
                 switchTimer testGame 34
+                    |> .state
                     |> .turnTimer
                     |> Expect.equal (Game.Game.NotTicking 34)
         , test "should just continue if in the middle of explaining" <|
             \_ ->
                 let
+                    testState =
+                        { emptyGameState | turnTimer = Game.Game.NotTicking 28, round = 1 }
+
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) Game.Game.emptyGameState 1 (Game.Game.NotTicking 28) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) Game.Game.emptyGameState 60
                 in
                 switchTimer testGame 34
+                    |> .state
                     |> .turnTimer
                     |> Expect.equal Game.Game.Ticking
         , test "should start the timer in beginning of explaining" <|
             \_ ->
                 let
+                    testState =
+                        { emptyGameState | turnTimer = Game.Game.Restarted 30, round = 1 }
+
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) Game.Game.emptyGameState 1 (Game.Game.Restarted 30) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) Game.Game.emptyGameState 60
                 in
                 switchTimer testGame 34
+                    |> .state
                     |> .turnTimer
                     |> Expect.equal Game.Game.Ticking
         , test "should set the current word at the beginning of explaining" <|
             \_ ->
                 let
                     testState =
-                        GameState (Words [] Maybe.Nothing [ Word "d" "player2" "" ]) Game.Teams.emptyTeams
+                        GameState (Words [] Maybe.Nothing [ Word "d" "player2" "" ]) Game.Teams.emptyTeams 1 (Game.Game.Restarted 30)
 
                     testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 1 (Game.Game.Restarted 30) 60
+                        Game "" "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 60
                 in
                 switchTimer testGame 34
                     |> .state
@@ -367,10 +371,7 @@ guessWordSuit =
                         Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 3)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
 
                     testState =
-                        GameState (Words [] (Just (Word "d" "player2" "")) wordsList) testTeams
-
-                    testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 1 Game.Game.Ticking 60
+                        GameState (Words [] (Just (Word "d" "player2" "")) wordsList) testTeams 1 Game.Game.Ticking
 
                     wordsExpectation =
                         \words ->
@@ -388,12 +389,11 @@ guessWordSuit =
                 Expect.all
                     [ .turnTimer
                         >> Expect.equal Game.Game.Ticking
-                    , .state >> .words >> wordsExpectation
-                    , .state
-                        >> .teams
+                    , .words >> wordsExpectation
+                    , .teams
                         >> Expect.equal expectTeams
                     ]
-                    (testGame
+                    (testState
                         |> guessWord 14
                         |> guessWord 14
                         |> guessWord 14
@@ -411,10 +411,7 @@ guessWordSuit =
                         Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 4)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ]
 
                     testState =
-                        GameState (Words [] (Just (Word "d" "player2" "")) wordsList) testTeams
-
-                    testGame =
-                        Game "" "ownerName" Game.Status.Open (Participants Dict.empty Dict.empty) testState 1 Game.Game.Ticking 60
+                        GameState (Words [] (Just (Word "d" "player2" "")) wordsList) testTeams 1 Game.Game.Ticking
 
                     wordsExpectation =
                         \words ->
@@ -432,12 +429,11 @@ guessWordSuit =
                 Expect.all
                     [ .turnTimer
                         >> Expect.equal (Game.Game.NotTicking 14)
-                    , .state >> .words >> wordsExpectation
-                    , .state
-                        >> .teams
+                    , .words >> wordsExpectation
+                    , .teams
                         >> Expect.equal expectTeams
                     ]
-                    (testGame
+                    (testState
                         |> guessWord 14
                         |> guessWord 14
                         |> guessWord 14

@@ -17,9 +17,9 @@ suite =
     describe "Words"
         [ test "wordWithKey" <|
             \_ ->
-                wordWithKey (Word "word" "playerName" "")
+                wordWithKey 0 (Word "word" "playerName" "")
                     |> Expect.equal
-                        { id = "word-playerName"
+                        { id = "000-word-playerName"
                         , word = "word"
                         , player = "playerName"
                         }
