@@ -1,24 +1,58 @@
-.words-overview-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.winners {
+  font-family: Bangers, sans-serif;
+  font-size: 48px;
+}
+.medal {
+  font-size: 60px;
+  display: block;
+  margin-bottom: 24px;
+}
+.finished-game-container {
+  position: relative;
+  > h2 {
+    font-family: Hind, sans-serif;
+    font-size: 24px;
+  }
 
-  > div {
-    display: flex;
-    align-items: center;
-    > *:first-child {
-      margin-right: 8px;
-    }
+  .scoreboard-container {
+    margin: 0;
   }
 }
 
-.words-overview-wrapper {
-  background: var(--background-secondary);
-  margin-top: 24px;
-  border-radius: 12px;
-  padding: 6px 32px 32px;
-  color: black;
-  > h3 {
-    color: rgba(0, 0, 0, 0.5);
+.confetti {
+  position: absolute;
+  width: 300px;
+  height: 230px;
+  overflow: hidden;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+$colors: (#d13447, #ffbf00, #263672);
+
+@for $i from 0 through 150 {
+  $w: random(8);
+  $l: random(100);
+  .confetti-#{$i} {
+    position: absolute;
+
+    width: #{$w}px;
+    height: #{$w * 0.4}px;
+    background-color: nth($colors, random(3));
+    top: -10%;
+    left: unquote($l + "%");
+    opacity: random() + 0.5;
+    transform: rotate(#{random() * 360}deg);
+    animation: drop-#{$i}
+      unquote(4 + random() + "s")
+      unquote(random() + "s")
+      infinite;
+  }
+
+  @keyframes drop-#{$i} {
+    100% {
+      top: 110%;
+      left: unquote($l + random(15) + "%");
+    }
   }
 }
