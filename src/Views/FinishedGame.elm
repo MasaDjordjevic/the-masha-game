@@ -28,7 +28,7 @@ finishedGameView game =
         confetti =
             List.range 0 200
                 |> List.map (\index -> div [ class ("confetti-" ++ String.fromInt index) ] [])
-                |> div [ class "confetti" ]
+                |> div [ class "confetti-animation-container" ]
     in
     div [ class "finished-game-container" ]
         [ confetti

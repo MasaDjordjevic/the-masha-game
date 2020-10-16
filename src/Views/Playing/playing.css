@@ -22,6 +22,7 @@
 .turn-stats {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   min-width: 200px; }
   .turn-stats.on-turn {
     display: grid;
@@ -29,6 +30,8 @@
     align-items: center; }
 
 .team-on-turn {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
   margin-top: 4px;
   padding: 14px 24px;
   min-width: 200px;
@@ -87,14 +90,14 @@
   max-width: 300px;
   width: 300px; }
 
-.previous-word {
+.info-container.previous-word > h1 {
   background-color: var(--action-highlight);
   border-radius: 6px;
   padding: 4px 8px;
-  display: inline-block;
-  color: black; }
-  .previous-word > h1 {
-    font-size: 18px; }
+  color: black;
+  font-size: 18px;
+  line-height: 35px;
+  align-self: center; }
 
 .timer-button {
   font-size: 18px;

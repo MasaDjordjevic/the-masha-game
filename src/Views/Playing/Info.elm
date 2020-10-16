@@ -51,11 +51,9 @@ previousWord game localUser =
     in
     case ( prevWord, isOnTurn ) of
         ( Just word, False ) ->
-            div [ class "info-container" ]
-                [ h3 [] [ text "Previous word " ]
-                , div [ class "previous-word" ]
-                    [ h1 [] [ text word.word ]
-                    ]
+            div [ class "info-container", class "previous-word" ]
+                [ h1 [] [ text word.word ]
+                , span [] [ text "previous" ]
                 ]
 
         ( _, _ ) ->
@@ -117,7 +115,7 @@ infoView game localUser localTimer =
     div
         [ classList [ ( "turn-stats", True ), ( "section", True ), ( "on-turn", isExplaining ) ] ]
         [ wordsLeft game isExplaining
-        , previousWord game localUser
         , timeLeft localTimer
+        , previousWord game localUser
         , timerButton game isExplaining
         ]

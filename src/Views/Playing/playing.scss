@@ -30,6 +30,7 @@
 .turn-stats {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   min-width: 200px;
 
   &.on-turn {
@@ -40,6 +41,9 @@
 }
 
 .team-on-turn {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+
   margin-top: 4px;
   padding: 14px 24px;
   min-width: 200px;
@@ -110,14 +114,15 @@
   width: 300px;
 }
 
-.previous-word {
-  background-color: var(--action-highlight);
-  border-radius: 6px;
-  padding: 4px 8px;
-  display: inline-block;
-  color: black;
+.info-container.previous-word {
   > h1 {
+    background-color: var(--action-highlight);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: black;
     font-size: 18px;
+    line-height: 35px;
+    align-self: center;
   }
 }
 
