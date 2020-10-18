@@ -34,6 +34,7 @@ type alias Model =
     , playMode : Maybe PlayMode
     , errors : List String
     , isRoundEnd : Bool
+    , isHelpDialogOpen : Bool
     }
 
 
@@ -60,6 +61,7 @@ type Msg
     | TimerTick Time.Posix
     | SwitchTimer
     | WordGuessed
+    | ToggleHelpDialog
     | DebugRestart
     | DebugLobby
     | DebugStarted

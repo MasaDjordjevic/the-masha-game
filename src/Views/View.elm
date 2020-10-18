@@ -7,7 +7,7 @@ import Game.Gameplay
 import Game.Status
 import Game.Teams
 import Game.Words
-import Html exposing (Html, button, div, h1, h2, h3, input, label, p, span, table, td, text, th, tr)
+import Html exposing (Html, button, div, h1, h2, h3, header, input, label, p, span, table, td, text, th, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import State exposing (..)
@@ -15,19 +15,12 @@ import User exposing (User)
 import Views.AddingWords exposing (addingWordsView)
 import Views.EndOfRound exposing (endOfRoundView)
 import Views.FinishedGame exposing (finishedGameView)
+import Views.Header exposing (headerView)
+import Views.Help exposing (helpView)
 import Views.Lobby exposing (lobbyView)
 import Views.NameInput exposing (nameInputView)
 import Views.Playing.Playing exposing (playingView)
 import Views.Start exposing (startView)
-
-
-header : Html Msg
-header =
-    div [ class "header" ]
-        [ span [ class "confetti-large", class "mirrored" ] [ text "🎉" ]
-        , span [ class "title" ] [ text "THE MASHA GAME" ]
-        , span [ class "confetti-large" ] [ text "🎉" ]
-        ]
 
 
 view : Model -> Html Msg
@@ -80,11 +73,12 @@ view model =
     div []
         [ div [ class "page-container" ]
             [ if showHeader then
-                header
+                headerView
 
               else
                 text ""
             , currView
+            , helpView model
             ]
         , debugger model
         ]

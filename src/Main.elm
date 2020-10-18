@@ -78,6 +78,7 @@ init flags =
       , pinInput = ""
       , errors = []
       , isRoundEnd = False
+      , isHelpDialogOpen = False
       }
     , Cmd.none
     )
@@ -384,6 +385,9 @@ update msg model =
 
         GameNotFound ->
             ( { model | errors = [ "Game not found" ] }, Cmd.none )
+
+        ToggleHelpDialog ->
+            ( { model | isHelpDialogOpen = not model.isHelpDialogOpen }, Cmd.none )
 
         _ ->
             Debugger.Update.update msg model

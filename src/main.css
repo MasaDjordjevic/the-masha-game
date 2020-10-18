@@ -7,6 +7,7 @@
 @import url(./Views/Playing/playing.css);
 @import url(./Views/finished-game.css);
 @import url(./Views/Playing/end-of-round.css);
+@import url(./Views/help.css);
 /*
   elm-hot creates an additional div wrapper around the app to make HMR possible.
   This could break styling in development mode if you are using Elm UI.
