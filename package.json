@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/MasaDjordjevic/the-masha-game#readme",
   "dependencies": {
-    "node-sass-chokidar": "^1.5.0"
+    "node-sass-chokidar": "^1.5.0",
+    "nosleep.js": "^0.11.0"
   }
 }

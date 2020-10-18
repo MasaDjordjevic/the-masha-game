@@ -1,6 +1,18 @@
 import "./main.css";
 import { Elm } from "./Main.elm";
 import * as serviceWorker from "./serviceWorker";
+import NoSleep from 'nosleep.js';
+
+var noSleep = new NoSleep();
+
+function enableNoSleep() {
+noSleep.enable();
+document.removeEventListener('touchstart', enableNoSleep, false);
+}
+
+// Enable wake lock.
+// (must be wrapped in a user input event handler e.g. a mouse or touch handler)
+document.addEventListener('touchstart', enableNoSleep, false);
 
 // Your web app's Firebase configuration
 var firebaseConfig = {
