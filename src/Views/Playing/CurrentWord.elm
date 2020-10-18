@@ -1,10 +1,11 @@
 module Views.Playing.CurrentWord exposing (..)
 
+import Constants exposing (countdownMoment)
 import Game.Game exposing (Game)
 import Game.Gameplay exposing (isExplaining)
 import Game.Words exposing (Word)
 import Html exposing (Html, button, div, h1, h3, text)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import State exposing (Model, Msg(..))
 import User exposing (User)
@@ -19,10 +20,10 @@ start =
         ]
 
 
-currentWord : Word -> Html Msg
-currentWord word =
+currentWord : Word -> Int -> Html Msg
+currentWord word turnTimer =
     div [ class "section" ]
-        [ div [ class "current-word-border" ]
+        [ div [ classList [ ( "current-word-border", True ), ( "countdown10", turnTimer <= countdownMoment ) ] ]
             [ div [ class "current-word-container", class "has-word" ]
                 [ h1 [ class "current-word", onClick WordGuessed ] [ text word.word ]
                 ]
@@ -31,12 +32,12 @@ currentWord word =
         ]
 
 
-currentWordView : Game -> User -> Html Msg
-currentWordView game localUser =
+currentWordView : Game -> User -> Int -> Html Msg
+currentWordView game localUser turnTimer =
     if isExplaining game localUser then
         case game.state.words.current of
             Just word ->
-                currentWord word
+                currentWord word turnTimer
 
             Nothing ->
                 start

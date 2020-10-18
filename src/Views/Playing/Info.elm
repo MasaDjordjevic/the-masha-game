@@ -1,9 +1,10 @@
 module Views.Playing.Info exposing (..)
 
+import Constants exposing (countdownMoment)
 import Game.Game exposing (Game, TurnTimer)
 import Game.Gameplay exposing (isLocalPlayersTurn)
 import Html exposing (Html, button, div, h1, h3, span, text)
-import Html.Attributes exposing (class, classList)
+import Html.Attributes exposing (attribute, class, classList)
 import Html.Events exposing (onClick)
 import State exposing (Model, Msg(..))
 import User exposing (User)
@@ -33,7 +34,7 @@ wordsLeft game isExplaining =
 timeLeft : Int -> Html Msg
 timeLeft localTimer =
     div [ class "info-container" ]
-        [ h1 [] [ text (String.fromInt localTimer) ]
+        [ h1 [ classList [ ( "info-timer", Basics.True ), ( "countdown10", localTimer <= countdownMoment ) ] ] [ text (String.fromInt localTimer) ]
         , span []
             [ text "seconds"
             ]

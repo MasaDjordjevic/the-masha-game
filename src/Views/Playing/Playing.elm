@@ -72,7 +72,7 @@ playingView model =
             div [ class "playing-container" ]
                 [ div [ class "playing-now" ]
                     [ roundView game.state.round
-                    , currentWordView game localUser
+                    , currentWordView game localUser model.turnTimer
                     , infoView game localUser model.turnTimer
                     , playingNow game
                     ]

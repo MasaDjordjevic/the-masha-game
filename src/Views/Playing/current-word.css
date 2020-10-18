@@ -4,6 +4,9 @@
   border-radius: 27px;
   padding: 12px;
   margin-bottom: 8px; }
+  .current-word-border.countdown10 {
+    border-color: salmon;
+    transition: border-color 10s; }
 
 .current-word-container {
   display: flex;

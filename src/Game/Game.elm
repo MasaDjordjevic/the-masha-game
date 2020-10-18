@@ -1,5 +1,6 @@
 module Game.Game exposing (..)
 
+import Constants exposing (defaultTimer)
 import Dict
 import Game.Participants exposing (Participants, emptyParticipants, participantsDecoder, participantsEncoder)
 import Game.Status exposing (GameStatus, gameStatusDecoder, gameStatusEncoder)
@@ -8,10 +9,6 @@ import Game.Words exposing (Words, wordsDecoder, wordsEncoder)
 import Json.Decode exposing (Decoder, field, int, map2, map3, string)
 import Json.Encode
 import User exposing (User)
-
-
-defaultTimer =
-    60
 
 
 type alias FindGame =

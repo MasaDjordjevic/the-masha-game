@@ -21,10 +21,6 @@ import User exposing (..)
 import Views.View exposing (view)
 
 
-defaultTimer =
-    60
-
-
 
 --- PORTS ----
 
@@ -327,8 +323,15 @@ update msg model =
 
                             else
                                 Cmd.none
+
+                        normalisedTimer =
+                            if newTimerValue < 0 then
+                                0
+
+                            else
+                                newTimerValue
                     in
-                    ( { model | turnTimer = newTimerValue }, cmd )
+                    ( { model | turnTimer = normalisedTimer }, cmd )
 
                 Nothing ->
                     ( model, Cmd.none )

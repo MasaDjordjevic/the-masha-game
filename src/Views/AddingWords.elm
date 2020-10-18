@@ -125,7 +125,11 @@ addingWordsView model =
                 , div []
                     [ wordsInputView game user model.wordInput
                     , wordsStatisticsView game.state.words game.participants.players
-                    , button [ onClick NextRound ] [ text "Let's play" ]
+                    , if model.isOwner then
+                        button [ onClick NextRound ] [ text "Let's play" ]
+
+                      else
+                        text ""
                     ]
                 ]
 

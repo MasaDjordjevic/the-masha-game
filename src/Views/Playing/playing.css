@@ -31,13 +31,11 @@
 
 .team-on-turn {
   display: grid;
-  grid-template-columns: 1fr 60px 1fr;
+  grid-template-columns: 35% 30% 35%;
   margin-top: 4px;
   padding: 14px 24px;
   min-width: 200px;
   background: #ffffff;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
   border-radius: 8px;
   color: black;
@@ -62,7 +60,6 @@
 .explaining-player {
   display: flex;
   flex-direction: column;
-  flex: 1;
   word-break: break-all; }
 
 .score-container {
@@ -78,7 +75,6 @@
 .guessing-players {
   align-items: center;
   display: flex;
-  flex: 1;
   word-break: break-all;
   flex-direction: column;
   justify-content: center; }
@@ -93,6 +89,12 @@
 .playing-now {
   max-width: 300px;
   width: 300px; }
+
+.info-timer {
+  color: white; }
+  .info-timer.countdown10 {
+    color: salmon;
+    transition: color 10s; }
 
 .info-container.previous-word > h1 {
   background-color: var(--action-highlight);
