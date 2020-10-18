@@ -78,6 +78,8 @@
 .explaining-player {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  word-break: break-all;
 }
 
 .score-container {
@@ -97,6 +99,8 @@
 .guessing-players {
   align-items: center;
   display: flex;
+  flex: 1;
+  word-break: break-all;
   flex-direction: column;
   justify-content: center;
 }
@@ -158,7 +162,6 @@
   align-items: center;
 }
 .scoreboard-container {
-  margin-top: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;

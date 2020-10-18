@@ -168,9 +168,6 @@ update msg model =
                                 |> List.map .name
                                 |> List.member model.nameInput
 
-                        _ =
-                            Debug.log "isPlayer" isPlayer
-
                         gameBelongsToUser =
                             case model.localUser of
                                 Just usr ->
