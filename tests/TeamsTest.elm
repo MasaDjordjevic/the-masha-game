@@ -36,6 +36,10 @@ suit =
             \_ ->
                 advanceCurrentTeam (Teams Maybe.Nothing [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ])
                     |> Expect.equal (Teams (Just (Team [ User "2-1" "p21", User "2-2" "p22" ] 10)) [])
+        , test "advanceCurrentTeam one team" <|
+            \_ ->
+                advanceCurrentTeam Teams (Just (Team [ User "2-1" "p21", User "2-2" "p22" ] 10)) [])
+                    |> Expect.equal (Teams (Just (Team [ User "2-1" "p21", User "2-2" "p22" ] 10)) [])
         , test "increaseCurrentTeamsScore" <|
             \_ ->
                 increaseCurrentTeamsScore (Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 0)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 10 ])

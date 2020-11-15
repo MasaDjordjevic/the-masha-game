@@ -95,21 +95,23 @@ advanceCurrentTeam teams =
                 Nothing ->
                     Maybe.Nothing
 
-        nextTeam =
-            List.head teams.next
 
-        restTeams =
-            List.drop 1 teams.next
-
-        newNextTeams =
+        nextTeamsWithCurrent =
             case shiftedCurrentTeam of
                 Just currTeam ->
-                    restTeams ++ [ currTeam ]
+                    teams.next ++ [ currTeam ]
 
                 Nothing ->
-                    restTeams
+                    teams.next
+        nextTeam =
+            List.head nextTeamsWithCurrent
+
+        restTeams =
+            List.drop 1 nextTeamsWithCurrent
+
+        
     in
-    Teams nextTeam newNextTeams
+    Teams nextTeam restTeams
 
 
 increaseCurrentTeamsScore : Teams -> Teams
