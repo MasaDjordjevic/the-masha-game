@@ -78,12 +78,15 @@ export const acceptRequest = functions.https.onRequest(
     if (!user || !gameId) {
       response.status(400).send("Params should be user and gameId");
     }
-    const writeResult = await games.acceptRequest(user, gameId);
-    if (writeResult) {
-      response.send(`Game request accepted: ${writeResult.key}`);
-    } else {
-      response.status(500).send(`Cannot accept join request.`);
-    }
+
+    games
+      .acceptRequest(gameId, user)
+      .then(() => {
+        response.send(`Game request accepted.`);
+      })
+      .catch(() => {
+        response.status(500).send(`Cannot accept join request.`);
+      });
   }
 );
 
