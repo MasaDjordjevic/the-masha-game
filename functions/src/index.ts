@@ -97,12 +97,14 @@ export const updateGame = functions.https.onRequest(
       response.status(400).send("game parameter expected");
     }
 
-    const writeResult = await games.update(game);
-    if (writeResult) {
-      response.send(`Game updated: ${writeResult.key}`);
-    } else {
-      response.status(500).send(`Cannot update game.`);
-    }
+    games
+      .update(game)
+      .then(() => {
+        response.send(`Game updated.`);
+      })
+      .catch(() => {
+        response.status(500).send(`Cannot update game.`);
+      });
   }
 );
 
