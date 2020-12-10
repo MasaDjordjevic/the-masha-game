@@ -114,12 +114,14 @@ export const addWord = functions.https.onRequest(async (request, response) => {
     response.status(400).send("gameId and word parameters expected");
   }
 
-  const writeResult = await words.addWord(gameId, word);
-  if (writeResult) {
-    response.send(`Word added: ${writeResult.key}`);
-  } else {
-    response.status(500).send(`Cannot add word.`);
-  }
+  words
+    .addWord(gameId, word)
+    .then(() => {
+      response.send(`Word added.`);
+    })
+    .catch(() => {
+      response.status(500).send(`Cannot add word.`);
+    });
 });
 
 export const deleteWord = functions.https.onRequest(
@@ -129,11 +131,13 @@ export const deleteWord = functions.https.onRequest(
       response.status(400).send("gameId and wordId parameters expected");
     }
 
-    const writeResult = await words.deleteWord(gameId, wordId);
-    if (writeResult) {
-      response.send(`Word added: ${writeResult.key}`);
-    } else {
-      response.status(500).send(`Cannot add word.`);
-    }
+    words
+      .deleteWord(gameId, wordId)
+      .then(() => {
+        response.send(`Word deleted.`);
+      })
+      .catch(() => {
+        response.status(500).send(`Cannot add word.`);
+      });
   }
 );
