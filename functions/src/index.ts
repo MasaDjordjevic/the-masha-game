@@ -38,9 +38,21 @@ export const joinGame = functions.https.onRequest(async (request, response) => {
   if (!username || !gameId) {
     response.status(400).send("Params should be username and gameId");
   }
+
+  const game: Game = await findGameById(gameId);
+  const hasRequest = Object.values(game.participants.joinRequests).some(
+    (request) => request.name === username
+  );
+
+  if (hasRequest) {
+    response.status(409).send("Request with the same username already exists");
+    return;
+  }
+
   const writeResult = await createJoinRequest(username, gameId);
+
   if (writeResult) {
-    response.send(`Game request added: ${writeResult.key}`);
+    response.status(201).send(`Game request added.`);
   } else {
     response.status(500).send(`Cannot add join request.`);
   }

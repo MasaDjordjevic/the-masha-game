@@ -65,7 +65,9 @@ export const createGame = async (username: string, game: any) => {
 export const createJoinRequest = async (username: string, gameId: string) => {
   const addedUser = await findOrAddUser(username);
 
-  return games.requestToJoinGame(gameId, addedUser);
+  return games.requestToJoinGame(gameId, addedUser).then(() => {
+    return true;
+  });
 };
 
 export const findGameById = async (gameId: string) => {
