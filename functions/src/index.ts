@@ -27,7 +27,9 @@ export const addGame = functions.https.onRequest(async (request, response) => {
   const writeResult = await createGame(username, game);
   console.log(writeResult);
   if (writeResult) {
-    response.send({ status: "OK", game: writeResult });
+    response
+      .status(201)
+      .send({ status: "OK", game: writeResult.game, user: writeResult.user });
   } else {
     response.status(500).send(`Cannot add game.`);
   }
@@ -40,19 +42,25 @@ export const joinGame = functions.https.onRequest(async (request, response) => {
   }
 
   const game: Game = await findGameById(gameId);
-  const hasRequest = Object.values(game.participants.joinRequests).some(
-    (request) => request.name === username
-  );
+  const existingRequest = Object.values(
+    game.participants?.joinRequests ?? {}
+  ).find((request) => request.name === username);
 
-  if (hasRequest) {
-    response.status(409).send("Request with the same username already exists");
+  if (existingRequest) {
+    response.status(409).send({
+      status: "Request with the same username already exists",
+      user: existingRequest,
+    });
     return;
   }
 
-  const writeResult = await createJoinRequest(username, gameId);
+  const user = await createJoinRequest(username, gameId);
 
-  if (writeResult) {
-    response.status(201).send(`Game request added.`);
+  if (user) {
+    response.status(201).send({
+      status: `Game request added.`,
+      user: user,
+    });
   } else {
     response.status(500).send(`Cannot add join request.`);
   }
@@ -117,7 +125,7 @@ export const addWord = functions.https.onRequest(async (request, response) => {
   words
     .addWord(gameId, word)
     .then(() => {
-      response.send(`Word added.`);
+      response.status(201).send(`Word added.`);
     })
     .catch(() => {
       response.status(500).send(`Cannot add word.`);
@@ -133,7 +141,8 @@ export const deleteWord = functions.https.onRequest(
 
     words
       .deleteWord(gameId, wordId)
-      .then(() => {
+      .then((res) => {
+        console.log("delete res", res);
         response.send(`Word deleted.`);
       })
       .catch(() => {

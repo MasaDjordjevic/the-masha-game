@@ -59,14 +59,20 @@ export const createGame = async (username: string, game: any) => {
     },
   };
   functions.logger.info(`New game: ${newGame}.`);
-  return games.add(newGame);
+  return games.add(newGame).then((addedGame) => ({
+    game: addedGame,
+    user: addedUser,
+  }));
 };
 
-export const createJoinRequest = async (username: string, gameId: string) => {
+export const createJoinRequest = async (
+  username: string,
+  gameId: string
+): Promise<User> => {
   const addedUser = await findOrAddUser(username);
 
   return games.requestToJoinGame(gameId, addedUser).then(() => {
-    return true;
+    return addedUser;
   });
 };
 
