@@ -1,13 +1,21 @@
 import * as functions from "firebase-functions";
 import * as url from "url";
 
-import { createGame, createJoinRequest, findGameById } from "./registration";
+import {
+  createGame,
+  createJoinRequest,
+  findGameByGameId,
+} from "./registration";
 import { games, words } from "./db";
+import * as cors from "cors";
 // import { database } from "firebase-admin";
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
 //
+
+// const cors = require("cors")({ origin: true });
+const corsHandler = cors({ origin: true });
 
 export const helloWorld = functions.https.onRequest((request, response) => {
   functions.logger.info("Hello logs!", { structuredData: true });
@@ -41,10 +49,10 @@ export const joinGame = functions.https.onRequest(async (request, response) => {
     response.status(400).send("Params should be username and gameId");
   }
 
-  const game: Game = await findGameById(gameId);
+  const game: Game = await findGameByGameId(gameId);
   const existingRequest = Object.values(
     game.participants?.joinRequests ?? {}
-  ).find((request) => request.name === username);
+  ).find((req) => req.name === username);
 
   if (existingRequest) {
     response.status(409).send({
@@ -67,17 +75,19 @@ export const joinGame = functions.https.onRequest(async (request, response) => {
 });
 
 export const findGame = functions.https.onRequest(async (request, response) => {
-  const { gameId } = url.parse(request.url, true).query;
-  if (!gameId) {
-    response.status(400).send("gameId parameter expected");
-  }
+  corsHandler(request, response, async () => {
+    const { gameId } = url.parse(request.url, true).query;
+    if (!gameId) {
+      response.status(400).send("gameId parameter expected");
+    }
 
-  const writeResult = await findGameById(gameId as string);
-  if (writeResult) {
-    response.send(writeResult);
-  } else {
-    response.status(500).send(`Cannot find game.`);
-  }
+    const writeResult = await findGameByGameId(gameId as string);
+    if (writeResult) {
+      response.send(writeResult);
+    } else {
+      response.status(500).send(`Cannot find game.`);
+    }
+  });
 });
 
 export const acceptRequest = functions.https.onRequest(

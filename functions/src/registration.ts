@@ -76,8 +76,9 @@ export const createJoinRequest = async (
   });
 };
 
-export const findGameById = async (gameId: string) => {
-  return games.getById(gameId).then((res) => {
+export const findGameByGameId = async (gameId: string) => {
+  return games.getByGameId(gameId).then((res) => {
+    return Object.values(res.val())[0];
     const key = res.key;
     const game = res.val();
     if (key && game) {

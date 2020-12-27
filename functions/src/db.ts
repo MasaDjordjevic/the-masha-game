@@ -43,6 +43,12 @@ export const games = {
       }),
   getById: (gameId: string) =>
     database.ref(`${GAMES_PATH}/${gameId}`).once("value"),
+  getByGameId: (gameId: string) =>
+    database
+      .ref(GAMES_PATH)
+      .orderByChild("gameId")
+      .equalTo(gameId)
+      .once("value"),
   getByCreator: (username: string) =>
     database
       .ref(GAMES_PATH)
@@ -55,13 +61,14 @@ export const games = {
       .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests/${user.id}`)
       .set(user),
   acceptRequest: (gameId: string, user: User) => {
-    database
-      .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests/${user.id}`)
-      .remove();
-
     return database
-      .ref(`${GAMES_PATH}/${gameId}/participants/players/${user.id}`)
-      .set(user);
+      .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests/${user.id}`)
+      .remove()
+      .then(() =>
+        database
+          .ref(`${GAMES_PATH}/${gameId}/participants/players/${user.id}`)
+          .set(user)
+      );
   },
   update: (game: any) => database.ref(`${GAMES_PATH}/${game.id}`).set(game),
   ref: database.ref(GAMES_PATH),

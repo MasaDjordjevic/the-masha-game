@@ -19,7 +19,10 @@ import State exposing (..)
 import Time
 import User exposing (..)
 import Views.View exposing (view)
+import Http exposing (header)
 
+devApiUrl: String
+devApiUrl = "http://localhost:5001/themashagame-990a8/us-central1"
 
 
 --- PORTS ----
@@ -52,8 +55,6 @@ port gameChanged : (Json.Decode.Value -> msg) -> Sub msg
 port changeGame : Json.Encode.Value -> Cmd msg
 
 
-port findGame : Game.Game.FindGame -> Cmd msg
-
 
 port addWord : Game.Words.AddWord -> Cmd msg
 
@@ -74,6 +75,7 @@ init flags =
       , isOwner = False -- TODO: this should not be separate from the game or should be Maybe
       , turnTimer = 60
       , environment = flags.environment
+      , apiUrl = if flags.environment == "development" then devApiUrl else ""
       , playMode = Maybe.Nothing
       , pinInput = ""
       , errors = []
@@ -328,7 +330,31 @@ update msg model =
                     ( model, Cmd.none )
 
         EnterGame ->
-            ( model, findGame (FindGame model.pinInput) )
+            ( model, findGame model.apiUrl model.pinInput )
+
+        GameFound result-> 
+            case result of 
+                Ok game ->
+                    let
+                        gameBelongsToUser =
+                            case model.localUser of
+                                Just usr ->
+                                    game.creator == usr.name
+
+                                Nothing ->
+                                    False
+
+                        playMode =
+                                if gameBelongsToUser then
+                                    Just State.PlayingGame
+
+                                else
+                                    Just State.JoiningGame
+                    in
+                    ( { model | game = Just game, isOwner = gameBelongsToUser, playMode = playMode }, Cmd.none )
+                Err _ -> 
+                     ( model, Cmd.none )
+
 
         JoinGame ->
             case model.game of
@@ -404,6 +430,11 @@ subscriptions model =
 ---- VIEW ----
 ---- PROGRAM ----
 
+findGame: String -> String -> Cmd Msg
+findGame apiUrl gameCode = Http.get  
+    { url = (apiUrl ++ "/findGame?gameId=" ++ gameCode)
+    , expect = (Http.expectJson GameFound gameDecoder)
+    }
 
 main : Program Flags Model Msg
 main =

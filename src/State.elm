@@ -4,6 +4,7 @@ import Game.Game exposing (Game)
 import Json.Decode
 import Time
 import User exposing (User)
+import Http
 
 
 type alias Flags =
@@ -31,6 +32,7 @@ type alias Model =
     , isOwner : Bool
     , turnTimer : Int
     , environment : String
+    , apiUrl: String
     , playMode : Maybe PlayMode
     , errors : List String
     , isRoundEnd : Bool
@@ -69,3 +71,4 @@ type Msg
     | DebugSetPlayerOnTurn
     | DebugSetPlayerOwner
     | DebugGuessNextWords
+    | GameFound (Result Http.Error Game)

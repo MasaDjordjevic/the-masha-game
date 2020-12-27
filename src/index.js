@@ -1,18 +1,18 @@
 import "./main.css";
 import { Elm } from "./Main.elm";
 import * as serviceWorker from "./serviceWorker";
-import NoSleep from 'nosleep.js';
+import NoSleep from "nosleep.js";
 
 var noSleep = new NoSleep();
 
 function enableNoSleep() {
-noSleep.enable();
-document.removeEventListener('touchstart', enableNoSleep, false);
+  noSleep.enable();
+  document.removeEventListener("touchstart", enableNoSleep, false);
 }
 
 // Enable wake lock.
 // (must be wrapped in a user input event handler e.g. a mouse or touch handler)
-document.addEventListener('touchstart', enableNoSleep, false);
+document.addEventListener("touchstart", enableNoSleep, false);
 
 // Your web app's Firebase configuration
 var firebaseConfig = {
@@ -75,7 +75,9 @@ const games = {
 
 const app = Elm.Main.init({
   node: document.getElementById("root"),
-  flags: { environment: process.env.NODE_ENV },
+  flags: {
+    environment: process.env.NODE_ENV,
+  },
 });
 
 const registerLocalUser = (userName) => {
@@ -166,20 +168,20 @@ app.ports.requestToJoinGame.subscribe(({ gameId, user }) => {
   });
 });
 
-app.ports.findGame.subscribe(({ gameId }) => {
-  return games.get(gameId).then((res) => {
-    try {
-      const newGame = {
-        ...Object.values(res.val())[0],
-        id: Object.keys(res.val())[0],
-      };
-      console.log("found game", newGame);
-      app.ports.openGameAdded.send(newGame);
-    } catch {
-      app.ports.gameNotFound.send(null);
-    }
-  });
-});
+// app.ports.findGame.subscribe(({ gameId }) => {
+//   return games.get(gameId).then((res) => {
+//     try {
+//       const newGame = {
+//         ...Object.values(res.val())[0],
+//         id: Object.keys(res.val())[0],
+//       };
+//       console.log("found game", newGame);
+//       app.ports.openGameAdded.send(newGame);
+//     } catch {
+//       app.ports.gameNotFound.send(null);
+//     }
+//   });
+// });
 
 app.ports.acceptRequest.subscribe(({ gameId, user }) => {
   console.log("accepting ", user.name);
