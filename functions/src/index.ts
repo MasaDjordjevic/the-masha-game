@@ -22,7 +22,19 @@ export const helloWorld = functions.https.onRequest((request, response) => {
   response.send("Hello from Firebase!");
 });
 
-export const addGame = functions.https.onRequest(async (request, response) => {
+const onCorsRequest = (
+  handler: (
+    req: functions.https.Request,
+    resp: functions.Response<any>
+  ) => void | Promise<void>
+) =>
+  functions.https.onRequest(async (request, response) => {
+    corsHandler(request, response, async () => {
+      handler(request, response);
+    });
+  });
+
+export const addGame = onCorsRequest(async (request, response) => {
   console.log("Body", request.body);
   const { username, game } = request.body;
   console.log("username", request.body.username);
@@ -43,7 +55,7 @@ export const addGame = functions.https.onRequest(async (request, response) => {
   }
 });
 
-export const joinGame = functions.https.onRequest(async (request, response) => {
+export const joinGame = onCorsRequest(async (request, response) => {
   const { username, gameId } = request.body;
   if (!username || !gameId) {
     response.status(400).send("Params should be username and gameId");
@@ -74,59 +86,53 @@ export const joinGame = functions.https.onRequest(async (request, response) => {
   }
 });
 
-export const findGame = functions.https.onRequest(async (request, response) => {
-  corsHandler(request, response, async () => {
-    const { gameId } = url.parse(request.url, true).query;
-    if (!gameId) {
-      response.status(400).send("gameId parameter expected");
-    }
+export const findGame = onCorsRequest(async (request, response) => {
+  const { gameId } = url.parse(request.url, true).query;
+  if (!gameId) {
+    response.status(400).send("gameId parameter expected");
+  }
 
-    const writeResult = await findGameByGameId(gameId as string);
-    if (writeResult) {
-      response.send(writeResult);
-    } else {
-      response.status(500).send(`Cannot find game.`);
-    }
-  });
+  const writeResult = await findGameByGameId(gameId as string);
+  if (writeResult) {
+    response.send(writeResult);
+  } else {
+    response.status(500).send(`Cannot find game.`);
+  }
 });
 
-export const acceptRequest = functions.https.onRequest(
-  async (request, response) => {
-    const { user, gameId } = request.body;
-    if (!user || !gameId) {
-      response.status(400).send("Params should be user and gameId");
-    }
-
-    games
-      .acceptRequest(gameId, user)
-      .then(() => {
-        response.send(`Game request accepted.`);
-      })
-      .catch(() => {
-        response.status(500).send(`Cannot accept join request.`);
-      });
+export const acceptRequest = onCorsRequest(async (request, response) => {
+  const { user, gameId } = request.body;
+  if (!user || !gameId) {
+    response.status(400).send("Params should be user and gameId");
   }
-);
 
-export const updateGame = functions.https.onRequest(
-  async (request, response) => {
-    const { game } = request.body;
-    if (!game) {
-      response.status(400).send("game parameter expected");
-    }
+  games
+    .acceptRequest(gameId, user)
+    .then(() => {
+      response.send(`Game request accepted.`);
+    })
+    .catch(() => {
+      response.status(500).send(`Cannot accept join request.`);
+    });
+});
 
-    games
-      .update(game)
-      .then(() => {
-        response.send(`Game updated.`);
-      })
-      .catch(() => {
-        response.status(500).send(`Cannot update game.`);
-      });
+export const updateGame = onCorsRequest(async (request, response) => {
+  const { game } = request.body;
+  if (!game) {
+    response.status(400).send("game parameter expected");
   }
-);
 
-export const addWord = functions.https.onRequest(async (request, response) => {
+  games
+    .update(game)
+    .then(() => {
+      response.send(`Game updated.`);
+    })
+    .catch(() => {
+      response.status(500).send(`Cannot update game.`);
+    });
+});
+
+export const addWord = onCorsRequest(async (request, response) => {
   const { gameId, word } = request.body;
   if (!gameId || !word) {
     response.status(400).send("gameId and word parameters expected");
@@ -142,21 +148,19 @@ export const addWord = functions.https.onRequest(async (request, response) => {
     });
 });
 
-export const deleteWord = functions.https.onRequest(
-  async (request, response) => {
-    const { gameId, wordId } = request.body;
-    if (!gameId || !wordId) {
-      response.status(400).send("gameId and wordId parameters expected");
-    }
-
-    words
-      .deleteWord(gameId, wordId)
-      .then((res) => {
-        console.log("delete res", res);
-        response.send(`Word deleted.`);
-      })
-      .catch(() => {
-        response.status(500).send(`Cannot add word.`);
-      });
+export const deleteWord = onCorsRequest(async (request, response) => {
+  const { gameId, wordId } = request.body;
+  if (!gameId || !wordId) {
+    response.status(400).send("gameId and wordId parameters expected");
   }
-);
+
+  words
+    .deleteWord(gameId, wordId)
+    .then((res) => {
+      console.log("delete res", res);
+      response.send(`Word deleted.`);
+    })
+    .catch(() => {
+      response.status(500).send(`Cannot add word.`);
+    });
+});
