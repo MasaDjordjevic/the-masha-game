@@ -72,3 +72,4 @@ type Msg
     | DebugSetPlayerOwner
     | DebugGuessNextWords
     | GameFound (Result Http.Error Game)
+    | GameAdded (Result Http.Error (Game, User))

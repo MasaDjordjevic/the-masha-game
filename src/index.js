@@ -117,44 +117,44 @@ app.ports.registerLocalUser.subscribe((userName) => {
   });
 });
 
-app.ports.addGame.subscribe((game) => {
-  const userName = game.creator;
-  console.log("adding user: ", userName);
-  const localUser = registerLocalUser(userName);
-  const gamesWithSameCreator = games.ref
-    .orderByChild("creator")
-    .equalTo(userName)
-    .once("value")
-    .then((res) => {
-      try {
-        return Object.keys(res.val()).length;
-      } catch {
-        return 0;
-      }
-    });
+// app.ports.addGame.subscribe((game) => {
+//   const userName = game.creator;
+//   console.log("adding user: ", userName);
+//   const localUser = registerLocalUser(userName);
+//   const gamesWithSameCreator = games.ref
+//     .orderByChild("creator")
+//     .equalTo(userName)
+//     .once("value")
+//     .then((res) => {
+//       try {
+//         return Object.keys(res.val()).length;
+//       } catch {
+//         return 0;
+//       }
+//     });
 
-  localUser.then((user) => {
-    console.log("user", user);
-    app.ports.localUserRegistered.send(user);
-    console.log("adding game: ", game);
-    gamesWithSameCreator.then((numGamesWithSameCreator) => {
-      const gameIdSuffix = numGamesWithSameCreator
-        ? +numGamesWithSameCreator
-        : "";
-      const newGame = {
-        ...game,
-        gameId: game.creator + gameIdSuffix,
-        participants: { ...game.participants, players: { [user.id]: user } },
-      };
-      console.log("but changed to:", newGame);
-      games.open(newGame).then((game) => {
-        const pushedGame = { ...newGame, id: game.key };
-        console.log(pushedGame);
-        app.ports.openGameAdded.send(pushedGame);
-      });
-    });
-  });
-});
+//   localUser.then((user) => {
+//     console.log("user", user);
+//     app.ports.localUserRegistered.send(user);
+//     console.log("adding game: ", game);
+//     gamesWithSameCreator.then((numGamesWithSameCreator) => {
+//       const gameIdSuffix = numGamesWithSameCreator
+//         ? +numGamesWithSameCreator
+//         : "";
+//       const newGame = {
+//         ...game,
+//         gameId: game.creator + gameIdSuffix,
+//         participants: { ...game.participants, players: { [user.id]: user } },
+//       };
+//       console.log("but changed to:", newGame);
+//       games.open(newGame).then((game) => {
+//         const pushedGame = { ...newGame, id: game.key };
+//         console.log(pushedGame);
+//         app.ports.openGameAdded.send(pushedGame);
+//       });
+//     });
+//   });
+// });
 
 app.ports.requestToJoinGame.subscribe(({ gameId, user }) => {
   const userName = user.name;

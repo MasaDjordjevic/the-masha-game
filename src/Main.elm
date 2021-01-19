@@ -19,7 +19,7 @@ import State exposing (..)
 import Time
 import User exposing (..)
 import Views.View exposing (view)
-import Http exposing (header)
+import Http exposing (header, jsonBody)
 
 devApiUrl: String
 devApiUrl = "http://localhost:5001/themashagame-990a8/us-central1"
@@ -34,13 +34,11 @@ port registerLocalUser : String -> Cmd msg
 port localUserRegistered : (User -> msg) -> Sub msg
 
 
-port openGameAdded : (Json.Decode.Value -> msg) -> Sub msg
 
 
 port gameNotFound : (() -> msg) -> Sub msg
 
 
-port addGame : Json.Encode.Value -> Cmd msg
 
 
 port requestToJoinGame : Game.Participants.GameRequest -> Cmd msg
@@ -300,9 +298,8 @@ update msg model =
                         Game.Game.createGameModel tempUser
                 in
                 ( model
-                , newGame
-                    |> Game.Game.gameEncoder
-                    |> addGame
+                , addGame model.apiUrl model.nameInput newGame 
+                    
                 )
 
         OpenGameAdded value ->
@@ -328,6 +325,14 @@ update msg model =
 
                 Err err ->
                     ( model, Cmd.none )
+
+        GameAdded result-> 
+            case result of 
+                Ok (game, user) ->                
+                    ( { model | game = Just game, isOwner = True, playMode = Just State.PlayingGame, localUser = Just user }, Cmd.none )
+                Err _ -> 
+                     ( model, Cmd.none )
+
 
         EnterGame ->
             ( model, findGame model.apiUrl model.pinInput )
@@ -419,7 +424,6 @@ subscriptions model =
     in
     Sub.batch
         [ localUserRegistered LocalUserRegistered
-        , openGameAdded OpenGameAdded
         , gameNotFound (always GameNotFound)
         , gameChanged GameChanged
         , timerSub
@@ -434,6 +438,26 @@ findGame: String -> String -> Cmd Msg
 findGame apiUrl gameCode = Http.get  
     { url = (apiUrl ++ "/findGame?gameId=" ++ gameCode)
     , expect = (Http.expectJson GameFound gameDecoder)
+    }
+
+addedGameResponseDecoder: Json.Decode.Decoder (Game, User)
+addedGameResponseDecoder = Json.Decode.map2 Tuple.pair 
+        (Json.Decode.field "game" gameDecoder)
+        (Json.Decode.field "user" User.decodeUser)
+
+createAddGameRequestBody: String -> Game -> Http.Body
+createAddGameRequestBody username game = 
+    Http.jsonBody <|
+                Json.Encode.object
+                    [ ("game", Game.Game.gameEncoder game)
+                    , ("username", Json.Encode.string username)
+                    ]
+
+addGame: String -> String -> Game -> Cmd Msg
+addGame apiUrl username game = Http.post 
+    { url = (apiUrl ++ "/addGame")
+    , body = createAddGameRequestBody username game
+    , expect = (Http.expectJson GameAdded addedGameResponseDecoder)
     }
 
 main : Program Flags Model Msg

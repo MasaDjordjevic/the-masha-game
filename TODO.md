@@ -2,6 +2,8 @@
 
 # Lobby
 
+    * Add loading state when creating/joining game or all buttons
+
 # Game play
 
     * Run game by first player, not the owner. It'll remove dependency on owner!!!
