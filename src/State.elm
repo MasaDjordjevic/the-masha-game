@@ -41,10 +41,8 @@ type alias Model =
 
 
 type Msg
-    = LocalUserRegistered User
-    | SetPlayMode PlayMode
+    = SetPlayMode PlayMode
     | UpdateNameInput String
-    | RegisterLocalUser
     | OpenGameAdded Json.Decode.Value
     | GameNotFound
     | AddGame
@@ -73,3 +71,4 @@ type Msg
     | DebugGuessNextWords
     | GameFound (Result Http.Error Game)
     | GameAdded (Result Http.Error (Game, User))
+    | JoinedGame (Result Http.Error (String, User))

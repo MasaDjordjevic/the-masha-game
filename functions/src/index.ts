@@ -59,22 +59,47 @@ export const joinGame = onCorsRequest(async (request, response) => {
   const { username, gameId } = request.body;
   if (!username || !gameId) {
     response.status(400).send("Params should be username and gameId");
+    return;
   }
 
-  const game: Game = await findGameByGameId(gameId);
+  const game: Game | null = await findGameByGameId(gameId);
+  console.log("joinGame findGame", game);
+  if (!game) {
+    response.status(404).send("Game not found.");
+    return;
+  }
+
   const existingRequest = Object.values(
     game.participants?.joinRequests ?? {}
-  ).find((req) => req.name === username);
+  ).find((req) => {
+    console.log(`req ${req.name}, username: ${username}`);
+    return req.name === username;
+  });
 
   if (existingRequest) {
-    response.status(409).send({
+    response.status(201).send({
       status: "Request with the same username already exists",
       user: existingRequest,
     });
     return;
   }
 
-  const user = await createJoinRequest(username, gameId);
+  const existingPlayer = Object.values(game.participants?.players ?? {}).find(
+    (player) => {
+      console.log(`playername ${player.name}, username: ${username}`);
+      return player.name === username;
+    }
+  );
+
+  if (existingPlayer) {
+    response.status(201).send({
+      status: "User is already in the game",
+      user: existingPlayer,
+    });
+    return;
+  }
+
+  const user = await createJoinRequest(username, game.id);
 
   if (user) {
     response.status(201).send({

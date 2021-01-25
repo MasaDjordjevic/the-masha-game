@@ -28,20 +28,7 @@ devApiUrl = "http://localhost:5001/themashagame-990a8/us-central1"
 --- PORTS ----
 
 
-port registerLocalUser : String -> Cmd msg
-
-
-port localUserRegistered : (User -> msg) -> Sub msg
-
-
-
-
-port gameNotFound : (() -> msg) -> Sub msg
-
-
-
-
-port requestToJoinGame : Game.Participants.GameRequest -> Cmd msg
+port subscribeToGame : Json.Encode.Value -> Cmd msg
 
 
 port acceptRequest : Game.Participants.GameRequest -> Cmd msg
@@ -270,9 +257,6 @@ update msg model =
         SetPlayMode mode ->
             ( { model | playMode = Just mode }, Cmd.none )
 
-        LocalUserRegistered user ->
-            ( { model | localUser = Just user }, Cmd.none )
-
         UpdateNameInput input ->
             ( { model | nameInput = String.toUpper input }, Cmd.none )
 
@@ -282,8 +266,7 @@ update msg model =
         UpdatePinInput input ->
             ( { model | pinInput = String.toUpper input }, Cmd.none )
 
-        RegisterLocalUser ->
-            ( model, registerLocalUser model.nameInput )
+       
 
         AddGame ->
             if String.isEmpty model.nameInput then
@@ -340,60 +323,43 @@ update msg model =
         GameFound result-> 
             case result of 
                 Ok game ->
+                    ( { model | game = Just game, playMode = Just State.JoiningGame }, subscribeToGame (Json.Encode.string game.id) )
+                Err _ -> 
+                    ( { model | errors = [ "Game not found" ] }, Cmd.none )
+
+        JoinedGame result -> 
+            case result of
+               Ok (status, user) ->
                     let
                         gameBelongsToUser =
-                            case model.localUser of
-                                Just usr ->
-                                    game.creator == usr.name
+                            case model.game of
+                                Just game ->
+                                    game.creator == user.name
 
                                 Nothing ->
                                     False
-
-                        playMode =
-                                if gameBelongsToUser then
-                                    Just State.PlayingGame
-
-                                else
-                                    Just State.JoiningGame
+                        newGame = 
+                            case status of
+                                "Game request added." -> Maybe.map (\game -> 
+                                    let
+                                        newParticipants = Game.Participants.addJoinRequest user game.participants
+                                    in
+                                        ({game | participants = newParticipants})
+                                    ) model.game
+                                _ -> 
+                                    model.game
+                           
                     in
-                    ( { model | game = Just game, isOwner = gameBelongsToUser, playMode = playMode }, Cmd.none )
-                Err _ -> 
-                     ( model, Cmd.none )
-
-
+                    ({model | localUser = Just user, playMode = Just State.PlayingGame, isOwner = gameBelongsToUser, game = newGame}, Cmd.none)
+               Err _ ->
+                ( { model | errors = [ "Joining game error" ] }, Cmd.none )
         JoinGame ->
             case model.game of
                 Just game ->
-                    let
-                        isPlayer =
-                            game.participants.players
-                                |> Dict.toList
-                                |> List.map Tuple.second
-                                |> List.map .name
-                                |> List.member model.nameInput
-
-                        gameBelongsToUser =
-                            case model.localUser of
-                                Just usr ->
-                                    game.creator == model.nameInput
-
-                                Nothing ->
-                                    False
-                    in
-                    if isPlayer then
-                        ( { model | playMode = Just State.PlayingGame, isOwner = gameBelongsToUser }, registerLocalUser model.nameInput )
-
-                    else
-                        ( { model | playMode = Just State.PlayingGame }
-                        , Game.Participants.GameRequest game.id (User "" model.nameInput)
-                            |> requestToJoinGame
-                        )
-
+                    (model, joinGame model.apiUrl game.gameId model.nameInput)
                 Nothing ->
                     ( model, Cmd.none )
-
-        GameNotFound ->
-            ( { model | errors = [ "Game not found" ] }, Cmd.none )
+           
 
         ToggleHelpDialog ->
             ( { model | isHelpDialogOpen = not model.isHelpDialogOpen }, Cmd.none )
@@ -423,9 +389,7 @@ subscriptions model =
                     Sub.none
     in
     Sub.batch
-        [ localUserRegistered LocalUserRegistered
-        , gameNotFound (always GameNotFound)
-        , gameChanged GameChanged
+        [ gameChanged GameChanged
         , timerSub
         ]
 
@@ -433,6 +397,22 @@ subscriptions model =
 
 ---- VIEW ----
 ---- PROGRAM ----
+
+joinGame: String -> String-> String -> Cmd Msg
+joinGame apiUrl gameId username = Http.post 
+    { url = (apiUrl ++ "/joinGame")
+    , body = Http.jsonBody <|
+                Json.Encode.object
+                    [ ("gameId", Json.Encode.string gameId)
+                    , ("username", Json.Encode.string username)
+                    ]
+    , expect = (Http.expectJson JoinedGame joinedGameResponseDecoder)
+    }
+
+joinedGameResponseDecoder: Json.Decode.Decoder (String, User)
+joinedGameResponseDecoder = Json.Decode.map2 Tuple.pair 
+        (Json.Decode.field "status" Json.Decode.string)
+        (Json.Decode.field "user" User.decodeUser)
 
 findGame: String -> String -> Cmd Msg
 findGame apiUrl gameCode = Http.get  
@@ -459,6 +439,7 @@ addGame apiUrl username game = Http.post
     , body = createAddGameRequestBody username game
     , expect = (Http.expectJson GameAdded addedGameResponseDecoder)
     }
+
 
 main : Program Flags Model Msg
 main =

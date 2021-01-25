@@ -78,18 +78,14 @@ export const createJoinRequest = async (
 
 export const findGameByGameId = async (gameId: string) => {
   return games.getByGameId(gameId).then((res) => {
-    return Object.values(res.val())[0];
-    const key = res.key;
-    const game = res.val();
-    if (key && game) {
-      const newGame = {
-        ...game,
-        id: key,
-      };
-      console.log("found game", newGame);
-      return newGame;
-    } else {
+    const val = res.val();
+    if (!val) {
       return null;
     }
+
+    return {
+      ...(Object.values(val)[0] as Game),
+      id: Object.keys(val)[0],
+    };
   });
 };

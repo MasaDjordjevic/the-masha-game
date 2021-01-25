@@ -30,14 +30,14 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 // firebase.analytics();
 
-const USERS_PATH = "users";
+// const USERS_PATH = "users";
 const GAMES_PATH = "games";
 
-const users = {
-  register: (userName) => database.ref(USERS_PATH).push({ name: userName }),
+// const users = {
+//   register: (userName) => database.ref(USERS_PATH).push({ name: userName }),
 
-  ref: database.ref(USERS_PATH),
-};
+//   ref: database.ref(USERS_PATH),
+// };
 
 const words = {
   addWord: (gameId, word) =>
@@ -80,42 +80,42 @@ const app = Elm.Main.init({
   },
 });
 
-const registerLocalUser = (userName) => {
-  console.log("registering user ", userName);
+// const registerLocalUser = (userName) => {
+//   console.log("registering user ", userName);
 
-  return users.ref
-    .orderByChild("name")
-    .equalTo(userName)
-    .once("value")
-    .then((res) => {
-      console.log("Found: ", res.val());
-      if (res.val()) {
-        const key = Object.keys(res.val())[0];
-        if (res.val()[key].name === userName) {
-          console.log("user found", userName);
-          return {
-            id: key,
-            name: userName,
-          };
-        }
-      } else {
-        return users.register(userName).then((res) => {
-          console.log("user registered ", userName);
-          const key = res.key;
-          return {
-            id: key,
-            name: userName,
-          };
-        });
-      }
-    });
-};
+//   return users.ref
+//     .orderByChild("name")
+//     .equalTo(userName)
+//     .once("value")
+//     .then((res) => {
+//       console.log("Found: ", res.val());
+//       if (res.val()) {
+//         const key = Object.keys(res.val())[0];
+//         if (res.val()[key].name === userName) {
+//           console.log("user found", userName);
+//           return {
+//             id: key,
+//             name: userName,
+//           };
+//         }
+//       } else {
+//         return users.register(userName).then((res) => {
+//           console.log("user registered ", userName);
+//           const key = res.key;
+//           return {
+//             id: key,
+//             name: userName,
+//           };
+//         });
+//       }
+//     });
+// };
 
-app.ports.registerLocalUser.subscribe((userName) => {
-  registerLocalUser(userName).then((user) => {
-    app.ports.localUserRegistered.send(user);
-  });
-});
+// app.ports.registerLocalUser.subscribe((userName) => {
+//   registerLocalUser(userName).then((user) => {
+//     app.ports.localUserRegistered.send(user);
+//   });
+// });
 
 // app.ports.addGame.subscribe((game) => {
 //   const userName = game.creator;
@@ -156,17 +156,17 @@ app.ports.registerLocalUser.subscribe((userName) => {
 //   });
 // });
 
-app.ports.requestToJoinGame.subscribe(({ gameId, user }) => {
-  const userName = user.name;
-  console.log("adding user: ", userName);
-  const localUser = registerLocalUser(userName);
-  localUser.then((user) => {
-    app.ports.localUserRegistered.send(user);
+// app.ports.requestToJoinGame.subscribe(({ gameId, user }) => {
+//   const userName = user.name;
+//   console.log("adding user: ", userName);
+//   const localUser = registerLocalUser(userName);
+//   localUser.then((user) => {
+//     app.ports.localUserRegistered.send(user);
 
-    console.log("request ", user.name, " to ", gameId);
-    return games.requestToJoinGame(gameId, user);
-  });
-});
+//     console.log("request ", user.name, " to ", gameId);
+//     return games.requestToJoinGame(gameId, user);
+//   });
+// });
 
 // app.ports.findGame.subscribe(({ gameId }) => {
 //   return games.get(gameId).then((res) => {
@@ -188,10 +188,18 @@ app.ports.acceptRequest.subscribe(({ gameId, user }) => {
   return games.acceptRequest(gameId, user);
 });
 
-games.ref.on("child_changed", (data) => {
-  const game = { ...data.val(), id: data.key };
-  console.log("new game", game);
-  app.ports.gameChanged.send(game);
+app.ports.subscribeToGame.subscribe((gameId) => {
+  console.log("subscribing to game", gameId);
+  database.ref(`${GAMES_PATH}/${gameId}`).on("child_changed", () => {
+    database
+      .ref(`${GAMES_PATH}/${gameId}`)
+      .once("value")
+      .then((data) => {
+        const newGame = { ...data.val(), id: data.key };
+        console.log("new game data", newGame);
+        app.ports.gameChanged.send(newGame);
+      });
+  });
 });
 
 app.ports.changeGame.subscribe((game) => {

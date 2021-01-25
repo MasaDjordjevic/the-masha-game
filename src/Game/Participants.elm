@@ -57,3 +57,11 @@ participantsEncoder participants =
         [ ( "players", Json.Encode.dict identity User.userEncoder participants.players )
         , ( "joinRequests", Json.Encode.dict identity User.userEncoder participants.joinRequests )
         ]
+
+
+addJoinRequest: User -> Participants -> Participants
+addJoinRequest user participants =
+    let
+     newPlayers = Dict.insert user.id user participants.players
+    in
+    { participants | players = newPlayers }

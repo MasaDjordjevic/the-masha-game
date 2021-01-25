@@ -56,9 +56,9 @@ export const games = {
       .equalTo(username)
       .once("value")
       .then((snapshot) => snapshot.numChildren()),
-  requestToJoinGame: (gameId: string, user: User) =>
+  requestToJoinGame: (id: string, user: User) =>
     database
-      .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests/${user.id}`)
+      .ref(`${GAMES_PATH}/${id}/participants/joinRequests/${user.id}`)
       .set(user),
   acceptRequest: (gameId: string, user: User) => {
     return database

@@ -14,7 +14,9 @@ type JoinRequest = {
   name: string;
 };
 type Game = {
+  id: string;
   participants: {
     joinRequests: { [key: string]: JoinRequest };
+    players: { [key: string]: User };
   };
 };
