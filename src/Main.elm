@@ -20,6 +20,7 @@ import Time
 import User exposing (..)
 import Views.View exposing (view)
 import Http exposing (header, jsonBody)
+import Game.Words exposing (wordEncoder)
 
 devApiUrl: String
 devApiUrl = "http://localhost:5001/themashagame-990a8/us-central1"
@@ -35,13 +36,6 @@ port gameChanged : (Json.Decode.Value -> msg) -> Sub msg
 
 
 port changeGame : Json.Encode.Value -> Cmd msg
-
-
-
-port addWord : Game.Words.AddWord -> Cmd msg
-
-
-port deleteWord : Game.Words.DeleteWord -> Cmd msg
 
 
 
@@ -109,10 +103,7 @@ playingGameUpdate msg model =
                                 Game.Words.wordWithKey 0 (Word model.wordInput localUser.name "")
                         in
                         if isPlayer then
-                            ( { model | wordInput = "" }
-                            , Game.Words.AddWord game.id newWord
-                                |> addWord
-                            )
+                            (model, addWord model.apiUrl game.id newWord)
 
                         else
                             ( model, Cmd.none )
@@ -133,7 +124,7 @@ playingGameUpdate msg model =
                         ( model, Cmd.none )
 
                 State.DeleteWord id ->
-                    ( model, deleteWord (Game.Words.DeleteWord game.id id) )
+                    ( model, deleteWord model.apiUrl game.id id )
 
                 QuitGame ->
                     -- TODO: remove the player from the list of players or set to offline
@@ -368,6 +359,27 @@ subscriptions model =
 
 ---- VIEW ----
 ---- PROGRAM ----
+
+deleteWord: String-> String-> String -> Cmd Msg
+deleteWord apiUrl gameId wordId = Http.post 
+    { url = (apiUrl ++ "/deleteWord")
+    , body = Http.jsonBody <|
+                Json.Encode.object
+                    [ ("gameId", Json.Encode.string gameId)
+                    , ("wordId", Json.Encode.string wordId)
+                    ]
+    , expect= (Http.expectString NoOpResult)
+    }
+addWord: String-> String-> Word -> Cmd Msg
+addWord apiUrl gameId word = Http.post 
+    { url = (apiUrl ++ "/addWord")
+    , body = Http.jsonBody <|
+                Json.Encode.object
+                    [ ("gameId", Json.Encode.string gameId)
+                    , ("word", wordEncoder word)
+                    ]
+    , expect= (Http.expectString NoOpResult)
+    }
 
 acceptRequest: String -> User -> String -> Cmd Msg
 acceptRequest apiUrl user gameId = Http.post 

@@ -207,14 +207,14 @@ app.ports.changeGame.subscribe((game) => {
   games.update(game);
 });
 
-app.ports.addWord.subscribe(({ gameId, word }) => {
-  words.addWord(gameId, word);
-});
+// app.ports.addWord.subscribe(({ gameId, word }) => {
+//   words.addWord(gameId, word);
+// });
 
-app.ports.deleteWord.subscribe(({ gameId, wordId }) => {
-  console.log("deleting word: ", gameId, wordId);
-  words.deleteWord(gameId, wordId);
-});
+// app.ports.deleteWord.subscribe(({ gameId, wordId }) => {
+//   console.log("deleting word: ", gameId, wordId);
+//   words.deleteWord(gameId, wordId);
+// });
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

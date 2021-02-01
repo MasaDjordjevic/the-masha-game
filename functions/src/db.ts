@@ -24,12 +24,10 @@ export const users = {
 };
 
 export const words = {
-  addWord: (gameId: string, word: Word) =>
-    database
-      .ref(`${GAMES_PATH}/${gameId}/state/words/next/${word.id}`)
-      .set(word),
-  deleteWord: (gameId: string, wordId: string) =>
-    database.ref(`${GAMES_PATH}/${gameId}/state/words/next/${wordId}`).remove(),
+  addWord: (id: string, word: Word) =>
+    database.ref(`${GAMES_PATH}/${id}/state/words/next/${word.id}`).set(word),
+  deleteWord: (id: string, wordId: string) =>
+    database.ref(`${GAMES_PATH}/${id}/state/words/next/${wordId}`).remove(),
 };
 
 export const games = {
