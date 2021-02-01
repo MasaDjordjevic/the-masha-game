@@ -3,24 +3,20 @@ port module Main exposing (..)
 import Browser
 import Debugger.Update
 import Delay
-import Dict exposing (Dict)
+import Dict 
 import Game.Game exposing (..)
 import Game.Gameplay
 import Game.Participants
-import Game.Status
-import Game.Teams
 import Game.Words exposing (Word)
 import Json.Decode
 import Json.Encode
-import List
 import Maybe
-import Platform exposing (Task)
 import State exposing (..)
 import Time
 import User exposing (..)
 import Views.View exposing (view)
-import Http exposing (header, jsonBody)
-import Game.Words exposing (wordEncoder)
+import Game.Words
+import Api 
 
 devApiUrl: String
 devApiUrl = "http://localhost:5001/themashagame-990a8/us-central1"
@@ -69,7 +65,7 @@ playingGameUpdate msg model =
             case msg of
                 AcceptUser user ->
                     if model.isOwner then
-                        (model, acceptRequest model.apiUrl user game.id)
+                        (model, Api.acceptRequest model.apiUrl user game.id)
 
                     else
                         ( model, Cmd.none )
@@ -103,7 +99,7 @@ playingGameUpdate msg model =
                                 Game.Words.wordWithKey 0 (Word model.wordInput localUser.name "")
                         in
                         if isPlayer then
-                            (model, addWord model.apiUrl game.id newWord)
+                            (model, Api.addWord model.apiUrl game.id newWord)
 
                         else
                             ( model, Cmd.none )
@@ -124,7 +120,7 @@ playingGameUpdate msg model =
                         ( model, Cmd.none )
 
                 State.DeleteWord id ->
-                    ( model, deleteWord model.apiUrl game.id id )
+                    ( model, Api.deleteWord model.apiUrl game.id id )
 
                 QuitGame ->
                     -- TODO: remove the player from the list of players or set to offline
@@ -267,7 +263,7 @@ update msg model =
                         Game.Game.createGameModel tempUser
                 in
                 ( model
-                , addGame model.apiUrl model.nameInput newGame 
+                , Api.addGame model.apiUrl model.nameInput newGame 
                     
                 )
 
@@ -280,7 +276,7 @@ update msg model =
 
 
         EnterGame ->
-            ( model, findGame model.apiUrl model.pinInput )
+            ( model, Api.findGame model.apiUrl model.pinInput )
 
         GameFound result-> 
             case result of 
@@ -318,7 +314,7 @@ update msg model =
         JoinGame ->
             case model.game of
                 Just game ->
-                    (model, joinGame model.apiUrl game.gameId model.nameInput)
+                    (model, Api.joinGame model.apiUrl game.gameId model.nameInput)
                 Nothing ->
                     ( model, Cmd.none )
            
@@ -359,80 +355,6 @@ subscriptions model =
 
 ---- VIEW ----
 ---- PROGRAM ----
-
-deleteWord: String-> String-> String -> Cmd Msg
-deleteWord apiUrl gameId wordId = Http.post 
-    { url = (apiUrl ++ "/deleteWord")
-    , body = Http.jsonBody <|
-                Json.Encode.object
-                    [ ("gameId", Json.Encode.string gameId)
-                    , ("wordId", Json.Encode.string wordId)
-                    ]
-    , expect= (Http.expectString NoOpResult)
-    }
-addWord: String-> String-> Word -> Cmd Msg
-addWord apiUrl gameId word = Http.post 
-    { url = (apiUrl ++ "/addWord")
-    , body = Http.jsonBody <|
-                Json.Encode.object
-                    [ ("gameId", Json.Encode.string gameId)
-                    , ("word", wordEncoder word)
-                    ]
-    , expect= (Http.expectString NoOpResult)
-    }
-
-acceptRequest: String -> User -> String -> Cmd Msg
-acceptRequest apiUrl user gameId = Http.post 
-    { url = (apiUrl ++ "/acceptRequest")
-    , body = Http.jsonBody <|
-                Json.Encode.object
-                    [ ("gameId", Json.Encode.string gameId)
-                    , ("user", userEncoder user)
-                    ]
-    , expect= (Http.expectString NoOpResult)
-    }
-
-joinGame: String -> String-> String -> Cmd Msg
-joinGame apiUrl gameId username = Http.post 
-    { url = (apiUrl ++ "/joinGame")
-    , body = Http.jsonBody <|
-                Json.Encode.object
-                    [ ("gameId", Json.Encode.string gameId)
-                    , ("username", Json.Encode.string username)
-                    ]
-    , expect = (Http.expectJson JoinedGame joinedGameResponseDecoder)
-    }
-
-joinedGameResponseDecoder: Json.Decode.Decoder (String, User)
-joinedGameResponseDecoder = Json.Decode.map2 Tuple.pair 
-        (Json.Decode.field "status" Json.Decode.string)
-        (Json.Decode.field "user" User.decodeUser)
-
-findGame: String -> String -> Cmd Msg
-findGame apiUrl gameCode = Http.get  
-    { url = (apiUrl ++ "/findGame?gameId=" ++ gameCode)
-    , expect = (Http.expectJson GameFound gameDecoder)
-    }
-
-addedGameResponseDecoder: Json.Decode.Decoder (Game, User)
-addedGameResponseDecoder = Json.Decode.map2 Tuple.pair 
-        (Json.Decode.field "game" gameDecoder)
-        (Json.Decode.field "user" User.decodeUser)
-
-createAddGameRequestBody: String -> Game -> Http.Body
-createAddGameRequestBody username game = 
-    Http.jsonBody <|
-                Json.Encode.object
-                    [ ("game", Game.Game.gameEncoder game)
-                    , ("username", Json.Encode.string username)
-                    ]
-
-addGame: String -> String -> Game -> Cmd Msg
-addGame apiUrl username game = Http.post 
-    { url = (apiUrl ++ "/addGame")
-    , body = createAddGameRequestBody username game
-    , expect = (Http.expectJson GameAdded addedGameResponseDecoder)
-    }
 
 
 main : Program Flags Model Msg
