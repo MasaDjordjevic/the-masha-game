@@ -183,10 +183,10 @@ const app = Elm.Main.init({
 //   });
 // });
 
-app.ports.acceptRequest.subscribe(({ gameId, user }) => {
-  console.log("accepting ", user.name);
-  return games.acceptRequest(gameId, user);
-});
+// app.ports.acceptRequest.subscribe(({ gameId, user }) => {
+//   console.log("accepting ", user.name);
+//   return games.acceptRequest(gameId, user);
+// });
 
 app.ports.subscribeToGame.subscribe((gameId) => {
   console.log("subscribing to game", gameId);

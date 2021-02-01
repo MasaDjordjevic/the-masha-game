@@ -31,9 +31,6 @@ devApiUrl = "http://localhost:5001/themashagame-990a8/us-central1"
 port subscribeToGame : Json.Encode.Value -> Cmd msg
 
 
-port acceptRequest : Game.Participants.GameRequest -> Cmd msg
-
-
 port gameChanged : (Json.Decode.Value -> msg) -> Sub msg
 
 
@@ -78,14 +75,12 @@ playingGameUpdate msg model =
             case msg of
                 AcceptUser user ->
                     if model.isOwner then
-                        ( model
-                        , Game.Participants.GameRequest game.id user
-                            |> acceptRequest
-                        )
+                        (model, acceptRequest model.apiUrl user game.id)
 
                     else
                         ( model, Cmd.none )
 
+                
                 StartGame ->
                     if model.isOwner then
                         let
@@ -285,34 +280,10 @@ update msg model =
                     
                 )
 
-        OpenGameAdded value ->
-            case Json.Decode.decodeValue gameDecoder value of
-                Ok game ->
-                    let
-                        gameBelongsToUser =
-                            case model.localUser of
-                                Just usr ->
-                                    game.creator == usr.name
-
-                                Nothing ->
-                                    False
-
-                        playMode =
-                            if gameBelongsToUser then
-                                Just State.PlayingGame
-
-                            else
-                                Just State.JoiningGame
-                    in
-                    ( { model | game = Just game, isOwner = gameBelongsToUser, playMode = playMode }, Cmd.none )
-
-                Err err ->
-                    ( model, Cmd.none )
-
         GameAdded result-> 
             case result of 
                 Ok (game, user) ->                
-                    ( { model | game = Just game, isOwner = True, playMode = Just State.PlayingGame, localUser = Just user }, Cmd.none )
+                    ( { model | game = Just game, isOwner = True, playMode = Just State.PlayingGame, localUser = Just user },  subscribeToGame (Json.Encode.string game.id) )
                 Err _ -> 
                      ( model, Cmd.none )
 
@@ -397,6 +368,17 @@ subscriptions model =
 
 ---- VIEW ----
 ---- PROGRAM ----
+
+acceptRequest: String -> User -> String -> Cmd Msg
+acceptRequest apiUrl user gameId = Http.post 
+    { url = (apiUrl ++ "/acceptRequest")
+    , body = Http.jsonBody <|
+                Json.Encode.object
+                    [ ("gameId", Json.Encode.string gameId)
+                    , ("user", userEncoder user)
+                    ]
+    , expect= (Http.expectString NoOpResult)
+    }
 
 joinGame: String -> String-> String -> Cmd Msg
 joinGame apiUrl gameId username = Http.post 

@@ -43,7 +43,6 @@ type alias Model =
 type Msg
     = SetPlayMode PlayMode
     | UpdateNameInput String
-    | OpenGameAdded Json.Decode.Value
     | GameNotFound
     | AddGame
     | JoinGame
@@ -72,3 +71,4 @@ type Msg
     | GameFound (Result Http.Error Game)
     | GameAdded (Result Http.Error (Game, User))
     | JoinedGame (Result Http.Error (String, User))
+    | NoOpResult (Result Http.Error String)

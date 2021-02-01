@@ -60,13 +60,13 @@ export const games = {
     database
       .ref(`${GAMES_PATH}/${id}/participants/joinRequests/${user.id}`)
       .set(user),
-  acceptRequest: (gameId: string, user: User) => {
+  acceptRequest: (id: string, user: User) => {
     return database
-      .ref(`${GAMES_PATH}/${gameId}/participants/joinRequests/${user.id}`)
+      .ref(`${GAMES_PATH}/${id}/participants/joinRequests/${user.id}`)
       .remove()
       .then(() =>
         database
-          .ref(`${GAMES_PATH}/${gameId}/participants/players/${user.id}`)
+          .ref(`${GAMES_PATH}/${id}/participants/players/${user.id}`)
           .set(user)
       );
   },
