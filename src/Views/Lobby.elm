@@ -7,6 +7,7 @@ import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import State exposing (Model, Msg(..))
 import User exposing (User)
+import State exposing (PlayingGameModel)
 
 
 playersList : Dict String User -> Html Msg
@@ -73,7 +74,7 @@ requestsView participants isOwner =
             ]
 
 
-lobbyView : Model -> Html Msg
+lobbyView : PlayingGameModel -> Html Msg
 lobbyView model =
     let
         titleCopy =
@@ -84,23 +85,19 @@ lobbyView model =
                 "Waiting for game to start"
 
         instructions =
-            case ( model.isOwner, model.game ) of
-                ( True, Just game ) ->
-                    h3 [] [ text ("Game code: " ++ game.gameId) ]
-
-                ( _, _ ) ->
-                    text ""
+            if model.isOwner then
+                h3 [] [ text ("Game code: " ++ model.game.gameId) ]
+            else 
+                text ""
     in
-    case model.game of
-        Just game ->
-            div [ class "lobby-container" ]
-                [ instructions
-                , h1 []
-                    [ text titleCopy ]
-                , div []
-                    [ requestsView game.participants model.isOwner
-                    ]
+    
+        div [ class "lobby-container" ]
+            [ instructions
+            , h1 []
+                [ text titleCopy ]
+            , div []
+                [ requestsView model.game.participants model.isOwner
                 ]
+            ]
 
-        Nothing ->
-            text "No game!"
+        

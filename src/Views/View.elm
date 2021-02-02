@@ -1,13 +1,8 @@
 module Views.View exposing (view)
 
 import Debugger.Debugger exposing (debugger)
-import Dict exposing (Dict)
-import Game.Game exposing (Game)
-import Game.Gameplay
 import Game.Status
-import Game.Teams
-import Game.Words
-import Html exposing (Html, button, div, h1, h2, h3, header, input, label, p, span, table, td, text, th, tr)
+import Html exposing (Html, div, h1, h2, h3, header, input, label, p, span, table, td, text, th, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import State exposing (..)
@@ -27,48 +22,45 @@ view : Model -> Html Msg
 view model =
     let
         currView =
-            case model.playMode of
-                Just PlayingGame ->
-                    case model.game of
-                        Just game ->
-                            case game.status of
-                                Game.Status.Open ->
-                                    lobbyView model
+            case model.currentGame of
+                Playing gameModel ->
+                    case gameModel.game.status of
+                        Game.Status.Open ->
+                            lobbyView gameModel
 
-                                Game.Status.Running ->
-                                    if model.isRoundEnd then
-                                        endOfRoundView game
+                        Game.Status.Running ->
+                            if gameModel.isRoundEnd then
+                                endOfRoundView gameModel.game
 
-                                    else
-                                        case game.state.round of
-                                            0 ->
-                                                addingWordsView model
+                            else
+                                case gameModel.game.state.round of
+                                    0 ->
+                                        addingWordsView gameModel
 
-                                            _ ->
-                                                playingView model
+                                    _ ->
+                                        playingView gameModel
 
-                                Game.Status.Finished ->
-                                    finishedGameView game
+                        Game.Status.Finished ->
+                            finishedGameView gameModel.game
 
-                        Nothing ->
-                            text "you are in weird state"
+                       
 
-                Just CreatingGame ->
-                    nameInputView model AddGame
+                CreatingGame gameModel->
+                    nameInputView gameModel.nameInput AddGame
 
-                Just JoiningGame ->
-                    nameInputView model JoinGame
+                JoiningGame gameModel ->
+                    nameInputView gameModel.nameInput JoinGame
 
-                Nothing ->
-                    startView model
+                Initial gameModel ->
+                    startView gameModel model.errors
 
         showHeader =
-            case model.playMode of
-                Just _ ->
-                    Basics.True
-
-                Nothing ->
+            case model.currentGame of
+                Initial _ ->
                     Basics.False
+
+                _ ->
+                    Basics.True
     in
     div []
         [ div [ class "page-container" ]

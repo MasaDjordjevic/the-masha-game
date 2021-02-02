@@ -5,6 +5,7 @@ import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import State exposing (Model, Msg(..))
 import Views.Header exposing (headerView)
+import State exposing (GameModel(..))
 
 
 type HelpContext
@@ -38,11 +39,11 @@ helpView : Model -> Html Msg
 helpView model =
     let
         context =
-            case model.game of
-                Just game ->
-                    Round game.state.round
+            case model.currentGame of
+                Playing gameModel ->
+                    Round gameModel.game.state.round
 
-                Nothing ->
+                _ ->
                     Initial
 
         isSmall =

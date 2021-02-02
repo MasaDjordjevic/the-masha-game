@@ -5,33 +5,40 @@ import Fixtures.Game exposing (emptyGame, getPlayerOnTurn, guessNextWords, lobby
 import Fixtures.User exposing (defaultUser)
 import Game.Words exposing (Words)
 import State exposing (Model, Msg(..))
+import State exposing (GameModel(..))
+import State exposing (PlayingGameModel)
+import Game.Game exposing (Game)
 
+
+upadateGame: PlayingGameModel -> Game -> GameModel
+upadateGame gameModel game = 
+    Playing ({gameModel | game = game})
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case model.game of
-        Just game ->
+    case model.currentGame of
+        Playing gameModel ->
             case msg of
                 DebugRestart ->
-                    ( { model | game = Just (emptyGame game) }, Cmd.none )
+                    ( { model | currentGame = upadateGame gameModel (emptyGame gameModel.game) }, Cmd.none )
 
                 DebugLobby ->
-                    ( { model | game = Just (lobbyGame game) }, Cmd.none )
+                    ( { model | currentGame = upadateGame gameModel (lobbyGame gameModel.game) }, Cmd.none )
 
                 DebugStarted ->
-                    ( { model | game = Just (newlyStartedGame game) }, Cmd.none )
+                    ( { model | currentGame = upadateGame gameModel (newlyStartedGame gameModel.game) }, Cmd.none )
 
                 DebugRestartWords ->
-                    ( { model | game = Just (restartWords game) }, Cmd.none )
+                    ( { model | currentGame = upadateGame gameModel  (restartWords gameModel.game) }, Cmd.none )
 
                 DebugSetPlayerOnTurn ->
                     let
                         playerOnTurn =
-                            getPlayerOnTurn game
+                            getPlayerOnTurn gameModel.game
                     in
                     case playerOnTurn of
                         Just player ->
-                            ( { model | localUser = Just player }, Cmd.none )
+                            ( { model | currentGame = Playing ({gameModel | localUser = player })  }, Cmd.none )
 
                         Maybe.Nothing ->
                             ( model, Cmd.none )
@@ -39,25 +46,25 @@ update msg model =
                 DebugSetPlayerOwner ->
                     let
                         owner =
-                            game.participants.players
+                            gameModel.game.participants.players
                                 |> Dict.toList
                                 |> List.map Tuple.second
                                 |> List.filter
-                                    (\player -> player.name == game.creator)
+                                    (\player -> player.name == gameModel.game.creator)
                                 |> List.head
                     in
                     case owner of
                         Just player ->
-                            ( { model | localUser = Just player }, Cmd.none )
+                            ( { model | currentGame = Playing ({gameModel | localUser = player }) }, Cmd.none )
 
                         Maybe.Nothing ->
                             ( model, Cmd.none )
 
                 DebugGuessNextWords ->
-                    ( { model | game = Just (guessNextWords game) }, Cmd.none )
+                    ( { model | currentGame = upadateGame gameModel (guessNextWords gameModel.game) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
-        Nothing ->
+        _ ->
             ( model, Cmd.none )

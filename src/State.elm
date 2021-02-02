@@ -11,37 +11,34 @@ type alias Flags =
     { environment : String
     }
 
+type alias PlayingGameModel = { localUser : User, game : Game, isOwner : Bool,  wordInput : String, turnTimer : Int, isRoundEnd : Bool }
+type alias InitialGameModel = { pinInput : String }
 
-type PlayMode
-    = CreatingGame
-    | JoiningGame
-    | PlayingGame
+type alias SharedProps = 
+    {  environment : String
+    , apiUrl: String
+    , errors : List String
+    , isHelpDialogOpen : Bool
+    }
+type GameModel 
+    = Initial InitialGameModel
+    | CreatingGame { nameInput : String } 
+    | JoiningGame { game: Maybe Game, nameInput : String } 
+    | Playing PlayingGameModel
 
+type alias Errors = List String
 
-type ViewState
-    = Initial
-    | NameInput
-
-
-type alias Model =
-    { localUser : Maybe User
-    , nameInput : String
-    , wordInput : String
-    , pinInput : String
-    , game : Maybe Game
-    , isOwner : Bool
-    , turnTimer : Int
+type alias Model = 
+    { currentGame: GameModel
     , environment : String
     , apiUrl: String
-    , playMode : Maybe PlayMode
-    , errors : List String
-    , isRoundEnd : Bool
+    , errors : Errors
     , isHelpDialogOpen : Bool
     }
 
 
 type Msg
-    = SetPlayMode PlayMode
+    = SetCreatingGameMode 
     | UpdateNameInput String
     | GameNotFound
     | AddGame

@@ -10,6 +10,7 @@ import Views.Playing.CurrentWord exposing (currentWordView)
 import Views.Playing.Info exposing (infoView)
 import Views.Playing.Round exposing (roundView)
 import Views.Playing.Teams exposing (teamsView)
+import State exposing (PlayingGameModel)
 
 
 playingNow : Game -> Html Msg
@@ -65,19 +66,14 @@ playingNow game =
         ]
 
 
-playingView : Model -> Html Msg
+playingView : PlayingGameModel -> Html Msg
 playingView model =
-    case ( model.game, model.localUser ) of
-        ( Just game, Just localUser ) ->
-            div [ class "playing-container" ]
-                [ div [ class "playing-now" ]
-                    [ roundView game.state.round
-                    , currentWordView game localUser model.turnTimer
-                    , infoView game localUser model.turnTimer
-                    , playingNow game
-                    ]
-                , teamsView game
-                ]
-
-        ( _, _ ) ->
-            text ""
+    div [ class "playing-container" ]
+        [ div [ class "playing-now" ]
+            [ roundView model.game.state.round
+            , currentWordView model.game model.localUser model.turnTimer
+            , infoView model.game model.localUser model.turnTimer
+            , playingNow model.game
+            ]
+        , teamsView model.game
+        ]

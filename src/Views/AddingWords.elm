@@ -9,6 +9,7 @@ import Html.Attributes exposing (class, classList, id, placeholder, type_, value
 import Html.Events exposing (onClick, onInput)
 import State exposing (Model, Msg(..))
 import User exposing (User)
+import State exposing (PlayingGameModel)
 
 
 wordCounterList : Dict String User -> Bool -> Html Msg
@@ -115,23 +116,20 @@ wordsInputView game localUser inputValue =
         ]
 
 
-addingWordsView : Model -> Html Msg
+addingWordsView : PlayingGameModel -> Html Msg
 addingWordsView model =
-    case ( model.game, model.localUser ) of
-        ( Just game, Just user ) ->
-            div [ class "adding-words-container" ]
-                [ h1 []
-                    [ text "Let’s add some words" ]
-                , div []
-                    [ wordsInputView game user model.wordInput
-                    , wordsStatisticsView game.state.words game.participants.players
-                    , if model.isOwner then
-                        button [ onClick NextRound ] [ text "Let's play" ]
+    div [ class "adding-words-container" ]
+        [ h1 []
+            [ text "Let’s add some words" ]
+        , div []
+            [ wordsInputView model.game model.localUser model.wordInput
+            , wordsStatisticsView model.game.state.words model.game.participants.players
+            , if model.isOwner then
+                button [ onClick NextRound ] [ text "Let's play" ]
 
-                      else
-                        text ""
-                    ]
-                ]
+                else
+                text ""
+            ]
+        ]
 
-        ( _, _ ) ->
-            text "No game!"
+    
