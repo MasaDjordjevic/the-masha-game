@@ -63,7 +63,7 @@ playingGameUpdate msg model =
                 case msg of
                     UpdateWordInput input ->
                         ( { model | currentGame = Playing { gameModel | wordInput = String.toUpper input }}, Cmd.none )
-                    State.AddWord ->
+                    AddWord ->
                         if String.isEmpty gameModel.wordInput then
                             ( model, Cmd.none )
 
@@ -243,11 +243,10 @@ update msg model =
                         GameFound result-> 
                             case result of 
                                 Ok game ->
-                                    ( { model | currentGame = JoiningGame {game = Just game, nameInput = "" }}, subscribeToGame (Json.Encode.string game.id) )
+                                    ( { model | currentGame = JoiningGame {game = game, nameInput = "" }}, subscribeToGame (Json.Encode.string game.id) )
                                 Err _ -> 
                                     ( { model | errors = [ "Game not found" ] }, Cmd.none )
                         _ -> 
-                            -- todo: have a default escape
                             (model, Cmd.none)
 
                 CreatingGame gameModel ->
@@ -267,8 +266,7 @@ update msg model =
                                         Game.Game.createGameModel tempUser
                                 in
                                 ( model
-                                , Api.addGame model.apiUrl gameModel.nameInput newGame 
-                                    
+                                , Api.addGame model.apiUrl gameModel.nameInput newGame    
                                 )
                         GameAdded result-> 
                             case result of 
@@ -277,17 +275,17 @@ update msg model =
                                 Err _ -> 
                                     ( model, Cmd.none )
                         _ -> 
-                            -- todo: have a default escape
                             (model, Cmd.none)
 
-                (JoiningGame gameModel) ->
+                JoiningGame gameModel ->
                     case msg of
                         UpdateNameInput input ->
                             ( { model | currentGame = JoiningGame {gameModel | nameInput = String.toUpper input} }, Cmd.none )
                         JoinedGame result -> 
-                            case (result, gameModel.game) of
-                                (Ok (status, user), Just game) ->
+                            case result of
+                                Ok (status, user) ->
                                     let
+                                        game = gameModel.game
                                         gameBelongsToUser = game.creator == user.name
         
                                         newGame = 
@@ -303,19 +301,12 @@ update msg model =
                                         
                                     in
                                     ({model | currentGame = Playing { localUser =  user,  isOwner = gameBelongsToUser, game = newGame,  wordInput = "", turnTimer = defaultTimer, isRoundEnd = False}}, Cmd.none)
-                                (_, _) ->
+                                _ ->
                                     ( { model | errors = [ "Joining game error" ] }, Cmd.none )
                         JoinGame ->
-                            case gameModel.game of
-                                Just game ->
-                                    (model, Api.joinGame model.apiUrl game.gameId gameModel.nameInput)
-                                Nothing ->
-                                    ( model, Cmd.none )
-                        
+                            (model, Api.joinGame model.apiUrl  gameModel.game.gameId gameModel.nameInput)
 
-                        
                         _ ->
-                            -- todo: have a default escape
                             (model, Cmd.none)
 
 

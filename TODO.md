@@ -17,3 +17,7 @@
 # Code style
 
     * Add tests for Encoding/Decoding (especially for missing/empty states)
+
+    * Rethink if creating a game shuold be on Elm side at all, atm empty game model is being created on Elm side and the "patched" in the cloud function, might make sense to have it all in the function but could introduce bugs when changing the model as the compiler wouldn't catch it
+
+    * There is "isPlayer" chek on addWord msg, it's better to remove it from the UI completely if a user is not a player

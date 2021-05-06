@@ -1,0 +1,790 @@
+{
+	"info": {
+		"_postman_id": "3320ca4d-5b5f-47f1-a399-808f8ef870a6",
+		"name": "The Masha Game",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Test scenario",
+			"item": [
+				{
+					"name": "createGame",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function ()  {",
+									"    pm.response.to.have.status(201);",
+									"})",
+									"",
+									"const jsonResponse = pm.response.json();",
+									"pm.environment.set(\"game:gameId\", jsonResponse.game.gameId)",
+									"pm.environment.set(\"game:id\", jsonResponse.game.id)",
+									"",
+									"var schema = {",
+									"    \"properties\": {",
+									"        \"status\": {",
+									"            \"type\": \"string\"",
+									"        },",
+									"        \"game\": {",
+									"            \"type\": \"object\"",
+									"        },",
+									"        \"user\": {",
+									"            \"type\": \"object\"",
+									"        }",
+									"    }",
+									"};",
+									"",
+									"",
+									"",
+									"pm.test('Schema is valid', function () {",
+									"    pm.response.to.have.jsonSchema(schema)",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"MASA\",\n    \"game\": {\n        \"id\": \"\",\n        \"gameId\": \"\",\n        \"creator\": \"MASA\",\n        \"status\": \"open\",\n        \"participants\": {\n            \"players\": [],\n            \"joinRequests\": []\n        },\n        \"state\": {\n            \"round\": -1,\n            \"turnTimer\": {\n                \"status\": \"restarted\",\n                \"value\": \"60\"\n            }\n        },\n        \"defaultTimer\": 60\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/addGame",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"addGame"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findGame",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Has one player\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const players = jsonData.participants.players",
+									"    pm.expect(Object.values(players).length).to.eql(1);",
+									"});",
+									"",
+									"pm.test(\"Round is -1\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.state.round).to.eql(-1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/findGame?gameId={{game:gameId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"findGame"
+							],
+							"query": [
+								{
+									"key": "gameId",
+									"value": "{{game:gameId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "joinGame",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const jsonResponse = pm.response.json();",
+									"pm.environment.set(\"user:id\", jsonResponse.user.id)",
+									"pm.environment.set(\"user:name\", jsonResponse.user.name)",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": \"{{game:gameId}}\",\n    \"username\": \"postmanScenario\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/joinGame",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"joinGame"
+							],
+							"query": [
+								{
+									"key": "gameId",
+									"value": "-MKuAxp04eMYh86nH8i7",
+									"disabled": true
+								},
+								{
+									"key": "username",
+									"value": "postman",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "joinGame Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 409\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": \"{{game:gameId}}\",\n    \"username\": \"postmanScenario\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/joinGame",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"joinGame"
+							],
+							"query": [
+								{
+									"key": "gameId",
+									"value": "-MKuAxp04eMYh86nH8i7",
+									"disabled": true
+								},
+								{
+									"key": "username",
+									"value": "postman",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "acceptRequest",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": \"{{game:id}}\",\n    \"user\": {\n        \"name\" :\"{{user:name}}\",\n        \"id\": \"{{user:id}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/acceptRequest",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"acceptRequest"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "joinGame as player",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Status is correct\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql(\"User is already in the game\")",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": \"{{game:gameId}}\",\n    \"username\": \"postmanScenario\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/joinGame",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"joinGame"
+							],
+							"query": [
+								{
+									"key": "gameId",
+									"value": "-MKuAxp04eMYh86nH8i7",
+									"disabled": true
+								},
+								{
+									"key": "username",
+									"value": "postman",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findGame Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Has two players and no requests\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const players = jsonData.participants.players",
+									"    pm.expect(Object.values(players).length).to.eql(2);",
+									"    const requests = jsonData.participants.joinRequests",
+									"    pm.expect(requests).to.be.undefined;",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/findGame?gameId={{game:gameId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"findGame"
+							],
+							"query": [
+								{
+									"key": "gameId",
+									"value": "{{game:gameId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addWord",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": \"{{game:id}}\",\n    \"word\": {\n        \"player\" :\"{{user:name}}\",\n        \"word\": \"table\",\n        \"id\": \"000-table-{{user:name}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/addWord",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"addWord"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findGame Copy 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Has one word\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const nextWords = jsonData.state.words.next",
+									"    pm.expect(Object.values(nextWords).length).to.eql(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/findGame?gameId={{game:gameId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"findGame"
+							],
+							"query": [
+								{
+									"key": "gameId",
+									"value": "{{game:gameId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteWord",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gameId\": \"{{game:id}}\",\n    \"wordId\": \"000-table-postmanScenario\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/deleteWord",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"deleteWord"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findGame Copy 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Has no words\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    const nextWords = jsonData.state.words",
+									"    pm.expect(nextWords).to.be.undefined;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5001/themashagame-990a8/europe-west1/findGame?gameId={{game:gameId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"themashagame-990a8",
+								"europe-west1",
+								"findGame"
+							],
+							"query": [
+								{
+									"key": "gameId",
+									"value": "{{game:gameId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "createGame",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"masa\",\n    \"game\": {\n        \"id\": \"\",\n        \"gameId\": \"\",\n        \"creator\": \"masa\",\n        \"status\": \"open\",\n        \"participants\": {\n            \"players\": [],\n            \"joinRequests\": []\n        },\n        \"state\": {\n            \"round\": -1,\n            \"turnTimer\": {\n                \"status\": \"restarted\",\n                \"value\": \"60\"\n            }\n        },\n        \"defaultTimer\": 60\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/themashagame-990a8/europe-west1/addGame",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"themashagame-990a8",
+						"europe-west1",
+						"addGame"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "findGame",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5001/themashagame-990a8/europe-west1/findGame?gameId=masa",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"themashagame-990a8",
+						"europe-west1",
+						"findGame"
+					],
+					"query": [
+						{
+							"key": "gameId",
+							"value": "masa"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "joinGame",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"gameId\": \"-MO7n_cuWPstGtkC8Wo8\",\n    \"username\": \"postman2\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/themashagame-990a8/europe-west1/joinGame",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"themashagame-990a8",
+						"europe-west1",
+						"joinGame"
+					],
+					"query": [
+						{
+							"key": "gameId",
+							"value": "-MKuAxp04eMYh86nH8i7",
+							"disabled": true
+						},
+						{
+							"key": "username",
+							"value": "postman",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "acceptRequest",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"gameId\": \"-MO7n_cuWPstGtkC8Wo8\",\n    \"user\": {\n        \"name\" :\"postman\",\n        \"id\": \"-MO7ndFEgQndLkT-OmnM\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/themashagame-990a8/europe-west1/acceptRequest",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"themashagame-990a8",
+						"europe-west1",
+						"acceptRequest"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addWord",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"gameId\": \"-MO7n_cuWPstGtkC8Wo8\",\n    \"word\": {\n        \"player\" :\"postman\",\n        \"word\": \"table\",\n        \"id\": \"001-table-postman\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/themashagame-990a8/europe-west1/addWord",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"themashagame-990a8",
+						"europe-west1",
+						"addWord"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteWord",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"gameId\": \"-MO7n_cuWPstGtkC8Wo8\",\n    \"wordId\": \"000-apple-postman\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/themashagame-990a8/europe-west1/deleteWord",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"themashagame-990a8",
+						"europe-west1",
+						"deleteWord"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

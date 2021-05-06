@@ -23,7 +23,7 @@ type alias SharedProps =
 type GameModel 
     = Initial InitialGameModel
     | CreatingGame { nameInput : String } 
-    | JoiningGame { game: Maybe Game, nameInput : String } 
+    | JoiningGame { game: Game, nameInput : String } 
     | Playing PlayingGameModel
 
 type alias Errors = List String

@@ -55,7 +55,7 @@ update msg model =
                     in
                     case owner of
                         Just player ->
-                            ( { model | currentGame = Playing ({gameModel | localUser = player }) }, Cmd.none )
+                            ( { model | currentGame = Playing ({gameModel | localUser = player, isOwner = True }) }, Cmd.none )
 
                         Maybe.Nothing ->
                             ( model, Cmd.none )
