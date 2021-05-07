@@ -16,6 +16,8 @@
 
     * Organise css
 
+    * Save game and username to local state so you can recover. You need to be able to differentiate games that are done or finished a while ago from ones that are "active"
+
 # Code style
 
     * Add tests for Encoding/Decoding (especially for missing/empty states)

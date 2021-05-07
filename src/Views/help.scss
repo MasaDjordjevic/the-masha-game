@@ -40,6 +40,14 @@
   padding: 32px 28px;
   color: black;
   font-family: "Open Sans Condensed", sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+
   > div {
     display: flex;
     flex-direction: column;
@@ -48,4 +56,26 @@
       margin-bottom: 1em;
     }
   }
+}
+
+.correct:before {
+  content: "\2713";
+  display: inline-block;
+  padding: 0 6px 0 0;
+}
+
+.incorrect:before {
+  content: "\2716	";
+  display: inline-block;
+  padding: 0 6px 0 0;
+}
+
+.examples {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 8px;
+}
+
+.bottom {
+  align-self: flex-end;
 }
