@@ -4,6 +4,8 @@
 
     * Add loading state when creating/joining game or all buttons
 
+    * Loading state on accepting player, adding word
+
 # Game play
 
     * Run game by first player, not the owner. It'll remove dependency on owner!!!

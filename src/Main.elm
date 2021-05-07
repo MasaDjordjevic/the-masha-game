@@ -76,7 +76,7 @@ playingGameUpdate msg model =
                                     Game.Words.wordWithKey 0 (Word gameModel.wordInput localUser.name "")
                             in
                             if isPlayer then
-                                (model, Api.addWord model.apiUrl game.id newWord)
+                                ({ model | currentGame = Playing { gameModel | wordInput = "" }}, Api.addWord model.apiUrl game.id newWord)
 
                             else
                                 ( model, Cmd.none )
