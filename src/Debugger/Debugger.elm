@@ -15,6 +15,7 @@ debugger model =
                 , button [ onClick DebugLobby ] [ text "Lobby" ]
                 , button [ onClick DebugStarted ] [ text "Newly started" ]
                 , button [ onClick DebugRestartWords ] [ text "Restart words" ]
+                , button [ onClick DebugSetNextPlayer ] [ text "Set next player" ]
                 , button [ onClick DebugSetPlayerOnTurn ] [ text "Set player on turn" ]
                 , button [ onClick DebugSetPlayerOwner ] [ text "Set player owner" ]
                 , button [ onClick DebugGuessNextWords ] [ text "Guess next words" ]

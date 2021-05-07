@@ -70,7 +70,12 @@ requestsView participants isOwner =
                     participants.joinRequests
                     isOwner
                 ]
-            , button [ onClick StartGame, classList [ ( "disabled", cantStartGame ), ( "start-game", True ) ] ] [ text "start game" ]
+            , 
+            if isOwner 
+                then 
+                    button [ onClick StartGame, classList [ ( "disabled", cantStartGame ), ( "start-game", True ) ] ] [ text "start game" ]
+                else 
+                    text ""
             ]
 
 

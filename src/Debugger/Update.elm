@@ -8,11 +8,47 @@ import State exposing (Model, Msg(..))
 import State exposing (GameModel(..))
 import State exposing (PlayingGameModel)
 import Game.Game exposing (Game)
+import Player exposing (Player)
+import User exposing (User)
+import Game.Teams exposing (advanceCurrentTeam)
+import Maybe exposing (withDefault)
 
 
 upadateGame: PlayingGameModel -> Game -> GameModel
 upadateGame gameModel game = 
-    Playing ({gameModel | game = game})
+    let
+        localUser = gameModel.localUser
+        isPlayer = Dict.member localUser.id game.participants.players
+
+        newLocalUser = 
+            if isPlayer 
+                then 
+                    localUser
+                else
+                    Dict.values game.participants.players
+                     |> List.head
+                     |> withDefault localUser
+    in
+    Playing ({gameModel | game = game, localUser = newLocalUser})
+
+getOwner: PlayingGameModel -> Maybe User
+getOwner gameModel= 
+     gameModel.game.participants.players
+                                |> Dict.toList
+                                |> List.map Tuple.second
+                                |> List.filter
+                                    (\pl -> pl.name == gameModel.game.creator)
+                                |> List.head
+isOwner: PlayingGameModel -> Player -> Bool
+isOwner gameModel player= 
+    let
+        owner = getOwner gameModel
+    in
+        case owner of
+            Just own ->
+                own.id == player.userId
+            Nothing -> 
+                False
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -20,7 +56,7 @@ update msg model =
         Playing gameModel ->
             case msg of
                 DebugRestart ->
-                    ( { model | currentGame = upadateGame gameModel (emptyGame gameModel.game) }, Cmd.none )
+                   ( { model | currentGame = upadateGame gameModel (emptyGame gameModel.game) }, Cmd.none )
 
                 DebugLobby ->
                     ( { model | currentGame = upadateGame gameModel (lobbyGame gameModel.game) }, Cmd.none )
@@ -30,6 +66,16 @@ update msg model =
 
                 DebugRestartWords ->
                     ( { model | currentGame = upadateGame gameModel  (restartWords gameModel.game) }, Cmd.none )
+                
+                DebugSetNextPlayer ->
+                    let
+                        newTeams = advanceCurrentTeam gameModel.game.state.teams 
+                        oldState = gameModel.game.state
+                        newState = { oldState | teams = newTeams}
+                        oldGame = gameModel.game
+                        newGame = {oldGame | state = newState }
+                    in
+                        ({model | currentGame = upadateGame gameModel newGame}, Cmd.none)
 
                 DebugSetPlayerOnTurn ->
                     let
@@ -44,16 +90,7 @@ update msg model =
                             ( model, Cmd.none )
 
                 DebugSetPlayerOwner ->
-                    let
-                        owner =
-                            gameModel.game.participants.players
-                                |> Dict.toList
-                                |> List.map Tuple.second
-                                |> List.filter
-                                    (\player -> player.name == gameModel.game.creator)
-                                |> List.head
-                    in
-                    case owner of
+                    case getOwner gameModel of
                         Just player ->
                             ( { model | currentGame = Playing ({gameModel | localUser = player, isOwner = True }) }, Cmd.none )
 
