@@ -6,7 +6,6 @@
 
     * Loading state on accepting player, adding word
 
-    * Add close button to dialogs
 
     * Change help dialog font
 

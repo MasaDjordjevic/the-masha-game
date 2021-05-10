@@ -21,6 +21,7 @@ donateContent  =
         [ span [] [ text "Are you enjoying the game and would like to support? 🥰" ]
         , span [] [ text "You can do so here" ]
         , a [ href "https://paypal.me/masadordevic", class "donate-button"] [text "♡ Support"]
+        , button [class "close-button"] [text "𝗫"]
         ]
 
         

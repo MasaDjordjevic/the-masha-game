@@ -138,6 +138,7 @@ helpView model =
                 , div [ class "help-dialog-content" ] 
                     [ helpContent context
                     , span [class "bottom"][ text "If something went wrong try refreshing the page and re-joining the game by entering the same game code and using the same username."]
+                    , button [class "close-button"] [text "𝗫"]
                     ]
                 
                 ]

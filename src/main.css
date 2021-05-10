@@ -74,3 +74,15 @@ button {
 
 h3 {
   color: rgba(255, 255, 255, 0.5); }
+
+.close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 20px 20px;
+  background-color: transparent; }
+  .close-button:focus {
+    outline: none; }
+  .close-button:hover {
+    font-size: 25px;
+    background-color: transparent; }
