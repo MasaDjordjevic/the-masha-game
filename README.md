@@ -10,3 +10,19 @@ After all the words are explained, we mix them all together and explain them aga
 ## How to develop the app?
 
 Run the elm app with `elm-app start`, run `yarn css` to start sass compiler ,and run functions locally by going to the `functions` directory and running `yarn serve` (you need to rerun this command on change).
+
+## How to publish the app?
+
+Login to firebase `firebase login:ci`.
+
+### Elm app
+
+The app is hosted on firebase so after building `elm-app build` run `yarn deploy`.
+
+### Google functions
+
+Go to `functions` directory `yarn build` and `yarn deploy`.
+
+## A little bit about the code
+
+Full game logic and UI is inside the elm code (so I could learn as much as possible, I know it's not the best). In order to improve security a little bit all the database access is in google functions.

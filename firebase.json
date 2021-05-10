@@ -3,10 +3,13 @@
     "public": "build",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
-      {
-        "source": "/findGame",
-        "function": "findGame"
-      }
+      { "source": "/addGame", "function": "addGame" },
+      { "source": "/joinGame", "function": "joinGame" },
+      { "source": "/findGame", "function": "findGame" },
+      { "source": "/acceptRequest", "function": "acceptRequest" },
+      { "source": "/updateGame", "function": "updateGame" },
+      { "source": "/addWord", "function": "addWord" },
+      { "source": "/deleteWord", "function": "deleteWord" }
     ]
   },
   "functions": {

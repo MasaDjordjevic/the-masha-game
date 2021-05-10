@@ -30,7 +30,7 @@ const onCorsRequest = (
 ) =>
   functions.https.onRequest(async (request, response) => {
     corsHandler(request, response, async () => {
-      handler(request, response);
+      return handler(request, response);
     });
   });
 

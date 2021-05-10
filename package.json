@@ -10,7 +10,10 @@
     "test": "test",
     "build-css": "node-sass-chokidar src/ -o src/",
     "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
-    "css": "npm run watch-css"
+    "css": "npm run watch-css",
+    "deploy-elm": "npm run build-css && elm-app build && firebase deploy --only hosting",
+    "deploy-functions": "firebase deploy --only functions",
+    "deploy": "npm run deploy-elm && npm run deploy-functions"
   },
   "repository": {
     "type": "git",
