@@ -14,12 +14,7 @@ type alias Flags =
 type alias PlayingGameModel = { localUser : User, game : Game, isOwner : Bool,  wordInput : String, turnTimer : Int, isRoundEnd : Bool }
 type alias InitialGameModel = { pinInput : String }
 
-type alias SharedProps = 
-    {  environment : String
-    , apiUrl: String
-    , errors : List String
-    , isHelpDialogOpen : Bool
-    }
+
 type GameModel 
     = Initial InitialGameModel
     | CreatingGame { nameInput : String } 
@@ -34,6 +29,7 @@ type alias Model =
     , apiUrl: String
     , errors : Errors
     , isHelpDialogOpen : Bool
+    , isDonateDialogOpen: Bool
     }
 
 
@@ -58,6 +54,7 @@ type Msg
     | SwitchTimer
     | WordGuessed
     | ToggleHelpDialog
+    | ToggleDonateDialog
     | DebugRestart
     | DebugLobby
     | DebugStarted

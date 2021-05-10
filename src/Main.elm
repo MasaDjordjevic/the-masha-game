@@ -47,6 +47,7 @@ init flags =
       , apiUrl = if flags.environment == "development" then devApiUrl else ""
       , errors = []
       , isHelpDialogOpen = False
+      , isDonateDialogOpen = False
       }
     , Cmd.none
     )
@@ -230,6 +231,8 @@ update msg model =
     case msg of
         ToggleHelpDialog ->
                     ( { model | isHelpDialogOpen = not model.isHelpDialogOpen }, Cmd.none )
+        ToggleDonateDialog ->
+                    ( { model | isDonateDialogOpen = not model.isDonateDialogOpen}, Cmd.none )
         _ ->
             case model.currentGame of 
                 Initial gameModel ->

@@ -2,15 +2,26 @@
   padding: 52px 25px;
   background-color: var(--background-color);
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
-  position: relative; }
+  position: relative;
+  min-width: 400px; }
   @media (max-width: var(800px)) {
     .page-container {
+      flex-direction: column;
+      align-items: center; } }
+
+.page-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center; }
+  @media (max-width: var(800px)) {
+    .page-wrapper {
       flex-direction: column;
       align-items: center; } }
 

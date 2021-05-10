@@ -11,6 +11,7 @@ import Views.AddingWords exposing (addingWordsView)
 import Views.EndOfRound exposing (endOfRoundView)
 import Views.FinishedGame exposing (finishedGameView)
 import Views.Header exposing (headerView)
+import Views.Donate exposing (donateView)
 import Views.Help exposing (helpView)
 import Views.Lobby exposing (lobbyView)
 import Views.NameInput exposing (nameInputView)
@@ -62,7 +63,8 @@ view model =
                 _ ->
                     Basics.True
     in
-    div []
+    div [] [
+        div [ class "page-wrapper"]
         [ div [ class "page-container" ]
             [ if showHeader then
                 headerView
@@ -70,7 +72,11 @@ view model =
               else
                 text ""
             , currView
-            , helpView model
             ]
-        , debugger model
+        , helpView model
+        , donateView model
+        
         ]
+        , debugger model
+    ]
+    
