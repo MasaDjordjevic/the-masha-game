@@ -1,13 +1,21 @@
+@import "./constants.scss";
+
 .page-container {
   padding: 52px 25px;
   background-color: var(--background-color);
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
   position: relative;
+
+  @media (max-width: var($breakpointMedium)) {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 .title {

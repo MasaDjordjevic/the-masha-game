@@ -1,12 +1,14 @@
+@import "./constants.scss";
+
 .help-dialog-button {
   width: 86px;
   height: 86px;
   background-color: var(--action-highlight);
   border-radius: 50%;
   cursor: pointer;
-  position: fixed;
   bottom: 0;
   right: 0;
+  position: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -21,7 +23,9 @@
 }
 
 .help-dialog {
-  position: fixed;
+  @media (max-width: $breakpointMedium) {
+    position: fixed;
+  }
   width: 100%;
   height: 100vh;
   top: 0;
@@ -47,6 +51,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+
+  overflow: scroll;
 
   > div {
     display: flex;
@@ -78,4 +84,10 @@
 
 .bottom {
   align-self: flex-end;
+}
+
+.help-dialog-container .header {
+  @media (min-width: $breakpointMedium) {
+    display: none;
+  }
 }

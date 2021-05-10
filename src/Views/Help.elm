@@ -30,6 +30,7 @@ helpContent context =
                     , b [] [ text "One word" ]
                     ]
                 , span [] [ text "The game starts with writing down words. Then we get divided in teams (pairs). Each team gets 60 seconds where one player tries to explain as many words as possible to the other player. Be attentive and try to remember the words, because once we explain them all, we play the next round with the same words. " ]
+                , span [] [ text "Gather around or join with your friends in an online meeting and get started! 🥳"]
                 ]
 
         Round 0 ->
@@ -130,7 +131,7 @@ helpView model =
                 _ ->
                     True
     in
-    div []
+    div [ class "help-dialog-container"]
         [ if model.isHelpDialogOpen then
             div [ class "help-dialog", onClick ToggleHelpDialog ]
                 [ headerView

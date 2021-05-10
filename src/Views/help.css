@@ -18,7 +18,6 @@
     height: 56px; }
 
 .help-dialog {
-  position: fixed;
   width: 100%;
   height: 100vh;
   top: 0;
@@ -28,6 +27,9 @@
   padding: 52px 25px;
   display: flex;
   flex-direction: column; }
+  @media (max-width: 800px) {
+    .help-dialog {
+      position: fixed; } }
 
 .help-dialog-content {
   background-color: var(--action-highlight);
@@ -41,7 +43,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between; }
+  justify-content: space-between;
+  overflow: scroll; }
   .help-dialog-content > div {
     display: flex;
     flex-direction: column;
@@ -66,3 +69,7 @@
 
 .bottom {
   align-self: flex-end; }
+
+@media (min-width: 800px) {
+  .help-dialog-container .header {
+    display: none; } }
