@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import { games, users } from "./db";
+import { nanoid } from "nanoid";
 
 type NotFoundUser = { found: boolean };
 type FoundUser = { found: boolean; id: string; name: string };
@@ -48,11 +49,13 @@ export const createGame = async (username: string, game: any) => {
   functions.logger.info(
     `User with username: ${addedUser.name} succesfully found/added: ${addedUser.id}.`
   );
-  const numGamesWithSameCreator = await games.getByCreator(username);
-  const gameIdSuffix = numGamesWithSameCreator ? +numGamesWithSameCreator : "";
+
+  // Generate secure URL-friendly unique ID
+  const gameId = nanoid(9);
+
   const newGame = {
     ...game,
-    gameId: game.creator + gameIdSuffix,
+    gameId,
     participants: {
       ...game.participants,
       players: { [addedUser.id]: addedUser },

@@ -47,13 +47,6 @@ export const games = {
       .orderByChild("gameId")
       .equalTo(gameId)
       .once("value"),
-  getByCreator: (username: string) =>
-    database
-      .ref(GAMES_PATH)
-      .orderByChild("creator")
-      .equalTo(username)
-      .once("value")
-      .then((snapshot) => snapshot.numChildren()),
   requestToJoinGame: (id: string, user: User) =>
     database
       .ref(`${GAMES_PATH}/${id}/participants/joinRequests/${user.id}`)
