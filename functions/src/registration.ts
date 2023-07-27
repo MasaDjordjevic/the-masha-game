@@ -51,7 +51,7 @@ export const createGame = async (username: string, game: any) => {
   );
 
   // Generate secure URL-friendly unique ID
-  const gameId = nanoid(9);
+  const gameId = nanoid(5);
 
   const newGame = {
     ...game,

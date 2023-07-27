@@ -5,9 +5,8 @@ import Game.Participants exposing (Participants, joinRequestsDecoder)
 import Html exposing (Html, button, div, h1, h2, h3, span, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import State exposing (Model, Msg(..))
+import State exposing (Model, Msg(..), PlayingGameModel)
 import User exposing (User)
-import State exposing (PlayingGameModel)
 
 
 playersList : Dict String User -> Html Msg
@@ -50,59 +49,62 @@ requestsList users isOwner =
 requestsView : Participants -> Bool -> Html Msg
 requestsView participants isOwner =
     let
-        hasNoParticipants =
-            Dict.isEmpty participants.joinRequests && Dict.isEmpty participants.players
-
         cantStartGame =
-            Dict.isEmpty participants.players
+            Dict.size participants.players <= 1
     in
-    if hasNoParticipants then
-        h2 [] [ text "Waiting for players to join" ]
-
-    else
-        div []
-            [ div [ class "join-requests-container" ]
-                [ h3 []
-                    [ text "Players" ]
-                , playersList
-                    participants.players
-                , requestsList
-                    participants.joinRequests
-                    isOwner
-                ]
-            , 
-            if isOwner 
-                then 
-                    button [ onClick StartGame, classList [ ( "disabled", cantStartGame ), ( "start-game", True ) ] ] [ text "start game" ]
-                else 
-                    text ""
+    div []
+        [ div [ class "join-requests-container" ]
+            [ h3 []
+                [ text "Players" ]
+            , playersList
+                participants.players
+            , requestsList
+                participants.joinRequests
+                isOwner
             ]
+        , if isOwner then
+            div []
+                [ -- button [ onClick CopyInviteLink ] [ text "Invite 🔗" ]
+                  button [ onClick StartGame, classList [ ( "disabled", cantStartGame ), ( "start-game", True ) ] ] [ text "start game" ]
+                ]
+
+          else
+            text ""
+        ]
 
 
 lobbyView : PlayingGameModel -> Html Msg
 lobbyView model =
     let
+        hasNoParticipants =
+            Dict.isEmpty model.game.participants.joinRequests && Dict.size model.game.participants.players <= 1
+
         titleCopy =
             if model.isOwner then
-                "ACCEPT PLAYERS"
+                if hasNoParticipants then
+                    "Waiting for players to join"
+
+                else
+                    "ACCEPT PLAYERS"
 
             else
                 "Waiting for game to start"
 
         instructions =
             if model.isOwner then
-                h3 [] [ text ("Game code: " ++ model.game.gameId) ]
-            else 
+                div [ class "invite-to-game" ]
+                    [ h3 [ class "game-code" ] [ text ("Game code: " ++ model.game.gameId) ]
+                    , button [ onClick CopyInviteLink ] [ text "Invite 🔗" ]
+                    ]
+
+            else
                 text ""
     in
-    
-        div [ class "lobby-container" ]
-            [ instructions
-            , h1 []
-                [ text titleCopy ]
-            , div []
-                [ requestsView model.game.participants model.isOwner
-                ]
+    div [ class "lobby-container" ]
+        [ instructions
+        , h1 []
+            [ text titleCopy ]
+        , div []
+            [ requestsView model.game.participants model.isOwner
             ]
-
-        
+        ]

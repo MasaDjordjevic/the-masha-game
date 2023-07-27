@@ -57,6 +57,11 @@ app.ports.changeGame.subscribe((game) => {
   database.ref(`${GAMES_PATH}/${game.id}`).set(game);
 });
 
+app.ports.copyInviteLink.subscribe((gameId) => {
+  console.log("copy to clipboard", gameId);
+  navigator.clipboard.writeText(`${window.location.origin}/join/${gameId}`);
+});
+
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
