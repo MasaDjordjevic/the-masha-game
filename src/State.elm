@@ -1,9 +1,13 @@
 module State exposing (..)
 
+import Browser
+import Browser.Navigation
 import Game.Game exposing (Game)
 import Http
 import Json.Decode
+import Route exposing (Route)
 import Time
+import Url
 import User exposing (User)
 
 
@@ -23,7 +27,7 @@ type alias InitialGameModel =
 type GameModel
     = Initial InitialGameModel
     | CreatingGame { nameInput : String }
-    | JoiningGame { game : Game, nameInput : String }
+    | JoiningGame { game : Maybe Game, nameInput : String }
     | Playing PlayingGameModel
 
 
@@ -38,11 +42,16 @@ type alias Model =
     , errors : Errors
     , isHelpDialogOpen : Bool
     , isDonateDialogOpen : Bool
+    , url : Url.Url
+    , route : Route
+    , navKey : Browser.Navigation.Key
     }
 
 
 type Msg
-    = SetCreatingGameMode
+    = UrlChanged Url.Url
+    | LinkClicked Browser.UrlRequest
+    | SetCreatingGameMode
     | UpdateNameInput String
     | GameNotFound
     | AddGame
