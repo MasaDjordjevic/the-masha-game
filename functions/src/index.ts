@@ -80,6 +80,7 @@ export const joinGame = onCorsRequest(async (request, response) => {
     response.status(201).send({
       status: "Request with the same username already exists",
       user: existingRequest,
+      game: game,
     });
     return;
   }
@@ -95,17 +96,27 @@ export const joinGame = onCorsRequest(async (request, response) => {
     response.status(201).send({
       status: "User is already in the game",
       user: existingPlayer,
+      game: game,
     });
     return;
   }
 
-  const user = await createJoinRequest(username, game.id);
-
-  if (user) {
-    response.status(201).send({
-      status: `Game request added.`,
-      user: user,
-    });
+  const addedUser = await createJoinRequest(username, game.id);
+  const updatedGame = await findGameByGameId(gameId);
+  if (updatedGame) {
+    if (updatedGame.state.round > -1) {
+      response.status(201).send({
+        status: `Game request added.`,
+        user: addedUser,
+        game: updatedGame,
+      });
+    } else {
+      response.status(201).send({
+        status: `Game watcher added.`,
+        user: addedUser,
+        game: updatedGame,
+      });
+    }
   } else {
     response.status(500).send(`Cannot add join request.`);
   }

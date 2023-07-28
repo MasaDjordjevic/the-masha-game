@@ -1,15 +1,13 @@
 module Views.AddingWords exposing (..)
 
-import Dict exposing (Dict, isEmpty)
+import Dict exposing (Dict)
 import Game.Game exposing (Game)
-import Game.Participants exposing (Participants, joinRequestsDecoder)
 import Game.Words
-import Html exposing (Html, button, div, h1, h2, h3, input, span, text)
+import Html exposing (Html, button, div, h1, h3, input, span, text)
 import Html.Attributes exposing (class, classList, id, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
-import State exposing (Model, Msg(..))
+import State exposing (Msg(..), PlayingGameModel, UserRole(..))
 import User exposing (User)
-import State exposing (PlayingGameModel)
 
 
 wordCounterList : Dict String User -> Bool -> Html Msg
@@ -118,18 +116,25 @@ wordsInputView game localUser inputValue =
 
 addingWordsView : PlayingGameModel -> Html Msg
 addingWordsView model =
+    let
+        wordsInput =
+            case model.localUser of
+                LocalPlayer localPlayer ->
+                    wordsInputView model.game localPlayer model.wordInput
+
+                LocalWatcher _ ->
+                    text ""
+    in
     div [ class "adding-words-container" ]
         [ h1 []
             [ text "Let’s add some words" ]
         , div []
-            [ wordsInputView model.game model.localUser model.wordInput
+            [ wordsInput
             , wordsStatisticsView model.game.state.words model.game.participants.players
             , if model.isOwner then
                 button [ onClick NextRound ] [ text "Let's play" ]
 
-                else
+              else
                 text ""
             ]
         ]
-
-    

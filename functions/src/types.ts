@@ -19,4 +19,7 @@ type Game = {
     joinRequests: { [key: string]: JoinRequest };
     players: { [key: string]: User };
   };
+  state: {
+    round: number;
+  };
 };

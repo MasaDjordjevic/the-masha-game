@@ -6,7 +6,6 @@
 
     * Loading state on accepting player, adding word
 
-
     * Change help dialog font
 
 # Game play
@@ -24,6 +23,8 @@
     * Save if visited before or use the above to auto open how to play on the first play
 
     * Finish game on disconnect
+
+    * Request with the same username exists is not handled by UI
 
 # Code style
 

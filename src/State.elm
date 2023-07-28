@@ -16,8 +16,13 @@ type alias Flags =
     }
 
 
+type UserRole
+    = LocalPlayer User
+    | LocalWatcher User
+
+
 type alias PlayingGameModel =
-    { localUser : User, game : Game, isOwner : Bool, wordInput : String, turnTimer : Int, isRoundEnd : Bool }
+    { localUser : UserRole, game : Game, isOwner : Bool, wordInput : String, turnTimer : Int, isRoundEnd : Bool }
 
 
 type alias InitialGameModel =
@@ -27,12 +32,20 @@ type alias InitialGameModel =
 type GameModel
     = Initial InitialGameModel
     | CreatingGame { nameInput : String }
-    | JoiningGame { game : Maybe Game, nameInput : String }
+    | LoadingGameToJoin { nameInput : String }
+    | JoiningGame { game : Game, nameInput : String }
     | Playing PlayingGameModel
 
 
 type alias Errors =
     List String
+
+
+type alias JoinedGameInfo =
+    { status : String
+    , user : User
+    , game : Game
+    }
 
 
 type alias Model =
@@ -83,5 +96,5 @@ type Msg
     | DebugGuessNextWords
     | GameFound (Result Http.Error Game)
     | GameAdded (Result Http.Error ( Game, User ))
-    | JoinedGame (Result Http.Error ( String, User ))
+    | JoinedGame (Result Http.Error JoinedGameInfo)
     | NoOpResult (Result Http.Error String)

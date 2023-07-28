@@ -46,19 +46,13 @@ view model =
                                 finishedGameView gameModel.game
 
                     CreatingGame gameModel ->
-                        nameInputView gameModel.nameInput AddGame False
+                        nameInputView gameModel.nameInput AddGame
+
+                    LoadingGameToJoin gameModel ->
+                        nameInputView gameModel.nameInput JoinGame
 
                     JoiningGame gameModel ->
-                        let
-                            isLoading =
-                                case gameModel.game of
-                                    Maybe.Nothing ->
-                                        True
-
-                                    _ ->
-                                        False
-                        in
-                        nameInputView gameModel.nameInput JoinGame isLoading
+                        nameInputView gameModel.nameInput JoinGame
 
                     Initial gameModel ->
                         startView gameModel model.errors

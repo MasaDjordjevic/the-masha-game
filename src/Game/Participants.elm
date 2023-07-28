@@ -59,9 +59,10 @@ participantsEncoder participants =
         ]
 
 
-addJoinRequest: User -> Participants -> Participants
+addJoinRequest : User -> Participants -> Participants
 addJoinRequest user participants =
     let
-     newPlayers = Dict.insert user.id user participants.players
+        newJoinRequests =
+            Dict.insert user.id user participants.joinRequests
     in
-    { participants | players = newPlayers }
+    { participants | joinRequests = newJoinRequests }

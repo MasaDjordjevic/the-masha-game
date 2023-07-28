@@ -31,7 +31,7 @@ requestsList users isOwner =
             (\( _, user ) ->
                 div
                     [ classList
-                        [ ( "space-between", isOwner )
+                        [ ( "space-between", True )
                         , ( "request", True )
                         ]
                     ]
@@ -40,7 +40,7 @@ requestsList users isOwner =
                         button [ class "icon-button", onClick (AcceptUser user) ] [ text "✔️" ]
 
                       else
-                        text ""
+                        text "⏳"
                     ]
             )
         |> div [ class "participants" ]
@@ -64,8 +64,7 @@ requestsView participants isOwner =
             ]
         , if isOwner then
             div []
-                [ -- button [ onClick CopyInviteLink ] [ text "Invite 🔗" ]
-                  button [ onClick StartGame, classList [ ( "disabled", cantStartGame ), ( "start-game", True ) ] ] [ text "start game" ]
+                [ button [ onClick StartGame, classList [ ( "disabled", cantStartGame ), ( "start-game", True ) ] ] [ text "start game" ]
                 ]
 
           else
