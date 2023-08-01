@@ -54,8 +54,21 @@ app.ports.subscribeToGame.subscribe(({ gameId, userId }) => {
   if (!userId) {
     return;
   }
-  // user online/offline status management ---------------------------------
+  // user online/offline status management
+  managePlayerStatus({ gameId, userId });
+});
 
+app.ports.changeGame.subscribe((game) => {
+  console.log("updating game to", game);
+  database.ref(`${GAMES_PATH}/${game.id}`).set(game);
+});
+
+app.ports.copyInviteLink.subscribe((gameId) => {
+  console.log("copy to clipboard", gameId);
+  navigator.clipboard.writeText(`${window.location.origin}/join/${gameId}`);
+});
+
+const managePlayerStatus = ({ gameId, userId }) => {
   // Create a reference to this user's specific status node.
   // This is where we will store data about being online/offline.
   var userStatusDatabaseRef = database.ref(
@@ -104,17 +117,7 @@ app.ports.subscribeToGame.subscribe(({ gameId, userId }) => {
         userStatusDatabaseRef.set(isOnlineForDatabase);
       });
   });
-});
-
-app.ports.changeGame.subscribe((game) => {
-  console.log("updating game to", game);
-  database.ref(`${GAMES_PATH}/${game.id}`).set(game);
-});
-
-app.ports.copyInviteLink.subscribe((gameId) => {
-  console.log("copy to clipboard", gameId);
-  navigator.clipboard.writeText(`${window.location.origin}/join/${gameId}`);
-});
+};
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

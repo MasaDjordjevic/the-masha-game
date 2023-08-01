@@ -106,17 +106,10 @@ playingGameUpdate msg model =
 
                             else
                                 let
-                                    isPlayer =
-                                        Dict.member localPlayer.id game.participants.players
-
                                     newWord =
                                         Game.Words.wordWithKey 0 (Word gameModel.wordInput localPlayer.name "")
                                 in
-                                if isPlayer then
-                                    ( { model | currentGame = Playing { gameModel | wordInput = "" } }, Api.addWord model.apiUrl game.id newWord )
-
-                                else
-                                    ( model, Cmd.none )
+                                ( { model | currentGame = Playing { gameModel | wordInput = "" } }, Api.addWord model.apiUrl game.id newWord )
 
                         State.DeleteWord id ->
                             ( model, Api.deleteWord model.apiUrl game.id id )

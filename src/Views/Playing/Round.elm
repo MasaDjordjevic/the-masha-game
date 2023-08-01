@@ -9,13 +9,13 @@ getRoundText : Int -> String
 getRoundText round =
     case round of
         1 ->
-            "describe"
+            "describe the word"
 
         2 ->
             "charades"
 
         3 ->
-            "one word"
+            "one word guess"
 
         4 ->
             "The game has ended 🎉"
