@@ -311,13 +311,18 @@ update msg model =
                 Initial gameModel ->
                     case msg of
                         EnterGame ->
-                            ( { model | currentGame = LoadingGameToJoin { nameInput = "" } }, Api.findGame model.apiUrl gameModel.pinInput )
+                            ( { model | currentGame = LoadingGameToJoin { nameInput = "" } }
+                            , Cmd.batch
+                                [ Api.findGame model.apiUrl gameModel.pinInput
+                                , Nav.pushUrl model.navKey (String.concat [ "join/", gameModel.pinInput ])
+                                ]
+                            )
 
                         SetCreatingGameMode ->
                             ( { model | currentGame = CreatingGame { nameInput = "" } }, Nav.pushUrl model.navKey "create" )
 
                         UpdatePinInput input ->
-                            ( { model | currentGame = Initial { pinInput = String.toUpper input } }, Cmd.none )
+                            ( { model | currentGame = Initial { pinInput = input } }, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )

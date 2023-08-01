@@ -61,7 +61,8 @@
   .join h2 {
     margin: 0; }
   .join input {
-    min-width: 230px; }
+    min-width: 230px;
+    font-family: "Roboto", sans-serif; }
 
 .error {
   color: salmon;
