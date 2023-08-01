@@ -14,6 +14,8 @@ function enableNoSleep() {
 // (must be wrapped in a user input event handler e.g. a mouse or touch handler)
 document.addEventListener("touchstart", enableNoSleep, false);
 
+const LOCAL_STORAGE_KEY = "TheMashaGame.username";
+
 // Your web app's Firebase configuration
 var firebaseConfig = {
   apiKey: "AIzaSyA_Hv4Deh_usUCTACNLESTxpyM4QHWfv58",
@@ -66,6 +68,15 @@ app.ports.changeGame.subscribe((game) => {
 app.ports.copyInviteLink.subscribe((gameId) => {
   console.log("copy to clipboard", gameId);
   navigator.clipboard.writeText(`${window.location.origin}/join/${gameId}`);
+});
+
+app.ports.saveUsernameToLocalStorage.subscribe((username) => {
+  localStorage.setItem(LOCAL_STORAGE_KEY, username);
+});
+
+app.ports.getUsernameFromLocalStorage.subscribe(() => {
+  const username = localStorage.getItem(LOCAL_STORAGE_KEY) ?? "";
+  app.ports.receivedUsernameFromLocalStorage.send(username);
 });
 
 const managePlayerStatus = ({ gameId, userId }) => {

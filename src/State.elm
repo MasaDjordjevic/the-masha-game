@@ -96,4 +96,5 @@ type Msg
     | GameFound (Result Http.Error Game)
     | GameAdded (Result Http.Error ( Game, Player ))
     | JoinedGame (Result Http.Error JoinedGameInfo)
+    | ReceivedUsernameFromLocalStorage String
     | NoOpResult (Result Http.Error String)

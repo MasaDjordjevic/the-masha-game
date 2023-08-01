@@ -44,6 +44,15 @@ port changeGame : Json.Encode.Value -> Cmd msg
 port copyInviteLink : Json.Encode.Value -> Cmd msg
 
 
+port saveUsernameToLocalStorage : Json.Encode.Value -> Cmd msg
+
+
+port getUsernameFromLocalStorage : () -> Cmd msg
+
+
+port receivedUsernameFromLocalStorage : (String -> msg) -> Sub msg
+
+
 
 ---- MODEL ----
 
@@ -66,6 +75,9 @@ init flags url navKey =
                 Route.Join _ ->
                     LoadingGameToJoin { nameInput = "" }
 
+                Route.Create ->
+                    CreatingGame { nameInput = "" }
+
                 _ ->
                     Initial { pinInput = "" }
       , environment = flags.environment
@@ -79,7 +91,7 @@ init flags url navKey =
       }
     , case route of
         Route.Join gameCode ->
-            Api.findGame apiUrl gameCode
+            Cmd.batch [ Api.findGame apiUrl gameCode, getUsernameFromLocalStorage () ]
 
         _ ->
             Cmd.none
@@ -315,10 +327,13 @@ update msg model =
                         UpdateNameInput input ->
                             ( { model | currentGame = LoadingGameToJoin { gameModel | nameInput = String.toUpper input } }, Cmd.none )
 
+                        ReceivedUsernameFromLocalStorage username ->
+                            ( { model | currentGame = LoadingGameToJoin { gameModel | nameInput = String.toUpper username } }, Cmd.none )
+
                         GameFound result ->
                             case result of
                                 Ok game ->
-                                    ( { model | currentGame = JoiningGame { game = game, nameInput = "" } }
+                                    ( { model | currentGame = JoiningGame { game = game, nameInput = gameModel.nameInput } }
                                     , subscribeToGame
                                         (Json.Encode.object
                                             [ ( "userId", Json.Encode.null )
@@ -359,12 +374,16 @@ update msg model =
                             case result of
                                 Ok ( game, player ) ->
                                     ( { model | currentGame = Playing { game = game, isOwner = True, localUser = LocalPlayer player, wordInput = "", turnTimer = defaultTimer, isRoundEnd = False } }
-                                    , subscribeToGame
-                                        (Json.Encode.object
-                                            [ ( "userId", Json.Encode.string player.id )
-                                            , ( "gameId", Json.Encode.string game.id )
-                                            ]
-                                        )
+                                    , Cmd.batch
+                                        [ subscribeToGame
+                                            (Json.Encode.object
+                                                [ ( "userId", Json.Encode.string player.id )
+                                                , ( "gameId", Json.Encode.string game.id )
+                                                ]
+                                            )
+                                        , saveUsernameToLocalStorage (Json.Encode.string player.name)
+                                        , Nav.pushUrl model.navKey (String.concat [ "join/", game.gameId ])
+                                        ]
                                     )
 
                                 Err _ ->
@@ -378,6 +397,9 @@ update msg model =
                         UpdateNameInput input ->
                             ( { model | currentGame = JoiningGame { gameModel | nameInput = String.toUpper input } }, Cmd.none )
 
+                        ReceivedUsernameFromLocalStorage username ->
+                            ( { model | currentGame = JoiningGame { gameModel | nameInput = String.toUpper username } }, Cmd.none )
+
                         JoinedGame result ->
                             case result of
                                 Ok joinedGameInfo ->
@@ -385,8 +407,8 @@ update msg model =
                                         game =
                                             gameModel.game
 
-                                        userRole : Maybe LocalUser
-                                        userRole =
+                                        maybeLocalUser : Maybe LocalUser
+                                        maybeLocalUser =
                                             case joinedGameInfo.status of
                                                 "Player added." ->
                                                     Just (LocalPlayer joinedGameInfo.player)
@@ -400,24 +422,35 @@ update msg model =
                                                 _ ->
                                                     Nothing
                                     in
-                                    case userRole of
-                                        Just role ->
+                                    case maybeLocalUser of
+                                        Just localUser ->
                                             let
                                                 isLocalPlayerOwner =
-                                                    case role of
+                                                    case localUser of
                                                         LocalPlayer player ->
                                                             Game.Gameplay.isPlayerOnwer game player
 
                                                         _ ->
                                                             False
+
+                                                localUserName =
+                                                    case localUser of
+                                                        LocalPlayer player ->
+                                                            player.name
+
+                                                        LocalWatcher watcher ->
+                                                            watcher.name
                                             in
-                                            ( { model | currentGame = Playing { localUser = role, isOwner = isLocalPlayerOwner, game = joinedGameInfo.game, wordInput = "", turnTimer = defaultTimer, isRoundEnd = False } }
-                                            , subscribeToGame
-                                                (Json.Encode.object
-                                                    [ ( "userId", Json.Encode.string joinedGameInfo.player.id )
-                                                    , ( "gameId", Json.Encode.string game.id )
-                                                    ]
-                                                )
+                                            ( { model | currentGame = Playing { localUser = localUser, isOwner = isLocalPlayerOwner, game = joinedGameInfo.game, wordInput = "", turnTimer = defaultTimer, isRoundEnd = False } }
+                                            , Cmd.batch
+                                                [ subscribeToGame
+                                                    (Json.Encode.object
+                                                        [ ( "userId", Json.Encode.string joinedGameInfo.player.id )
+                                                        , ( "gameId", Json.Encode.string game.id )
+                                                        ]
+                                                    )
+                                                , saveUsernameToLocalStorage (Json.Encode.string localUserName)
+                                                ]
                                             )
 
                                         Nothing ->
@@ -458,6 +491,7 @@ subscriptions model =
     in
     Sub.batch
         [ gameChanged GameChanged
+        , receivedUsernameFromLocalStorage ReceivedUsernameFromLocalStorage
         , timerSub
         ]
 

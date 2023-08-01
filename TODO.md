@@ -20,8 +20,6 @@
 
     * Organize css
 
-    * Save game and username to local state so you can recover
-
     * Save if visited before or use the above to auto open how to play on the first play
 
     * Finish game on disconnect?
