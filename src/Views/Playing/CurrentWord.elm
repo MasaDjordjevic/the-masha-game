@@ -7,8 +7,7 @@ import Game.Words exposing (Word)
 import Html exposing (Html, button, div, h1, h3, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import State exposing (Model, Msg(..), UserRole(..))
-import User exposing (User)
+import State exposing (Msg(..), UserRole(..))
 
 
 start : Html Msg

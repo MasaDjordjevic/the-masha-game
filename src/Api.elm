@@ -5,8 +5,8 @@ import Game.Words exposing (Word, wordEncoder)
 import Http
 import Json.Decode
 import Json.Encode
+import Player exposing (Player, playerDecoder)
 import State exposing (..)
-import User exposing (User, userEncoder)
 
 
 deleteWord : String -> String -> String -> Cmd Msg
@@ -37,15 +37,15 @@ addWord apiUrl gameId word =
         }
 
 
-acceptRequest : String -> User -> String -> Cmd Msg
-acceptRequest apiUrl user gameId =
+kickPlayer : String -> String -> String -> Cmd Msg
+kickPlayer apiUrl userId gameId =
     Http.post
-        { url = apiUrl ++ "/acceptRequest"
+        { url = apiUrl ++ "/kickPlayer"
         , body =
             Http.jsonBody <|
                 Json.Encode.object
-                    [ ( "gameId", Json.Encode.string gameId )
-                    , ( "user", userEncoder user )
+                    [ ( "userId", Json.Encode.string userId )
+                    , ( "gameId", Json.Encode.string gameId )
                     ]
         , expect = Http.expectString NoOpResult
         }
@@ -69,7 +69,7 @@ joinedGameResponseDecoder : Json.Decode.Decoder JoinedGameInfo
 joinedGameResponseDecoder =
     Json.Decode.map3 JoinedGameInfo
         (Json.Decode.field "status" Json.Decode.string)
-        (Json.Decode.field "user" User.decodeUser)
+        (Json.Decode.field "player" playerDecoder)
         (Json.Decode.field "game" Game.Game.gameDecoder)
 
 
@@ -81,11 +81,11 @@ findGame apiUrl gameCode =
         }
 
 
-addedGameResponseDecoder : Json.Decode.Decoder ( Game, User )
+addedGameResponseDecoder : Json.Decode.Decoder ( Game, Player )
 addedGameResponseDecoder =
     Json.Decode.map2 Tuple.pair
         (Json.Decode.field "game" gameDecoder)
-        (Json.Decode.field "user" User.decodeUser)
+        (Json.Decode.field "player" playerDecoder)
 
 
 createAddGameRequestBody : String -> Game -> Http.Body

@@ -3,13 +3,10 @@ module Views.Playing.Info exposing (..)
 import Constants exposing (countdownMoment)
 import Game.Game exposing (Game, TurnTimer)
 import Game.Gameplay exposing (isLocalPlayersTurn)
-import Html exposing (Html, button, div, h1, h3, span, text)
-import Html.Attributes exposing (attribute, class, classList)
+import Html exposing (Html, button, div, h1, span, text)
+import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import State exposing (Model, Msg(..), UserRole(..))
-import User exposing (User)
-import Views.Playing.CurrentWord exposing (currentWordView)
-import Views.Playing.Round exposing (roundView)
+import State exposing (Msg(..), UserRole(..))
 
 
 wordsLeft : Game -> Bool -> Html Msg
@@ -115,10 +112,10 @@ infoView game localUser localTimer =
         shouldSeePreviousWord =
             case localUser of
                 LocalPlayer localPlayer ->
-                    isLocalPlayersTurn game localPlayer
+                    not (isLocalPlayersTurn game localPlayer)
 
                 LocalWatcher _ ->
-                    False
+                    True
     in
     div
         [ classList [ ( "turn-stats", True ), ( "section", True ), ( "on-turn", isExplaining ) ] ]

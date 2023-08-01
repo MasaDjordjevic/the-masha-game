@@ -5,10 +5,10 @@ import Browser.Navigation
 import Game.Game exposing (Game)
 import Http
 import Json.Decode
+import Player exposing (Player)
 import Route exposing (Route)
 import Time
 import Url
-import User exposing (User)
 
 
 type alias Flags =
@@ -17,8 +17,8 @@ type alias Flags =
 
 
 type UserRole
-    = LocalPlayer User
-    | LocalWatcher User
+    = LocalPlayer Player
+    | LocalWatcher Player
 
 
 type alias PlayingGameModel =
@@ -43,7 +43,7 @@ type alias Errors =
 
 type alias JoinedGameInfo =
     { status : String
-    , user : User
+    , player : Player
     , game : Game
     }
 
@@ -71,14 +71,13 @@ type Msg
     | JoinGame
     | EnterGame
     | GameChanged Json.Decode.Value
-    | AcceptUser User
+    | KickPlayer String
     | StartGame
     | CopyInviteLink
     | UpdateWordInput String
     | UpdatePinInput String
     | AddWord
     | NextRound
-    | InitiateNextRound
     | DeleteWord String
     | QuitGame
     | TimerTick Time.Posix
@@ -95,6 +94,6 @@ type Msg
     | DebugSetNextPlayer
     | DebugGuessNextWords
     | GameFound (Result Http.Error Game)
-    | GameAdded (Result Http.Error ( Game, User ))
+    | GameAdded (Result Http.Error ( Game, Player ))
     | JoinedGame (Result Http.Error JoinedGameInfo)
     | NoOpResult (Result Http.Error String)

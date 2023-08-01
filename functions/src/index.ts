@@ -1,11 +1,7 @@
 import * as functions from "firebase-functions";
 import * as url from "url";
 
-import {
-  createGame,
-  createJoinRequest,
-  findGameByGameId,
-} from "./registration";
+import { createGame, findGameByGameId, findOrAddUser } from "./registration";
 import { games, words } from "./db";
 import * as cors from "cors";
 // import { database } from "firebase-admin";
@@ -47,9 +43,11 @@ export const addGame = onCorsRequest(async (request, response) => {
   const writeResult = await createGame(username, game);
   console.log(writeResult);
   if (writeResult) {
-    response
-      .status(201)
-      .send({ status: "OK", game: writeResult.game, user: writeResult.user });
+    response.status(201).send({
+      status: "OK",
+      game: writeResult.game,
+      player: writeResult.player,
+    });
   } else {
     response.status(500).send(`Cannot add game.`);
   }
@@ -69,56 +67,47 @@ export const joinGame = onCorsRequest(async (request, response) => {
     return;
   }
 
-  const existingRequest = Object.values(
-    game.participants?.joinRequests ?? {}
-  ).find((req) => {
-    console.log(`req ${req.name}, username: ${username}`);
-    return req.name === username;
+  const existingPlayerWithSameUsername = Object.values(
+    game.participants?.players ?? {}
+  ).find((player) => {
+    return player.name === username;
   });
 
-  if (existingRequest) {
-    response.status(201).send({
-      status: "Request with the same username already exists",
-      user: existingRequest,
-      game: game,
-    });
-    return;
-  }
-
-  const existingPlayer = Object.values(game.participants?.players ?? {}).find(
-    (player) => {
-      console.log(`playername ${player.name}, username: ${username}`);
-      return player.name === username;
-    }
-  );
-
-  if (existingPlayer) {
+  if (existingPlayerWithSameUsername) {
     response.status(201).send({
       status: "User is already in the game",
-      user: existingPlayer,
+      player: existingPlayerWithSameUsername,
       game: game,
     });
     return;
   }
 
-  const addedUser = await createJoinRequest(username, game.id);
+  const addedUser = await findOrAddUser(username);
+  const player = {
+    id: addedUser.id,
+    name: addedUser.name,
+    status: "online",
+    isOwner: false,
+  };
+  await games.addPlayer(game.id, player);
   const updatedGame = await findGameByGameId(gameId);
   if (updatedGame) {
-    if (updatedGame.state.round > -1) {
+    const hasGameStarted = updatedGame.state.round > -1;
+    if (!hasGameStarted) {
       response.status(201).send({
-        status: `Game request added.`,
-        user: addedUser,
+        status: `Player added.`,
+        player: player,
         game: updatedGame,
       });
     } else {
       response.status(201).send({
         status: `Game watcher added.`,
-        user: addedUser,
+        player: player,
         game: updatedGame,
       });
     }
   } else {
-    response.status(500).send(`Cannot add join request.`);
+    response.status(500).send(`Cannot add player to the game.`);
   }
 });
 
@@ -136,19 +125,19 @@ export const findGame = onCorsRequest(async (request, response) => {
   }
 });
 
-export const acceptRequest = onCorsRequest(async (request, response) => {
-  const { user, gameId } = request.body;
-  if (!user || !gameId) {
-    response.status(400).send("Params should be user and gameId");
+export const kickPlayer = onCorsRequest(async (request, response) => {
+  const { userId, gameId } = request.body;
+  if (!userId || !gameId) {
+    response.status(400).send("Params should be userId and gameId");
   }
 
   games
-    .acceptRequest(gameId, user)
+    .kickPlayer(gameId, userId)
     .then(() => {
-      response.send(`Game request accepted.`);
+      response.send(`Player kicked.`);
     })
     .catch(() => {
-      response.status(500).send(`Cannot accept join request.`);
+      response.status(500).send(`Failed to kick player.`);
     });
 });
 

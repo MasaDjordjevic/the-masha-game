@@ -2,14 +2,11 @@ module Debugger.Update exposing (..)
 
 import Dict
 import Fixtures.Game exposing (emptyGame, getPlayerOnTurn, guessNextWords, lobbyGame, newlyStartedGame, restartWords)
-import Fixtures.User exposing (defaultUser)
 import Game.Game exposing (Game)
 import Game.Teams exposing (advanceCurrentTeam)
-import Game.Words exposing (Words)
 import Maybe exposing (withDefault)
 import Player exposing (Player)
 import State exposing (GameModel(..), Model, Msg(..), PlayingGameModel, UserRole(..))
-import User exposing (User)
 
 
 upadateGame : PlayingGameModel -> Game -> GameModel
@@ -32,13 +29,13 @@ upadateGame gameModel game =
     Playing { gameModel | game = game, localUser = newLocalUser }
 
 
-getOwner : PlayingGameModel -> Maybe User
+getOwner : PlayingGameModel -> Maybe Player
 getOwner gameModel =
     gameModel.game.participants.players
         |> Dict.toList
         |> List.map Tuple.second
         |> List.filter
-            (\pl -> pl.name == gameModel.game.creator)
+            (\pl -> pl.isOwner)
         |> List.head
 
 
@@ -50,7 +47,7 @@ isOwner gameModel player =
     in
     case owner of
         Just own ->
-            own.id == player.userId
+            own.id == player.id
 
         Nothing ->
             False

@@ -1,53 +1,53 @@
 module Views.Lobby exposing (..)
 
-import Dict exposing (Dict, isEmpty)
-import Game.Participants exposing (Participants, joinRequestsDecoder)
-import Html exposing (Html, button, div, h1, h2, h3, span, text)
+import Dict exposing (Dict)
+import Game.Participants exposing (Participants)
+import Html exposing (Html, button, div, h1, h3, span, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import State exposing (Model, Msg(..), PlayingGameModel)
-import User exposing (User)
+import Player exposing (Player)
+import State exposing (Msg(..), PlayingGameModel, UserRole(..))
 
 
-playersList : Dict String User -> Html Msg
-playersList users =
+isPlayerLocalUser : Player -> UserRole -> Bool
+isPlayerLocalUser player localUser =
+    case localUser of
+        LocalPlayer localPlayer ->
+            localPlayer.id == player.id
+
+        LocalWatcher _ ->
+            False
+
+
+playersList : Dict String Player -> Bool -> UserRole -> Html Msg
+playersList users isOwner localUser =
     users
         |> Dict.toList
         |> List.map
             (\( _, user ) ->
-                div
-                    [ class "request" ]
-                    [ span [] [ text user.name ]
-                    ]
-            )
-        |> div [ class "participants" ]
-
-
-requestsList : Dict String User -> Bool -> Html Msg
-requestsList users isOwner =
-    users
-        |> Dict.toList
-        |> List.map
-            (\( _, user ) ->
+                let
+                    canBeKicked =
+                        isOwner && not (isPlayerLocalUser user localUser)
+                in
                 div
                     [ classList
-                        [ ( "space-between", True )
+                        [ ( "space-between", canBeKicked )
                         , ( "request", True )
                         ]
                     ]
                     [ span [] [ text user.name ]
-                    , if isOwner then
-                        button [ class "icon-button", onClick (AcceptUser user) ] [ text "✔️" ]
+                    , if canBeKicked then
+                        button [ class "icon-button", onClick (KickPlayer user.id) ] [ text "🚫" ]
 
                       else
-                        text "⏳"
+                        text ""
                     ]
             )
         |> div [ class "participants" ]
 
 
-requestsView : Participants -> Bool -> Html Msg
-requestsView participants isOwner =
+playersView : Participants -> Bool -> UserRole -> Html Msg
+playersView participants isOwner localUser =
     let
         cantStartGame =
             Dict.size participants.players <= 1
@@ -58,9 +58,8 @@ requestsView participants isOwner =
                 [ text "Players" ]
             , playersList
                 participants.players
-            , requestsList
-                participants.joinRequests
                 isOwner
+                localUser
             ]
         , if isOwner then
             div []
@@ -104,6 +103,6 @@ lobbyView model =
         , h1 []
             [ text titleCopy ]
         , div []
-            [ requestsView model.game.participants model.isOwner
+            [ playersView model.game.participants model.isOwner model.localUser
             ]
         ]

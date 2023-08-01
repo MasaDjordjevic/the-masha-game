@@ -4,7 +4,7 @@ import Api
 import Browser
 import Browser.Navigation as Nav
 import Constants exposing (defaultTimer)
-import Debugger.Update
+import Debugger.Update exposing (isOwner)
 import Delay
 import Dict
 import Game.Game exposing (..)
@@ -13,8 +13,10 @@ import Game.Participants
 import Game.Words exposing (Word)
 import Json.Decode
 import Json.Encode
+import Player exposing (Player, PlayerStatus(..))
 import Route
 import State exposing (Flags, GameModel(..), Model, Msg(..), UserRole(..))
+import String exposing (join)
 import Time
 import Url
 import User exposing (..)
@@ -89,7 +91,7 @@ playingGameUpdate msg model =
     case model.currentGame of
         Playing gameModel ->
             case gameModel.localUser of
-                LocalPlayer localUser ->
+                LocalPlayer localPlayer ->
                     let
                         game =
                             gameModel.game
@@ -105,10 +107,10 @@ playingGameUpdate msg model =
                             else
                                 let
                                     isPlayer =
-                                        Dict.member localUser.id game.participants.players
+                                        Dict.member localPlayer.id game.participants.players
 
                                     newWord =
-                                        Game.Words.wordWithKey 0 (Word gameModel.wordInput localUser.name "")
+                                        Game.Words.wordWithKey 0 (Word gameModel.wordInput localPlayer.name "")
                                 in
                                 if isPlayer then
                                     ( { model | currentGame = Playing { gameModel | wordInput = "" } }, Api.addWord model.apiUrl game.id newWord )
@@ -153,7 +155,7 @@ playingGameUpdate msg model =
                         SwitchTimer ->
                             let
                                 canSwitchTimer =
-                                    Game.Gameplay.isLocalPlayersTurn game localUser
+                                    Game.Gameplay.isLocalPlayersTurn game localPlayer
 
                                 newGame =
                                     if canSwitchTimer then
@@ -203,9 +205,12 @@ playingGameUpdate msg model =
 
                                         isRoundEnd =
                                             Game.Gameplay.isRoundEnd decodedGame.state && decodedGame.state.round > 0
+
+                                        isLocalPlayerOwner =
+                                            Game.Gameplay.isPlayerOnwer decodedGame localPlayer
                                     in
                                     if game.id == decodedGame.id then
-                                        ( { model | currentGame = Playing { gameModel | game = decodedGame, turnTimer = newTimer, isRoundEnd = isRoundEnd } }
+                                        ( { model | currentGame = Playing { gameModel | game = decodedGame, isOwner = isLocalPlayerOwner, turnTimer = newTimer, isRoundEnd = isRoundEnd } }
                                         , if isRoundEnd then
                                             Delay.after 5000 Delay.Millisecond NextRound
 
@@ -225,8 +230,8 @@ playingGameUpdate msg model =
                                     CopyInviteLink ->
                                         ( model, copyInviteLink (Json.Encode.string game.gameId) )
 
-                                    AcceptUser user ->
-                                        ( model, Api.acceptRequest model.apiUrl user game.id )
+                                    KickPlayer userId ->
+                                        ( model, Api.kickPlayer model.apiUrl userId game.id )
 
                                     StartGame ->
                                         let
@@ -320,7 +325,14 @@ update msg model =
                         GameFound result ->
                             case result of
                                 Ok game ->
-                                    ( { model | currentGame = JoiningGame { game = game, nameInput = gameModel.nameInput } }, subscribeToGame (Json.Encode.string game.id) )
+                                    ( { model | currentGame = JoiningGame { game = game, nameInput = "" } }
+                                    , subscribeToGame
+                                        (Json.Encode.object
+                                            [ ( "userId", Json.Encode.null )
+                                            , ( "gameId", Json.Encode.string game.id )
+                                            ]
+                                        )
+                                    )
 
                                 Err _ ->
                                     ( { model | errors = [ "Game not found" ] }, Cmd.none )
@@ -339,11 +351,12 @@ update msg model =
 
                             else
                                 let
-                                    tempUser =
-                                        User "" gameModel.nameInput
+                                    -- will be overwritten because the user doesn't have an ID yet
+                                    tempPlayer =
+                                        Player "" gameModel.nameInput Online True
 
                                     newGame =
-                                        Game.Game.createGameModel tempUser
+                                        Game.Game.createGameModel tempPlayer
                                 in
                                 ( model
                                 , Api.addGame model.apiUrl gameModel.nameInput newGame
@@ -351,8 +364,15 @@ update msg model =
 
                         GameAdded result ->
                             case result of
-                                Ok ( game, user ) ->
-                                    ( { model | currentGame = Playing { game = game, isOwner = True, localUser = LocalPlayer user, wordInput = "", turnTimer = defaultTimer, isRoundEnd = False } }, subscribeToGame (Json.Encode.string game.id) )
+                                Ok ( game, player ) ->
+                                    ( { model | currentGame = Playing { game = game, isOwner = True, localUser = LocalPlayer player, wordInput = "", turnTimer = defaultTimer, isRoundEnd = False } }
+                                    , subscribeToGame
+                                        (Json.Encode.object
+                                            [ ( "userId", Json.Encode.string player.id )
+                                            , ( "gameId", Json.Encode.string game.id )
+                                            ]
+                                        )
+                                    )
 
                                 Err _ ->
                                     ( model, Cmd.none )
@@ -372,27 +392,40 @@ update msg model =
                                         game =
                                             gameModel.game
 
-                                        gameBelongsToUser =
-                                            game.creator == joinedGameInfo.user.name
-
                                         userRole : Maybe UserRole
                                         userRole =
                                             case joinedGameInfo.status of
-                                                "Game request added." ->
-                                                    Just (LocalPlayer joinedGameInfo.user)
+                                                "Player added." ->
+                                                    Just (LocalPlayer joinedGameInfo.player)
 
                                                 "User is already in the game" ->
-                                                    Just (LocalPlayer joinedGameInfo.user)
+                                                    Just (LocalPlayer joinedGameInfo.player)
 
                                                 "Game watcher added." ->
-                                                    Just (LocalWatcher joinedGameInfo.user)
+                                                    Just (LocalWatcher joinedGameInfo.player)
 
                                                 _ ->
                                                     Nothing
                                     in
                                     case userRole of
                                         Just role ->
-                                            ( { model | currentGame = Playing { localUser = role, isOwner = gameBelongsToUser, game = joinedGameInfo.game, wordInput = "", turnTimer = defaultTimer, isRoundEnd = False } }, Cmd.none )
+                                            let
+                                                isLocalPlayerOwner =
+                                                    case role of
+                                                        LocalPlayer player ->
+                                                            Game.Gameplay.isPlayerOnwer game player
+
+                                                        _ ->
+                                                            False
+                                            in
+                                            ( { model | currentGame = Playing { localUser = role, isOwner = isLocalPlayerOwner, game = joinedGameInfo.game, wordInput = "", turnTimer = defaultTimer, isRoundEnd = False } }
+                                            , subscribeToGame
+                                                (Json.Encode.object
+                                                    [ ( "userId", Json.Encode.string joinedGameInfo.player.id )
+                                                    , ( "gameId", Json.Encode.string game.id )
+                                                    ]
+                                                )
+                                            )
 
                                         Nothing ->
                                             ( { model | errors = [ joinedGameInfo.status ] }, Cmd.none )

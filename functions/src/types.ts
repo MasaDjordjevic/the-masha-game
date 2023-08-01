@@ -9,15 +9,17 @@ type User = {
   name: string;
 };
 
-type JoinRequest = {
+type Player = {
   id: string;
   name: string;
+  isOwner: boolean;
+  status: string;
 };
+
 type Game = {
   id: string;
   participants: {
-    joinRequests: { [key: string]: JoinRequest };
-    players: { [key: string]: User };
+    players: { [key: string]: Player };
   };
   state: {
     round: number;
