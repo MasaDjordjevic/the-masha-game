@@ -15,7 +15,7 @@ import Json.Decode
 import Json.Encode
 import Player exposing (Player, PlayerStatus(..))
 import Route
-import State exposing (Flags, GameModel(..), Model, Msg(..), UserRole(..))
+import State exposing (Flags, GameModel(..), LocalUser(..), Model, Msg(..))
 import String exposing (join)
 import Time
 import Url
@@ -392,7 +392,7 @@ update msg model =
                                         game =
                                             gameModel.game
 
-                                        userRole : Maybe UserRole
+                                        userRole : Maybe LocalUser
                                         userRole =
                                             case joinedGameInfo.status of
                                                 "Player added." ->

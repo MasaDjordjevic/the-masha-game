@@ -7,7 +7,7 @@ import Html exposing (Html, button, div, h1, h3, input, span, text)
 import Html.Attributes exposing (class, classList, id, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Player exposing (Player)
-import State exposing (Msg(..), PlayingGameModel, UserRole(..))
+import State exposing (LocalUser(..), Msg(..), PlayingGameModel)
 
 
 wordCounterList : Dict String Player -> Bool -> Html Msg

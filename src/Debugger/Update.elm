@@ -6,7 +6,7 @@ import Game.Game exposing (Game)
 import Game.Teams exposing (advanceCurrentTeam)
 import Maybe exposing (withDefault)
 import Player exposing (Player)
-import State exposing (GameModel(..), Model, Msg(..), PlayingGameModel, UserRole(..))
+import State exposing (GameModel(..), LocalUser(..), Model, Msg(..), PlayingGameModel)
 
 
 upadateGame : PlayingGameModel -> Game -> GameModel

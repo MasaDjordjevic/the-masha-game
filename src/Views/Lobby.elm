@@ -6,10 +6,10 @@ import Html exposing (Html, button, div, h1, h3, span, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import Player exposing (Player)
-import State exposing (Msg(..), PlayingGameModel, UserRole(..))
+import State exposing (LocalUser(..), Msg(..), PlayingGameModel)
 
 
-isPlayerLocalUser : Player -> UserRole -> Bool
+isPlayerLocalUser : Player -> LocalUser -> Bool
 isPlayerLocalUser player localUser =
     case localUser of
         LocalPlayer localPlayer ->
@@ -19,7 +19,7 @@ isPlayerLocalUser player localUser =
             False
 
 
-playersList : Dict String Player -> Bool -> UserRole -> Html Msg
+playersList : Dict String Player -> Bool -> LocalUser -> Html Msg
 playersList users isOwner localUser =
     users
         |> Dict.toList
@@ -46,7 +46,7 @@ playersList users isOwner localUser =
         |> div [ class "participants" ]
 
 
-playersView : Participants -> Bool -> UserRole -> Html Msg
+playersView : Participants -> Bool -> LocalUser -> Html Msg
 playersView participants isOwner localUser =
     let
         cantStartGame =

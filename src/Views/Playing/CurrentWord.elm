@@ -7,7 +7,7 @@ import Game.Words exposing (Word)
 import Html exposing (Html, button, div, h1, h3, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import State exposing (Msg(..), UserRole(..))
+import State exposing (LocalUser(..), Msg(..))
 
 
 start : Html Msg
@@ -31,7 +31,7 @@ currentWord word turnTimer =
         ]
 
 
-currentWordView : Game -> UserRole -> Int -> Html Msg
+currentWordView : Game -> LocalUser -> Int -> Html Msg
 currentWordView game localUser turnTimer =
     case localUser of
         LocalPlayer localPlayer ->

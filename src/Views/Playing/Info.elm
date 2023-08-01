@@ -6,7 +6,7 @@ import Game.Gameplay exposing (isLocalPlayersTurn)
 import Html exposing (Html, button, div, h1, span, text)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import State exposing (Msg(..), UserRole(..))
+import State exposing (LocalUser(..), Msg(..))
 
 
 wordsLeft : Game -> Bool -> Html Msg
@@ -98,7 +98,7 @@ timerButton game isExplaining =
         text ""
 
 
-infoView : Game -> UserRole -> Int -> Html Msg
+infoView : Game -> LocalUser -> Int -> Html Msg
 infoView game localUser localTimer =
     let
         isExplaining =

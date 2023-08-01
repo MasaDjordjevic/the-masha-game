@@ -16,13 +16,13 @@ type alias Flags =
     }
 
 
-type UserRole
+type LocalUser
     = LocalPlayer Player
     | LocalWatcher Player
 
 
 type alias PlayingGameModel =
-    { localUser : UserRole, game : Game, isOwner : Bool, wordInput : String, turnTimer : Int, isRoundEnd : Bool }
+    { localUser : LocalUser, game : Game, isOwner : Bool, wordInput : String, turnTimer : Int, isRoundEnd : Bool }
 
 
 type alias InitialGameModel =
