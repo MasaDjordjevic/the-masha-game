@@ -135,7 +135,7 @@ addingWordsView model =
             [ wordsInput
             , wordsStatisticsView model.game.state.words model.game.participants.players
             , if model.isOwner then
-                button [ onClick NextRound, disabled hasNoWords ] [ text "Let's play" ]
+                button [ onClick StartPlaying, disabled hasNoWords ] [ text "Let's play" ]
 
               else
                 text ""

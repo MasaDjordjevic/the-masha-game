@@ -22,7 +22,7 @@ type LocalUser
 
 
 type alias PlayingGameModel =
-    { localUser : LocalUser, game : Game, isOwner : Bool, wordInput : String, turnTimer : Int, isRoundEnd : Bool }
+    { localUser : LocalUser, game : Game, isOwner : Bool, wordInput : String, turnTimer : Int, isBetweenRounds : Bool }
 
 
 type alias InitialGameModel =
@@ -80,6 +80,7 @@ type Msg
     | UpdatePinInput String
     | AddWord
     | NextRound
+    | StartPlaying
     | DeleteWord String
     | QuitGame
     | TimerTick Time.Posix

@@ -1,4 +1,4 @@
-.end-of-round-container {
+.between-rounds-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -6,7 +6,7 @@
   position: relative;
   height: 100px;
   --default-duration: 1.5s; }
-  .end-of-round-container > * {
+  .between-rounds-container > * {
     position: absolute;
     color: white;
     font-size: 32px;
@@ -24,12 +24,13 @@
     opacity: 1; }
   to {
     opacity: 0; } }
-  .end-of-round-container .show-first {
+  .between-rounds-container .show-first {
     animation: fadeOut var(--default-duration) forwards; }
-  .end-of-round-container .show-second {
+  .between-rounds-container .show-second {
     opacity: 0;
     animation: fadeIn var(--default-duration) forwards var(--default-duration), fadeOut var(--default-duration) forwards 3s; }
-  .end-of-round-container .show-third {
-    font-size: 60px;
+  .between-rounds-container .show-third {
     opacity: 0;
-    animation: fadeIn 1.5s forwards 4.5s; }
+    animation: fadeIn 1.5s forwards 4.5s, fadeOut var(--default-duration) forwards 6s; }
+  .between-rounds-container .large-text {
+    font-size: 60px; }

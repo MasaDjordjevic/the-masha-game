@@ -1,4 +1,4 @@
-.end-of-round-container {
+.between-rounds-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -44,8 +44,11 @@
   }
 
   .show-third {
-    font-size: 60px;
     opacity: 0;
-    animation: fadeIn 1.5s forwards 4.5s;
+    animation: fadeIn 1.5s forwards 4.5s,
+      fadeOut var(--default-duration) forwards 6s;
+  }
+  .large-text {
+    font-size: 60px;
   }
 }

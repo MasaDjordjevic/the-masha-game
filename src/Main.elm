@@ -215,9 +215,9 @@ playingGameUpdate msg model =
                                             Game.Gameplay.isPlayerOnwer decodedGame localPlayer
                                     in
                                     if game.id == decodedGame.id then
-                                        ( { model | currentGame = Playing { gameModel | game = decodedGame, isOwner = isLocalPlayerOwner, turnTimer = newTimer, isRoundEnd = isRoundEnd } }
+                                        ( { model | currentGame = Playing { gameModel | game = decodedGame, isOwner = isLocalPlayerOwner, turnTimer = newTimer, isBetweenRounds = isRoundEnd } }
                                         , if isRoundEnd then
-                                            Delay.after 5000 Delay.Millisecond NextRound
+                                            Delay.after 6500 Delay.Millisecond NextRound
 
                                           else
                                             Cmd.none
@@ -249,12 +249,17 @@ playingGameUpdate msg model =
                                             |> changeGame
                                         )
 
+                                    StartPlaying ->
+                                        ( { model | currentGame = Playing { gameModel | isBetweenRounds = True } }
+                                        , Delay.after 6500 Delay.Millisecond NextRound
+                                        )
+
                                     NextRound ->
                                         let
                                             newGame =
                                                 Game.Gameplay.nextRound game
                                         in
-                                        ( { model | currentGame = Playing { gameModel | isRoundEnd = False } }
+                                        ( { model | currentGame = Playing { gameModel | isBetweenRounds = False } }
                                         , newGame
                                             |> Game.Game.gameEncoder
                                             |> changeGame
@@ -381,7 +386,7 @@ update msg model =
                         GameAdded result ->
                             case result of
                                 Ok ( game, player ) ->
-                                    ( { model | currentGame = Playing { game = game, isOwner = True, localUser = LocalPlayer player, wordInput = "", turnTimer = defaultTimer, isRoundEnd = False } }
+                                    ( { model | currentGame = Playing { game = game, isOwner = True, localUser = LocalPlayer player, wordInput = "", turnTimer = defaultTimer, isBetweenRounds = False } }
                                     , Cmd.batch
                                         [ subscribeToGame
                                             (Json.Encode.object
@@ -449,7 +454,7 @@ update msg model =
                                                         LocalWatcher watcher ->
                                                             watcher.name
                                             in
-                                            ( { model | currentGame = Playing { localUser = localUser, isOwner = isLocalPlayerOwner, game = joinedGameInfo.game, wordInput = "", turnTimer = defaultTimer, isRoundEnd = False } }
+                                            ( { model | currentGame = Playing { localUser = localUser, isOwner = isLocalPlayerOwner, game = joinedGameInfo.game, wordInput = "", turnTimer = defaultTimer, isBetweenRounds = False } }
                                             , Cmd.batch
                                                 [ subscribeToGame
                                                     (Json.Encode.object

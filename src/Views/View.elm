@@ -7,8 +7,8 @@ import Html exposing (div, text)
 import Html.Attributes exposing (..)
 import State exposing (..)
 import Views.AddingWords exposing (addingWordsView)
+import Views.BetweenRounds exposing (betweenRoundsView)
 import Views.Donate exposing (donateView)
-import Views.EndOfRound exposing (endOfRoundView)
 import Views.FinishedGame exposing (finishedGameView)
 import Views.Header exposing (headerView)
 import Views.Help exposing (helpView)
@@ -31,8 +31,8 @@ view model =
                                 lobbyView gameModel
 
                             Game.Status.Running ->
-                                if gameModel.isRoundEnd then
-                                    endOfRoundView gameModel.game
+                                if gameModel.isBetweenRounds then
+                                    betweenRoundsView gameModel.game
 
                                 else
                                     case gameModel.game.state.round of
