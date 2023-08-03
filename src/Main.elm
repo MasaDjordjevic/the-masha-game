@@ -79,7 +79,7 @@ init flags url navKey =
                     CreatingGame { nameInput = "" }
 
                 _ ->
-                    Initial { pinInput = "" }
+                    Initial { pinInput = "", instructionSlideNumber = 1 }
       , environment = flags.environment
       , apiUrl = apiUrl
       , errors = []
@@ -128,7 +128,7 @@ playingGameUpdate msg model =
 
                         QuitGame ->
                             -- TODO: remove the player from the list of players or set to offline
-                            ( { model | currentGame = Initial { pinInput = "" }, errors = [] }, Cmd.none )
+                            ( { model | currentGame = Initial { pinInput = "", instructionSlideNumber = 1 }, errors = [] }, Cmd.none )
 
                         TimerTick _ ->
                             let
@@ -322,7 +322,10 @@ update msg model =
                             ( { model | currentGame = CreatingGame { nameInput = "" } }, Nav.pushUrl model.navKey "create" )
 
                         UpdatePinInput input ->
-                            ( { model | currentGame = Initial { pinInput = input } }, Cmd.none )
+                            ( { model | currentGame = Initial { pinInput = input, instructionSlideNumber = 1 } }, Cmd.none )
+
+                        TimerTick _ ->
+                            ( { model | currentGame = Initial { pinInput = gameModel.pinInput, instructionSlideNumber = gameModel.instructionSlideNumber + 1 } }, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -490,6 +493,9 @@ subscriptions model =
 
                         _ ->
                             Sub.none
+
+                Initial _ ->
+                    Time.every 5000 TimerTick
 
                 _ ->
                     Sub.none

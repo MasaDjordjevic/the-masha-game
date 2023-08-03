@@ -75,8 +75,8 @@ view model =
                         text ""
                     , currView
                     ]
-                , helpView model
                 , donateView model
+                , helpView model
                 ]
             , debugger model
             ]

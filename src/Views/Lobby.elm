@@ -3,7 +3,7 @@ module Views.Lobby exposing (..)
 import Dict exposing (Dict)
 import Game.Participants exposing (Participants)
 import Html exposing (Html, button, div, h1, h3, span, text)
-import Html.Attributes exposing (class, classList)
+import Html.Attributes exposing (class, classList, disabled)
 import Html.Events exposing (onClick)
 import Player exposing (Player)
 import State exposing (LocalUser(..), Msg(..), PlayingGameModel)
@@ -63,7 +63,7 @@ playersView participants isOwner localUser =
             ]
         , if isOwner then
             div []
-                [ button [ onClick StartGame, classList [ ( "disabled", cantStartGame ), ( "start-game", True ) ] ] [ text "start game" ]
+                [ button [ onClick StartGame, class "start-game", disabled cantStartGame ] [ text "start game" ]
                 ]
 
           else

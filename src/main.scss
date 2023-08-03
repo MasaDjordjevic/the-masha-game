@@ -83,8 +83,9 @@ button {
     background-color: var(--action-secondary);
   }
 
-  &.disabled {
+  &:disabled {
     background-color: var(--text-overlay);
+    cursor: default;
   }
   //   &:active {
   //     transform: translate(0px, 5px);

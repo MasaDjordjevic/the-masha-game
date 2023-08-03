@@ -1,6 +1,6 @@
 .donate-dialog-button {
-  width: 86px;
-  height: 86px;
+  width: 56px;
+  height: 56px;
   background-color: var(--action-secondary);
   border-radius: 50%;
   cursor: pointer;
@@ -11,11 +11,14 @@
   justify-content: center;
   align-items: center;
   margin: 0 32px 32px 0;
-  font-size: 40px;
-  color: black; }
-  .donate-dialog-button.small {
-    width: 56px;
-    height: 56px; }
+  font-size: 30px;
+  color: black;
+  z-index: 10; }
+  @media (min-width: 800px) {
+    .donate-dialog-button {
+      top: 50px;
+      right: 0;
+      left: unset; } }
 
 .donate-dialog {
   position: fixed;

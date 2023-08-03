@@ -1,8 +1,8 @@
 @import "./constants.scss";
 
 .help-dialog-button {
-  width: 86px;
-  height: 86px;
+  width: 56px;
+  height: 56px;
   background-color: var(--action-highlight);
   border-radius: 50%;
   cursor: pointer;
@@ -16,9 +16,13 @@
   font-size: 40px;
   color: black;
 
-  &.small {
-    width: 56px;
-    height: 56px;
+  &.hide {
+    display: none;
+  }
+
+  @media (min-width: $breakpointMedium) {
+    top: 50px;
+    right: 70px;
   }
 }
 
@@ -48,7 +52,7 @@
   // font-weight: 300;
   // font-size: 24px;
 
-  font-family: "Roboto Condensed", sans-serif;
+  font-family: "Roboto", sans-serif;
   font-weight: 300;
   font-size: 22px;
 
@@ -59,7 +63,16 @@
   align-items: center;
   justify-content: space-between;
 
-  overflow: scroll;
+  overflow: auto;
+
+  @media (min-width: $breakpointMedium) {
+    margin-top: 50px;
+  }
+
+  b {
+    font-weight: 300;
+    text-decoration: underline;
+  }
 
   > div {
     display: flex;
@@ -68,6 +81,10 @@
     > *:not(:last-child) {
       margin-bottom: 1em;
     }
+  }
+
+  h3 {
+    color: black;
   }
 }
 

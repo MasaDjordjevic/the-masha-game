@@ -4,7 +4,7 @@ import Dict exposing (Dict)
 import Game.Game exposing (Game)
 import Game.Words
 import Html exposing (Html, button, div, h1, h3, input, span, text)
-import Html.Attributes exposing (class, classList, id, placeholder, type_, value)
+import Html.Attributes exposing (class, classList, disabled, id, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Player exposing (Player)
 import State exposing (LocalUser(..), Msg(..), PlayingGameModel)
@@ -124,6 +124,9 @@ addingWordsView model =
 
                 LocalWatcher _ ->
                     text ""
+
+        hasNoWords =
+            List.isEmpty model.game.state.words.next
     in
     div [ class "adding-words-container" ]
         [ h1 []
@@ -132,7 +135,7 @@ addingWordsView model =
             [ wordsInput
             , wordsStatisticsView model.game.state.words model.game.participants.players
             , if model.isOwner then
-                button [ onClick NextRound ] [ text "Let's play" ]
+                button [ onClick NextRound, disabled hasNoWords ] [ text "Let's play" ]
 
               else
                 text ""

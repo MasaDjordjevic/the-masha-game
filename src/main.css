@@ -70,8 +70,9 @@ button {
     outline: none; }
   button:hover {
     background-color: var(--action-secondary); }
-  button.disabled {
-    background-color: var(--text-overlay); }
+  button:disabled {
+    background-color: var(--text-overlay);
+    cursor: default; }
 
 h3 {
   color: rgba(255, 255, 255, 0.5); }

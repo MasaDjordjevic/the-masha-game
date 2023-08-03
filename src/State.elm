@@ -26,7 +26,9 @@ type alias PlayingGameModel =
 
 
 type alias InitialGameModel =
-    { pinInput : String }
+    { pinInput : String
+    , instructionSlideNumber : Int
+    }
 
 
 type GameModel
