@@ -70,14 +70,14 @@ export const createGame = async (username: string, game: any) => {
   functions.logger.info(`New game: ${newGame}.`);
   const addedGame = await games.add(newGame);
 
-  games.gameRef(addedGame.id).on("child_changed", () => {
-    games
+  games.gameRef(addedGame.id).on("child_changed", async () => {
+    await games
       .gameRef(addedGame.id)
       .once("value")
-      .then((data) => {
-        const newGame = { ...data.val(), id: data.key };
+      .then(async (data) => {
+        const refetchedGame = { ...data.val(), id: data.key };
         // only owner can run the game and this will allow the game to continue if the original creator of the game is offline
-        swapOwnerIfNeeded(newGame);
+        await swapOwnerIfNeeded(refetchedGame);
       });
   });
 
@@ -87,20 +87,20 @@ export const createGame = async (username: string, game: any) => {
   };
 };
 
-export const swapOwnerIfNeeded = (game: Game): Game => {
+export const swapOwnerIfNeeded = async (game: Game): Promise<Game> => {
   console.log("checking if owner is offline", game.participants.players);
   const owner = Object.values(game.participants.players).find(
     (player: Player) => player.isOwner
   );
-  if (owner?.status == "offline") {
+  if (owner?.status === "offline") {
     const firstOnlinePlayer = Object.values(game.participants.players).find(
-      (p) => p.status == "online"
+      (p) => p.status === "online"
     );
     if (firstOnlinePlayer) {
       game.participants.players[owner.id].isOwner = false;
       game.participants.players[firstOnlinePlayer.id].isOwner = true;
     }
-    games.update(game);
+    await games.update(game);
     console.log("swapped owners", game.participants.players);
   }
   return game;

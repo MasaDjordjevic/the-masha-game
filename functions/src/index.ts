@@ -69,14 +69,15 @@ export const joinGame = onCorsRequest(async (request, response) => {
 
   const existingPlayerWithSameUsername = Object.values(
     game.participants?.players ?? {}
-  ).find((player) => {
-    return player.name === username;
+  ).find((p) => {
+    return p.name === username;
   });
 
   if (existingPlayerWithSameUsername) {
     response.status(201).send({
       status: "User is already in the game",
-      player: existingPlayerWithSameUsername,
+      // player's status in DB will be updated after this when user joins the game and thus subscribes to DB
+      player: { ...existingPlayerWithSameUsername, status: "online" },
       game: game,
     });
     return;

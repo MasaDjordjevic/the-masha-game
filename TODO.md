@@ -4,19 +4,13 @@
 
     * Add loading state when creating/joining game/adding word or all buttons
 
-    * Change help dialog font
-
-    * Move donate and help button up at the top for desktop
+    * When adding words input and button jump down once the word is added, test with chaning order of added words and input for the new one
 
     * Animate help button and add tips
-
-    * Separate rules from advanced rules/tips for more competitive players
 
 # Game play
 
     * Explain when to click on let's play and start the game
-
-    * Add the same kind of count down before the first round
 
     * Organize css
 

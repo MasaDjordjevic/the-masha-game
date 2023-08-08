@@ -9,7 +9,11 @@
       { "source": "/acceptRequest", "function": "acceptRequest" },
       { "source": "/updateGame", "function": "updateGame" },
       { "source": "/addWord", "function": "addWord" },
-      { "source": "/deleteWord", "function": "deleteWord" }
+      { "source": "/deleteWord", "function": "deleteWord" },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
   },
   "functions": {
