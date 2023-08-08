@@ -87,8 +87,10 @@
 
 .how-to-play {
   max-width: 500px;
+  width: 450px;
   padding: 52px 25px;
   justify-self: center;
+  align-self: center;
   display: flex;
   flex-direction: column;
   background: rgba(255, 255, 255, 0.09);
@@ -100,13 +102,11 @@
       margin-top: 0px; } }
   .how-to-play > div:not(.show):not(.bars) {
     display: none; }
-  .how-to-play .show img {
-    width: 200px;
-    height: 200px; }
   .how-to-play .show h3 {
     color: white;
     font-size: xx-large;
-    color: var(--action-secondary); }
+    color: var(--action-secondary);
+    margin-top: 10px; }
   .how-to-play .show p {
     font-family: "Hind", sans-serif;
     height: 100px; }
@@ -114,7 +114,7 @@
     color: var(--action-highlight);
     text-decoration: underline;
     margin-top: 0;
-    margin-bottom: 10px; }
+    margin-bottom: 30px; }
     @media (max-width: 800px) {
       .how-to-play .title-how-to-play-inside {
         display: none; } }
@@ -130,20 +130,17 @@
   .bars div {
     width: 50px;
     background-color: white;
-    animation: barWidth;
-    animation-duration: 5s;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear; }
+    animation: barWidth 5s ease-in-out infinite; }
 
 @keyframes barWidth {
   0% {
-    width: 20%;
+    width: 5px;
     background-color: white; }
-  25% { }
-  50% {
-    width: 25%;
+  40% {
+    width: 48px;
     background-color: var(--action-secondary); }
-  75% { }
+  65% {
+    width: 48px; }
   100% {
-    width: 20%;
+    width: 5px;
     background-color: white; } }
