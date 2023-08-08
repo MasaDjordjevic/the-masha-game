@@ -2,16 +2,15 @@ module Game.Teams exposing (..)
 
 import Dict exposing (Dict)
 import Game.Helpers exposing (decodeList)
-import Json.Decode exposing (Decoder, field, int, list, map2, map3, string)
+import Json.Decode exposing (Decoder, field, list)
 import Json.Encode
 import Player exposing (Player)
 import Random
 import Random.List exposing (shuffle)
-import User exposing (User)
 
 
 type alias Team =
-    { players : List User
+    { players : List Player
     , score : Int
     }
 
@@ -26,7 +25,7 @@ emptyTeams =
     Teams Maybe.Nothing []
 
 
-teamToString : List User -> String
+teamToString : List Player -> String
 teamToString team =
     team
         |> List.map .name
@@ -58,14 +57,14 @@ teamsEncoder teams =
 teamDecoder : Decoder Team
 teamDecoder =
     Json.Decode.map2 Team
-        (decodeList (field "players" (Json.Decode.list User.decodeUser)))
+        (decodeList (field "players" (Json.Decode.list Player.playerDecoder)))
         (field "score" Json.Decode.int)
 
 
 teamEncoder : Team -> Json.Encode.Value
 teamEncoder team =
     Json.Encode.object
-        [ ( "players", Json.Encode.list User.userEncoder team.players )
+        [ ( "players", Json.Encode.list Player.playerEncoder team.players )
         , ( "score", Json.Encode.int team.score )
         ]
 
@@ -95,7 +94,6 @@ advanceCurrentTeam teams =
                 Nothing ->
                     Maybe.Nothing
 
-
         nextTeamsWithCurrent =
             case shiftedCurrentTeam of
                 Just currTeam ->
@@ -103,13 +101,12 @@ advanceCurrentTeam teams =
 
                 Nothing ->
                     teams.next
+
         nextTeam =
             List.head nextTeamsWithCurrent
 
         restTeams =
             List.drop 1 nextTeamsWithCurrent
-
-        
     in
     Teams nextTeam restTeams
 
@@ -143,7 +140,7 @@ partitionBy2 list =
                     head :: partitionBy2 (List.drop 2 list)
 
 
-createTeams : Dict String User -> Teams
+createTeams : Dict String Player -> Teams
 createTeams players =
     let
         playersList =

@@ -6,9 +6,10 @@
 @import url(./Views/adding-words.css);
 @import url(./Views/Playing/playing.css);
 @import url(./Views/finished-game.css);
-@import url(./Views/Playing/end-of-round.css);
+@import url(./Views/Playing/between-rounds.css);
 @import url(./Views/help.css);
 @import url(./Views/donate.css);
+@import url(./Views/lobby.css);
 /*
   elm-hot creates an additional div wrapper around the app to make HMR possible.
   This could break styling in development mode if you are using Elm UI.
@@ -69,8 +70,9 @@ button {
     outline: none; }
   button:hover {
     background-color: var(--action-secondary); }
-  button.disabled {
-    background-color: var(--text-overlay); }
+  button:disabled {
+    background-color: var(--text-overlay);
+    cursor: default; }
 
 h3 {
   color: rgba(255, 255, 255, 0.5); }

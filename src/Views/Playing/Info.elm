@@ -3,13 +3,10 @@ module Views.Playing.Info exposing (..)
 import Constants exposing (countdownMoment)
 import Game.Game exposing (Game, TurnTimer)
 import Game.Gameplay exposing (isLocalPlayersTurn)
-import Html exposing (Html, button, div, h1, h3, span, text)
-import Html.Attributes exposing (attribute, class, classList)
+import Html exposing (Html, button, div, h1, span, text)
+import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
-import State exposing (Model, Msg(..))
-import User exposing (User)
-import Views.Playing.CurrentWord exposing (currentWordView)
-import Views.Playing.Round exposing (roundView)
+import State exposing (LocalUser(..), Msg(..))
 
 
 wordsLeft : Game -> Bool -> Html Msg
@@ -41,23 +38,20 @@ timeLeft localTimer =
         ]
 
 
-previousWord : Game -> User -> Html Msg
-previousWord game localUser =
+previousWord : Game -> Html Msg
+previousWord game =
     let
         prevWord =
             List.head game.state.words.guessed
-
-        isOnTurn =
-            isLocalPlayersTurn game localUser
     in
-    case ( prevWord, isOnTurn ) of
-        ( Just word, False ) ->
+    case prevWord of
+        Just word ->
             div [ class "info-container", class "previous-word" ]
                 [ h1 [] [ text word.word ]
                 , span [] [ text "previous" ]
                 ]
 
-        ( _, _ ) ->
+        Nothing ->
             text ""
 
 
@@ -81,7 +75,12 @@ timerButton game isExplaining =
             getTimerString game.state.turnTimer
 
         shouldShowButton =
-            (String.isEmpty >> not) timerString
+            case game.state.turnTimer of
+                Game.Game.Restarted _ ->
+                    Basics.False
+
+                _ ->
+                    True
     in
     if isExplaining then
         div [ class "timer-button-container" ]
@@ -99,24 +98,33 @@ timerButton game isExplaining =
         text ""
 
 
-infoView : Game -> User -> Int -> Html Msg
+infoView : Game -> LocalUser -> Int -> Html Msg
 infoView game localUser localTimer =
     let
         isExplaining =
-            Game.Gameplay.isExplaining game localUser
+            case localUser of
+                LocalPlayer localPlayer ->
+                    Game.Gameplay.isExplaining game localPlayer
 
-        canSwitchTimer =
-            case game.state.turnTimer of
-                Game.Game.Restarted _ ->
-                    Basics.False
+                LocalWatcher _ ->
+                    False
 
-                _ ->
+        shouldSeePreviousWord =
+            case localUser of
+                LocalPlayer localPlayer ->
+                    not (isLocalPlayersTurn game localPlayer)
+
+                LocalWatcher _ ->
                     True
     in
     div
         [ classList [ ( "turn-stats", True ), ( "section", True ), ( "on-turn", isExplaining ) ] ]
         [ wordsLeft game isExplaining
         , timeLeft localTimer
-        , previousWord game localUser
+        , if shouldSeePreviousWord then
+            previousWord game
+
+          else
+            text ""
         , timerButton game isExplaining
         ]

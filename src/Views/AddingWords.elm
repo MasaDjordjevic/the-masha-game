@@ -1,18 +1,16 @@
 module Views.AddingWords exposing (..)
 
-import Dict exposing (Dict, isEmpty)
+import Dict exposing (Dict)
 import Game.Game exposing (Game)
-import Game.Participants exposing (Participants, joinRequestsDecoder)
 import Game.Words
-import Html exposing (Html, button, div, h1, h2, h3, input, span, text)
-import Html.Attributes exposing (class, classList, id, placeholder, type_, value)
+import Html exposing (Html, button, div, h1, h3, input, span, text)
+import Html.Attributes exposing (class, classList, disabled, id, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
-import State exposing (Model, Msg(..))
-import User exposing (User)
-import State exposing (PlayingGameModel)
+import Player exposing (Player)
+import State exposing (LocalUser(..), Msg(..), PlayingGameModel)
 
 
-wordCounterList : Dict String User -> Bool -> Html Msg
+wordCounterList : Dict String Player -> Bool -> Html Msg
 wordCounterList users isOwner =
     users
         |> Dict.toList
@@ -26,7 +24,7 @@ wordCounterList users isOwner =
                     ]
                     [ span [] [ text user.name ]
                     , if isOwner then
-                        button [ class "icon-button", onClick (AcceptUser user) ] [ text "✔️" ]
+                        button [ class "icon-button", onClick (KickPlayer user.id) ] [ text "🚫" ]
 
                       else
                         text ""
@@ -35,7 +33,7 @@ wordCounterList users isOwner =
         |> div [ class "participants" ]
 
 
-wordsStatisticsView : Game.Words.Words -> Dict String User -> Html Msg
+wordsStatisticsView : Game.Words.Words -> Dict String Player -> Html Msg
 wordsStatisticsView words players =
     let
         wordCountByPlayer =
@@ -72,7 +70,7 @@ wordsStatisticsView words players =
         ]
 
 
-localPlayersWords : Game.Words.Words -> User -> Html Msg
+localPlayersWords : Game.Words.Words -> Player -> Html Msg
 localPlayersWords words localUser =
     let
         localWords =
@@ -107,7 +105,7 @@ localPlayersWords words localUser =
                 ]
 
 
-wordsInputView : Game -> User -> String -> Html Msg
+wordsInputView : Game -> Player -> String -> Html Msg
 wordsInputView game localUser inputValue =
     div [ class "words-input-container" ]
         [ localPlayersWords game.state.words localUser
@@ -118,18 +116,28 @@ wordsInputView game localUser inputValue =
 
 addingWordsView : PlayingGameModel -> Html Msg
 addingWordsView model =
+    let
+        wordsInput =
+            case model.localUser of
+                LocalPlayer localPlayer ->
+                    wordsInputView model.game localPlayer model.wordInput
+
+                LocalWatcher _ ->
+                    text ""
+
+        hasNoWords =
+            List.isEmpty model.game.state.words.next
+    in
     div [ class "adding-words-container" ]
         [ h1 []
             [ text "Let’s add some words" ]
         , div []
-            [ wordsInputView model.game model.localUser model.wordInput
+            [ wordsInput
             , wordsStatisticsView model.game.state.words model.game.participants.players
             , if model.isOwner then
-                button [ onClick NextRound ] [ text "Let's play" ]
+                button [ onClick StartPlaying, disabled hasNoWords ] [ text "Let's play" ]
 
-                else
+              else
                 text ""
             ]
         ]
-
-    

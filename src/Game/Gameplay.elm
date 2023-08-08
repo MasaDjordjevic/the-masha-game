@@ -1,10 +1,11 @@
 module Game.Gameplay exposing (..)
 
+import Dict
 import Game.Game exposing (Game, GameState, TurnTimer(..))
 import Game.Status
 import Game.Teams
 import Game.Words
-import User
+import Player exposing (Player)
 
 
 isRoundEnd : GameState -> Bool
@@ -29,8 +30,8 @@ startGame game =
     { game | status = Game.Status.Running, state = newState }
 
 
-isLocalPlayersTurn : Game -> User.User -> Bool
-isLocalPlayersTurn game user =
+isLocalPlayersTurn : Game -> Player -> Bool
+isLocalPlayersTurn game player =
     let
         teamOnTurn =
             game.state.teams.current
@@ -38,7 +39,7 @@ isLocalPlayersTurn game user =
         isLocPlayersTurn =
             case teamOnTurn of
                 Just currentTeam ->
-                    List.member user currentTeam.players
+                    List.member player currentTeam.players
 
                 Nothing ->
                     False
@@ -46,8 +47,27 @@ isLocalPlayersTurn game user =
     isLocPlayersTurn
 
 
-isExplaining : Game -> User.User -> Basics.Bool
-isExplaining game user =
+isPlayerOnwer : Game -> Player -> Bool
+isPlayerOnwer game player =
+    let
+        owner =
+            game.participants.players
+                |> Dict.toList
+                |> List.map Tuple.second
+                |> List.filter
+                    (\pl -> pl.isOwner)
+                |> List.head
+    in
+    case owner of
+        Just o ->
+            o.id == player.id
+
+        Nothing ->
+            False
+
+
+isExplaining : Game -> Player -> Basics.Bool
+isExplaining game player =
     let
         teamOnTurn =
             game.state.teams.current
@@ -56,7 +76,7 @@ isExplaining game user =
         Just currentTeam ->
             case List.head currentTeam.players of
                 Just explainingUser ->
-                    explainingUser.id == user.id
+                    explainingUser.id == player.id
 
                 Nothing ->
                     False

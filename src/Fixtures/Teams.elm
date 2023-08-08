@@ -2,20 +2,20 @@ module Fixtures.Teams exposing (..)
 
 import Dict
 import Game.Teams exposing (Team, Teams)
-import User exposing (User)
+import Player exposing (Player, PlayerStatus(..))
 
 
 testPlayers4 =
-    Dict.fromList [ ( "1", User "1" "p1" ), ( "2", User "2" "p2" ), ( "2-1", User "2-1" "p21" ), ( "2-2", User "2-2" "p22" ) ]
+    Dict.fromList [ ( "1", Player "1" "p1" Online True ), ( "2", Player "2" "p2" Online False ), ( "2-1", Player "2-1" "p21" Online False ), ( "2-2", Player "2-2" "p22" Online False ) ]
 
 
 testPlayers6 =
-    Dict.fromList [ ( "1", User "1" "p1" ), ( "2", User "2" "p2" ), ( "2-1", User "2-1" "p21" ), ( "2-2", User "2-2" "p22" ), ( "3-1", User "3-1" "p31" ), ( "3-2", User "3-2" "p32" ) ]
+    Dict.fromList [ ( "1", Player "1" "p1" Online True ), ( "2", Player "2" "p2" Online False ), ( "2-1", Player "2-1" "p21" Online False ), ( "2-2", Player "2-2" "p22" Online False ), ( "3-1", Player "3-1" "p31" Online False ), ( "3-2", Player "3-2" "p32" Online False ) ]
 
 
 testJoinRequests =
-    Dict.fromList [ ( "3-1", User "3-1" "p31" ), ( "3-2", User "3-2" "p32" ) ]
+    Dict.fromList [ ( "3-1", Player "3-1" "p31" Online False ), ( "3-2", Player "3-2" "p32" Online False ) ]
 
 
 defaultTestTeams =
-    Teams (Just (Team [ User "1" "p1", User "2" "p2" ] 0)) [ Team [ User "2-1" "p21", User "2-2" "p22" ] 0, Team [ User "3-1" "p31", User "3-2" "p32" ] 0 ]
+    Teams (Just (Team [ Player "1" "p1" Online True, Player "2" "p2" Online False ] 0)) [ Team [ Player "2-1" "p21" Online False, Player "2-2" "p22" Online False ] 0, Team [ Player "3-1" "p31" Online False, Player "3-2" "p32" Online False ] 0 ]

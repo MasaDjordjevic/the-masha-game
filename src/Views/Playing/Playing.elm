@@ -1,16 +1,14 @@
 module Views.Playing.Playing exposing (..)
 
 import Game.Game exposing (Game)
-import Game.Gameplay exposing (isLocalPlayersTurn)
-import Html exposing (Html, div, h1, h3, span, text)
+import Html exposing (Html, div, span, text)
 import Html.Attributes exposing (class)
-import State exposing (Model, Msg)
-import User exposing (User)
+import Player exposing (Player, PlayerStatus(..))
+import State exposing (Msg, PlayingGameModel)
 import Views.Playing.CurrentWord exposing (currentWordView)
 import Views.Playing.Info exposing (infoView)
 import Views.Playing.Round exposing (roundView)
 import Views.Playing.Teams exposing (teamsView)
-import State exposing (PlayingGameModel)
 
 
 playingNow : Game -> Html Msg
@@ -29,7 +27,7 @@ playingNow game =
                 Just currentTeam ->
                     currentTeam.players
                         |> List.head
-                        |> Maybe.withDefault (User "" "n/a")
+                        |> Maybe.withDefault (Player "" "n/a" Offline False)
                         |> .name
 
                 Nothing ->
@@ -61,7 +59,7 @@ playingNow game =
                 , span [] [ text "POINTS" ]
                 ]
             , guessingPlayers
-            , span [ class "star-eyed-emoji" ] [ text "\u{1F929}" ]
+            , span [ class "star-eyed-emoji" ] [ text "🤩" ]
             ]
         ]
 

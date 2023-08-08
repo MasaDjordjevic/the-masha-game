@@ -6,9 +6,9 @@ import Game.Participants exposing (Participants, emptyParticipants, participants
 import Game.Status exposing (GameStatus, gameStatusDecoder, gameStatusEncoder)
 import Game.Teams exposing (Teams, emptyTeams, teamsDecoder, teamsEncoder)
 import Game.Words exposing (Words, wordsDecoder, wordsEncoder)
-import Json.Decode exposing (Decoder, field, int, map2, map3, string)
+import Json.Decode exposing (Decoder, field, int)
 import Json.Encode
-import User exposing (User)
+import Player exposing (Player)
 
 
 type alias FindGame =
@@ -65,16 +65,14 @@ emptyGameState =
     GameState (Words [] Maybe.Nothing []) emptyTeams -1 (Restarted defaultTimer)
 
 
-createGameModel : User -> Game
-createGameModel user =
+createGameModel : Player -> Game
+createGameModel player =
     let
-        players =
-            Dict.fromList [ ( user.id, user ) ]
-
-        userAsPlayer =
-            Participants players Dict.empty
+        -- will be overwritten once created and once player gets an ID
+        participants =
+            Participants Dict.empty Dict.empty
     in
-    Game "" "" user.name Game.Status.Open userAsPlayer emptyGameState defaultTimer
+    Game "" "" player.name Game.Status.Open participants emptyGameState defaultTimer
 
 
 gameDecoder : Decoder Game

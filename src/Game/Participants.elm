@@ -3,19 +3,18 @@ module Game.Participants exposing (..)
 import Dict exposing (Dict)
 import Json.Decode exposing (Decoder, field, map2)
 import Json.Encode
-import Player exposing (Player)
-import User exposing (User)
+import Player exposing (Player, playerDecoder, playerEncoder)
 
 
 type alias GameRequest =
     { gameId : String
-    , user : User
+    , user : Player
     }
 
 
 type alias Participants =
-    { players : Dict String User
-    , joinRequests : Dict String User
+    { players : Dict String Player
+    , joinRequests : Dict String Player
     }
 
 
@@ -34,14 +33,14 @@ maybePlayersToPlayers players =
             []
 
 
-playersDecoder : Decoder (Dict String User)
+playersDecoder : Decoder (Dict String Player)
 playersDecoder =
-    Json.Decode.dict User.decodeUser
+    Json.Decode.dict playerDecoder
 
 
-joinRequestsDecoder : Decoder (Dict String User)
+joinRequestsDecoder : Decoder (Dict String Player)
 joinRequestsDecoder =
-    Json.Decode.dict User.decodeUser
+    Json.Decode.dict playerDecoder
 
 
 participantsDecoder : Decoder Participants
@@ -54,14 +53,6 @@ participantsDecoder =
 participantsEncoder : Participants -> Json.Encode.Value
 participantsEncoder participants =
     Json.Encode.object
-        [ ( "players", Json.Encode.dict identity User.userEncoder participants.players )
-        , ( "joinRequests", Json.Encode.dict identity User.userEncoder participants.joinRequests )
+        [ ( "players", Json.Encode.dict identity playerEncoder participants.players )
+        , ( "joinRequests", Json.Encode.dict identity playerEncoder participants.joinRequests )
         ]
-
-
-addJoinRequest: User -> Participants -> Participants
-addJoinRequest user participants =
-    let
-     newPlayers = Dict.insert user.id user participants.players
-    in
-    { participants | players = newPlayers }

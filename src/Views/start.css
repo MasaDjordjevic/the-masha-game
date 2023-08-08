@@ -1,4 +1,4 @@
-.container {
+.start-game-container {
   padding: 52px 25px;
   background-color: var(--background-color);
   display: flex;
@@ -61,8 +61,86 @@
   .join h2 {
     margin: 0; }
   .join input {
-    min-width: 230px; }
+    min-width: 230px;
+    font-family: "Roboto", sans-serif; }
 
 .error {
   color: salmon;
   margin: 0; }
+
+.start-wrapper {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%; }
+  @media (min-width: 800px) {
+    .start-wrapper {
+      grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1300px) {
+    .start-wrapper {
+      grid-template-columns: 500px 500px;
+      justify-content: center; } }
+
+@media (min-width: 800px) {
+  .title-how-to-play {
+    display: none; } }
+
+.how-to-play {
+  max-width: 500px;
+  width: 450px;
+  padding: 52px 25px;
+  justify-self: center;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  box-sizing: border-box;
+  margin-top: 60px; }
+  @media (max-width: 800px) {
+    .how-to-play {
+      margin-top: 0px; } }
+  .how-to-play > div:not(.show):not(.bars) {
+    display: none; }
+  .how-to-play .show h3 {
+    color: white;
+    font-size: xx-large;
+    color: var(--action-secondary);
+    margin-top: 10px; }
+  .how-to-play .show p {
+    font-family: "Hind", sans-serif;
+    height: 100px; }
+  .how-to-play .title-how-to-play-inside {
+    color: var(--action-highlight);
+    text-decoration: underline;
+    margin-top: 0;
+    margin-bottom: 30px; }
+    @media (max-width: 800px) {
+      .how-to-play .title-how-to-play-inside {
+        display: none; } }
+
+.bars {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  height: 6px;
+  justify-content: center; }
+  .bars div:not(.animate) {
+    animation: none; }
+  .bars div {
+    width: 50px;
+    background-color: white;
+    animation: barWidth 5s ease-in-out infinite; }
+
+@keyframes barWidth {
+  0% {
+    width: 5px;
+    background-color: white; }
+  40% {
+    width: 48px;
+    background-color: var(--action-secondary); }
+  65% {
+    width: 48px; }
+  100% {
+    width: 5px;
+    background-color: white; } }

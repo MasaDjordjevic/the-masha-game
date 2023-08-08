@@ -5,9 +5,10 @@ import Json.Encode
 
 
 type alias Player =
-    { userId : String
-    , userName : String
+    { id : String
+    , name : String
     , status : PlayerStatus
+    , isOwner : Bool
     }
 
 
@@ -28,10 +29,11 @@ isOnline player =
 
 playerDecoder : Decoder Player
 playerDecoder =
-    Json.Decode.map3 Player
-        (field "userId" Json.Decode.string)
-        (field "userName" Json.Decode.string)
+    Json.Decode.map4 Player
+        (field "id" Json.Decode.string)
+        (field "name" Json.Decode.string)
         (field "status" playerStatusDecoder)
+        (field "isOwner" Json.Decode.bool)
 
 
 playerStatusDecoder : Decoder PlayerStatus
@@ -73,7 +75,8 @@ playerSatatusEncoder status =
 playerEncoder : Player -> Json.Encode.Value
 playerEncoder player =
     Json.Encode.object
-        [ ( "userId", Json.Encode.string player.userId )
-        , ( "userName", Json.Encode.string player.userName )
+        [ ( "id", Json.Encode.string player.id )
+        , ( "name", Json.Encode.string player.name )
         , ( "status", playerSatatusEncoder player.status )
+        , ( "isOwner", Json.Encode.bool player.isOwner )
         ]

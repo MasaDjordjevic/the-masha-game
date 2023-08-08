@@ -7,7 +7,7 @@ import Game.Game exposing (Game)
 import Game.Participants exposing (Participants)
 import Game.Status
 import Game.Words exposing (Words)
-import User exposing (User)
+import Player exposing (Player)
 
 
 emptyGame : Game -> Game
@@ -37,7 +37,7 @@ restartWords game =
     { game | state = newState }
 
 
-getPlayerOnTurn : Game -> Maybe User
+getPlayerOnTurn : Game -> Maybe Player
 getPlayerOnTurn game =
     let
         teamOnTurn =
