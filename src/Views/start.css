@@ -136,19 +136,22 @@
   .bars div:not(.animate) {
     animation: none; }
   .bars div {
-    width: 50px;
+    width: 14%;
+    max-width: 50px;
     background-color: white;
     animation: barWidth 5s ease-in-out infinite; }
 
 @keyframes barWidth {
   0% {
-    width: 5px;
+    width: 2%;
     background-color: white; }
   40% {
-    width: 48px;
+    width: 14%;
+    max-width: 50px;
     background-color: var(--action-secondary); }
   65% {
-    width: 48px; }
+    width: 14%;
+    max-width: 50px; }
   100% {
-    width: 5px;
+    width: 2%;
     background-color: white; } }
