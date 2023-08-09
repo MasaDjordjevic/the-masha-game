@@ -11,11 +11,15 @@ import * as cors from "cors";
 //
 
 // const cors = require("cors")({ origin: true });
-const corsHandler = cors({ origin: true });
+const devCorsConfig = { origin: true };
+const prodCorsConfig = { origin: "themashagame.com" };
+const corsHandler = cors(
+  process.env.FUNCTIONS_EMULATOR === "true" ? devCorsConfig : prodCorsConfig
+);
 
 export const helloWorld = functions.https.onRequest((request, response) => {
   functions.logger.info("Hello logs!", { structuredData: true });
-  response.send("Hello from Firebase!");
+  response.send("Hello world!");
 });
 
 const onCorsRequest = (

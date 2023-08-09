@@ -3,8 +3,28 @@
   "name": "The Masha Game",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "/assets/favicon/favicon-16x16.png3oi24u",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/favicon/favicon-32x32.png3oi24u",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/favicon/apple-touch-icon.png3oi24u",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/favicon/android-chrome-192x192.png3oi24u",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/favicon/android-chrome-512x512.png3oi24u",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ],
