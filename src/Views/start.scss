@@ -105,6 +105,11 @@
 
   display: grid;
   grid-template-columns: 1fr;
+  align-self: stretch;
+
+  min-height: 0;
+  min-width: 0; /* new; needed for FF */
+
   width: 100%;
   @media (min-width: $breakpointMedium) {
     grid-template-columns: 1fr 1fr;
@@ -123,20 +128,24 @@
 }
 
 .how-to-play {
-  max-width: 500px;
-  width: 450px;
   padding: 52px 25px;
-  justify-self: center;
+  justify-self: stretch;
   align-self: center;
   display: flex;
   flex-direction: column;
   background: rgba(255, 255, 255, 0.09);
   border-radius: 12px;
   box-sizing: border-box;
-  margin-top: 60px;
 
-  @media (max-width: $breakpointMedium) {
-    margin-top: 0px;
+  overflow: hidden;
+  min-width: 0; /* new; needed for FF */
+
+  margin-top: 0px;
+
+  @media (min-width: $breakpointMedium) {
+    margin-top: 60px;
+    width: 450px;
+    max-width: 500px;
   }
 
   > div:not(.show):not(.bars) {
@@ -176,6 +185,7 @@
   width: 100%;
   height: 6px;
   justify-content: center;
+  flex-wrap: wrap;
 
   div:not(.animate) {
     animation: none;

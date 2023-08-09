@@ -1,35 +1,42 @@
 @import "./constants.scss";
 
-.page-container {
-  padding: 52px 55px 160px;
+.page-and-debugger-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background-color: var(--background-color);
+
+  @media (max-width: $breakpointTiny) {
+    min-width: min-content;
+  }
+}
+
+.page-container {
+  padding: 52px 25px 160px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  align-self: center;
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
   position: relative;
 
-  min-width: 400px;
+  flex-wrap: wrap;
 
-  @media (max-width: var($breakpointMedium)) {
+  @media (min-width: $breakpointMedium) {
     padding: 52px 25px 160px;
-    flex-direction: column;
-    align-items: center;
   }
-}
-
-.page-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-
-  @media (max-width: var($breakpointMedium)) {
-    flex-direction: column;
-    align-items: center;
+  @media (min-width: $breakpointLarge) {
+    padding: 52px 55px 160px;
   }
 }
 

@@ -65,19 +65,17 @@ view model =
                     _ ->
                         Basics.True
           in
-          div []
-            [ div [ class "page-wrapper" ]
-                [ div [ class "page-container" ]
-                    [ if showHeader then
-                        headerView
+          div [ class "page-wrapper" ]
+            [ div [ class "page-container" ]
+                [ if showHeader then
+                    headerView
 
-                      else
-                        text ""
-                    , currView
-                    ]
-                , donateView model
-                , helpView model
+                  else
+                    text ""
+                , currView
                 ]
+            , donateView model
+            , helpView model
             , debugger model
             ]
         ]

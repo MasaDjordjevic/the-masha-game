@@ -36,6 +36,8 @@ body {
   text-align: center;
   color: white;
   box-sizing: border-box; }
+  body div {
+    box-sizing: border-box; }
 
 h1 {
   font-size: 30px; }
