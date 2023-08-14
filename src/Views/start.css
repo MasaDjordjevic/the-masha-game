@@ -134,24 +134,26 @@
   justify-content: center;
   flex-wrap: wrap; }
   .bars div:not(.animate) {
-    animation: none; }
+    animation: none;
+    opacity: 0.3;
+    border-radius: 12px; }
   .bars div {
     width: 14%;
+    border-radius: 12px;
     max-width: 50px;
     background-color: white;
     animation: barWidth 5s ease-in-out infinite; }
 
 @keyframes barWidth {
   0% {
-    width: 2%;
+    opacity: 0.3;
     background-color: white; }
-  40% {
-    width: 14%;
-    max-width: 50px;
+  20% {
+    opacity: 1;
     background-color: var(--action-secondary); }
-  65% {
-    width: 14%;
-    max-width: 50px; }
+  80% {
+    opacity: 1;
+    background-color: var(--action-secondary); }
   100% {
-    width: 2%;
+    opacity: 0.3;
     background-color: white; } }
