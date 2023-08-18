@@ -46,63 +46,36 @@ playersList users isOwner localUser =
         |> div [ class "participants" ]
 
 
-playersView : Participants -> Bool -> LocalUser -> Html Msg
-playersView participants isOwner localUser =
-    let
-        cantStartGame =
-            Dict.size participants.players <= 1
-    in
-    div []
-        [ div [ class "join-requests-container" ]
-            [ h3 []
-                [ text "Players" ]
-            , playersList
-                participants.players
-                isOwner
-                localUser
-            ]
-        , if isOwner then
-            div []
-                [ button [ onClick StartGame, class "start-game", disabled cantStartGame ] [ text "start game" ]
-                ]
-
-          else
-            text ""
-        ]
-
-
 lobbyView : PlayingGameModel -> Html Msg
 lobbyView model =
     let
-        hasNoParticipants =
-            Dict.isEmpty model.game.participants.joinRequests && Dict.size model.game.participants.players <= 1
+        cantStartGame =
+            Dict.size model.game.participants.players <= 1
 
         titleCopy =
             if model.isOwner then
-                if hasNoParticipants then
-                    "Waiting for players to join"
-
-                else
-                    "ACCEPT PLAYERS"
+                "Waiting for players to join"
 
             else
                 "Waiting for game to start"
-
-        instructions =
-            if model.isOwner then
-                div [ class "invite-to-game" ]
-                    [ h3 [ class "game-code" ] [ text ("Game code: " ++ model.game.gameId) ]
-                    , button [ onClick CopyInviteLink ] [ text "Invite 🔗" ]
-                    ]
-
-            else
-                text ""
     in
     div [ class "lobby-container" ]
-        [ instructions
-        , h1 []
-            [ text titleCopy ]
-        , div []
-            [ playersView model.game.participants model.isOwner model.localUser
+        [ div [ class "invite-to-game" ]
+            [ h1 []
+                [ text titleCopy ]
+            , button [ onClick CopyInviteLink ] [ text "Copy invite link 🔗" ]
+            , div [ class "join-requests-container" ]
+                [ h3 []
+                    [ text "Players" ]
+                , playersList
+                    model.game.participants.players
+                    model.isOwner
+                    model.localUser
+                ]
             ]
+        , if model.isOwner then
+            button [ onClick StartGame, class "start-game", disabled cantStartGame ] [ text "start game" ]
+
+          else
+            text ""
         ]

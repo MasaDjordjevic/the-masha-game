@@ -1,4 +1,8 @@
-# Users
+# Sandra's tips
+
+    * i'd make the help button into a secondary style button as well
+
+    * the heart could be filled instead out outlined so it's not too translucent feeling
 
 # Lobby
 

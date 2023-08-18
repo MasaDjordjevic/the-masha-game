@@ -1,4 +1,3 @@
-@import "lobby.css";
 @import "game.css";
 @import "./Views/start.css";
 @import "./Views/page-layout.css";
@@ -24,6 +23,7 @@
 :root {
   --background-color: #161449;
   --background-overlay: rgb(255 255 255 / 5%);
+  --background-overlay-secondary: rgba(255, 255, 255, 0.09);
   --background-secondary: #f9df9d;
   --text-overlay: rgba(255, 255, 255, 0.25);
   --text-secondary: rgba(0, 0, 0, 0.5);
@@ -47,11 +47,6 @@ body {
 
 h1 {
   font-size: 30px;
-}
-
-img {
-  margin: 20px 0;
-  max-width: 200px;
 }
 
 input {
@@ -90,6 +85,7 @@ button {
   &:disabled {
     background-color: var(--text-overlay);
     cursor: default;
+    color: rgba(255, 255, 255, 0.5);
   }
   //   &:active {
   //     transform: translate(0px, 5px);

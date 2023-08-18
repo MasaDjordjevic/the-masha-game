@@ -108,9 +108,9 @@ localPlayersWords words localUser =
 wordsInputView : Game -> Player -> String -> Html Msg
 wordsInputView game localUser inputValue =
     div [ class "words-input-container" ]
-        [ localPlayersWords game.state.words localUser
-        , input [ type_ "text", id "word", placeholder "e.g. table, mango, nudist", value inputValue, onInput UpdateWordInput ] []
+        [ input [ type_ "text", id "word", placeholder "e.g. table, mango, nudist", value inputValue, onInput UpdateWordInput ] []
         , button [ onClick AddWord ] [ text "Add" ]
+        , localPlayersWords game.state.words localUser
         ]
 
 

@@ -1,7 +1,48 @@
-.game-code {
-  margin-top: 0;
+@import "./constants.scss";
+
+.header {
+  margin-bottom: 70px;
 }
 
 .invite-to-game {
-  margin-bottom: 48px;
+  padding: 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  background-color: var(--background-overlay-secondary);
+
+  width: 450px;
+  max-width: 100%;
+
+  @media (min-width: $breakpointMedium) {
+    // width: 450px;
+    max-width: 500px;
+    padding: 40px 40px;
+  }
+
+  h1 {
+    margin: 0;
+    // color: var(--action-secondary);
+  }
+}
+
+.start-game {
+  width: 250px;
+  height: 60px;
+  margin-top: 0;
+
+  &:not(:disabled) {
+    border: 2px solid var(--action-primary);
+    color: var(--action-primary);
+
+    &:hover {
+      background-color: transparent;
+      color: var(--action-secondary);
+      border: 2px solid var(--action-secondary);
+    }
+  }
+
+  background-color: transparent;
 }
