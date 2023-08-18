@@ -32,17 +32,4 @@
   width: 250px;
   height: 60px;
   margin-top: 0;
-
-  &:not(:disabled) {
-    border: 2px solid var(--action-primary);
-    color: var(--action-primary);
-
-    &:hover {
-      background-color: transparent;
-      color: var(--action-secondary);
-      border: 2px solid var(--action-secondary);
-    }
-  }
-
-  background-color: transparent;
 }

@@ -63,7 +63,7 @@ lobbyView model =
         [ div [ class "invite-to-game" ]
             [ h1 []
                 [ text titleCopy ]
-            , button [ onClick CopyInviteLink ] [ text "Copy invite link 🔗" ]
+            , button [ onClick CopyInviteLink, class "secondary" ] [ text "Copy invite link 🔗" ]
             , div [ class "join-requests-container" ]
                 [ h3 []
                     [ text "Players" ]
