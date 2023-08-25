@@ -79,13 +79,6 @@
   flex-direction: column;
   justify-content: center; }
 
-.scoreboard-background {
-  background-color: var(--background-overlay);
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-  padding: 24px 0; }
-
 .playing-now {
   max-width: 300px;
   width: 300px; }
@@ -131,16 +124,31 @@
   align-items: center; }
 
 .scoreboard-container {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   align-items: center;
   max-width: 200px;
   color: black;
   max-width: 300px;
   min-width: 300px;
-  padding: 8px 12px; }
+  padding: 24px 12px;
+  position: relative; }
+  .scoreboard-container h3 {
+    grid-area: 1 / 1 / 1 / 2; }
+
+.scoreboard-background {
+  background-color: var(--background-overlay);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  grid-area: 1 / 1 / 3/ 1;
+  width: 200vw;
+  position: absolute;
+  transform: translate(0px, -24px);
+  height: calc(100% + 48px);
+  left: -100vw; }
 
 .scoreboard-teams-container {
+  grid-area: 2/1/3/1;
   width: 300px; }
 
 .team-container {

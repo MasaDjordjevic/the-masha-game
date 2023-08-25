@@ -1,6 +1,7 @@
 module Debugger.Debugger exposing (..)
 
 import Html exposing (Html, button, div, p, text)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import State exposing (Model, Msg(..))
 
@@ -9,7 +10,7 @@ debugger : Model -> Html Msg
 debugger model =
     case model.environment of
         "development" ->
-            div []
+            div [ class "debugger" ]
                 [ p [] [ text "DEBUGGER" ]
                 , button [ onClick DebugRestart ] [ text "Restart" ]
                 , button [ onClick DebugLobby ] [ text "Lobby" ]

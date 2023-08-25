@@ -11,6 +11,9 @@
   @media (max-width: 400px) {
     .page-wrapper {
       min-width: min-content; } }
+  @media (min-width: 860px) {
+    .page-wrapper {
+      flex-direction: row; } }
 
 .page-container {
   padding: 25px 25px 160px;
@@ -38,3 +41,7 @@
 
 .confetti-large {
   font-size: 32px; }
+
+.debugger {
+  position: fixed;
+  bottom: 0; }

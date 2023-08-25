@@ -15,6 +15,9 @@
   @media (max-width: $breakpointTiny) {
     min-width: min-content;
   }
+  @media (min-width: $breakpointMedium) {
+    flex-direction: row;
+  }
 }
 
 .page-container {
@@ -48,4 +51,9 @@
 
 .confetti-large {
   font-size: 32px;
+}
+
+.debugger {
+  position: fixed;
+  bottom: 0;
 }

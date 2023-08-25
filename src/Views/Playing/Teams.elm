@@ -34,11 +34,10 @@ teamPlayers team =
 
 teamsView : Game -> Html Msg
 teamsView game =
-    div [ class "scoreboard-background" ]
-        [ div [ class "scoreboard-container" ]
-            [ h3 [] [ text "Leader board" ]
-            , getScoreboard game.state.teams
-                |> List.indexedMap teamView
-                |> div [ class "scoreboard-teams-container" ]
-            ]
+    div [ class "scoreboard-container" ]
+        [ h3 [] [ text "Leader board" ]
+        , getScoreboard game.state.teams
+            |> List.indexedMap teamView
+            |> div [ class "scoreboard-teams-container" ]
+        , div [ class "scoreboard-background" ] []
         ]
