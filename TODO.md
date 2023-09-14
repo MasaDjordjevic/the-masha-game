@@ -22,6 +22,8 @@
 
     * Finish game on disconnect?
 
+    * Add timestamp of when the game is created
+
 # Code style
 
     * Add tests for Encoding/Decoding (especially for missing/empty states)
